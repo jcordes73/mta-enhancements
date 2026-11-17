@@ -109,6 +109,13 @@ what-changed-when index. Long-form design-system rules:
   a dequeue link in the inventory row's Analysis cell and a Dequeue
   button in the application modal, both gated by
   `applications:analyze`.
+- **i18n: dead identifier-shaped keys revived + Archetypes &
+  cohorts fully translated (mock row 119)** — the row-99 identifier
+  guard no longer blocks exact dict matches ("re-validate",
+  "Wave-assigned", "quota-blocked" translate again); the cohorts
+  screen's remaining chrome (headers, detail labels, head line,
+  risk/review rollups, toggle aria-labels, tab label) gained keys
+  and per-locale rules in all 7 locales.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`
