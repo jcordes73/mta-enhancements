@@ -11,7 +11,7 @@ setTimeout(() => {
   // 1. container census
   const grids = [...document.querySelectorAll('.grid12')];
   assert('12 grid12 containers', grids.length === 12);
-  assert('2 five-tile (c5) containers', grids.filter(g => g.classList.contains('c5')).length === 2);
+  assert('1 five-tile (c5) container (org-admin landing; padmin moved to the row-107 8-tile stat wall)', grids.filter(g => g.classList.contains('c5')).length === 1);
 
   // 2. no legacy inline grid-template-columns left at the content-layout layer
   //    (the config modal's 230px/1fr pane split is PF component-internal chrome — stays)

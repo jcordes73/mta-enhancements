@@ -51,6 +51,11 @@ what-changed-when index. Long-form design-system rules:
   fresh DB volume): API returns mock-identical telemetry, invoicing
   (IN_FLIGHT) → 409 with the explanatory message, mixed batch →
   `tasks: 1, skipped: ['invoicing (IN_FLIGHT)']`.
+- **Platform-admin landing stat wall (mock row 107)** — Queue depth, Failed
+  tasks and Verification pass rate moved up into the top statistic
+  cluster: the padmin Home now opens with a full 8-tile stat wall
+  (4+4, `gc3` whole-track spans) before the tenant-portfolio table; the
+  org-admin landing keeps the centered 5-tile placement.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`
