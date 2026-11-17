@@ -58,13 +58,14 @@ non-zero on failure (silence + exit 0 = pass).
 | `verify-agauthor.js` | Row 136 Agentic authoring: agent/skill Edit pencils with pre-filled Save modals, rename cascades (agent→run records, skill→agent bindings), cancel-edit reset, stages builder (starter row, Add stage, per-stage name/agent/instructions, chaining alert, named-stage gate), derived stage count, `workflows:create` audit, ready-only run-create select |
 | `verify-assessoverride.js` | Row 137 assessment override: Assess routes through the gate, verbatim "New assessment" modal (warning icon, association alert with app + archetype, the live question), Override → questionnaire drawer with the dedicated-mode note (#45 baseline untouched), View archetypes → cohorts tab, generalized app parameter, Cancel closes |
 | `verify-personamenu.js` | Row 138 persona dropdown: boot label + directory username (row-131 MOCK_USERS via PERSONA_LOGIN) left of the toggle, six-item menu closed at boot, open/first-item-focus/aria-expanded, pf-m-selected, switch updates label + username + closes, `&persona=` deep link, no toggle-group remnants, closeMenus coverage |
+| `verify-annomenu.js` | Row 139 annotations toggle in the help menu: masthead switch + `#annoToggle` gone, borderless `.mh-group + .mh-group` rule, "Mockup view" group with `menuitemcheckbox` default off, toggle on/off with the menu staying open (aria-checked + checkbox sync), Suggestions follows anno-off, `&anno=1` deep-link sync, navigation items still close |
 | `verify-tenancy.js` | Tenancy invariants: org scoping at boot, exactly-one-team data, org isolation / platform-admin pivot, inventory rows vs fixture |
 | `verify-rbac.js` | Persona nav matrix, flat nav (no Administration header), masthead task shortcut, inventory rows vs fixture |
 | `verify-migr.js` | My-work reactivity: ticket cleared → row drops out; incident assigned → becomes my work; empty state |
 | `verify-inc42.js` | Assigned-to-me toggle OFF → pool appears; #65 pool pagination (10/page, full count); wave chip filter |
 | `verify-stats44.js` | Archetype cohort card + live counts (no "(N in portfolio)" suffix), A2A count |
 | `verify-visuals45.js` | #59 segmented donut (one arc per analysis state, counts in titles, arcs tile the circle), pm home strip |
-| `verify-helpmenu.js` | Help menu: tour item markup sanity, click → tour modal opens + menu closes, welcome item |
+| `verify-helpmenu.js` | Help menu: tour item markup sanity, click → tour modal opens + menu closes, welcome item, six Help items + the row-139 "Mockup view" Annotations item |
 | `verify-tourdock.js` | Tour dock: absent without a tour, parked via step CTA, resume reopens the modal at the parked step |
 | `verify-welcome.js` | Welcome flow: first-visit boot, start → flag set + tour opens, unseen persona triggers welcome |
 | `verify-dequeue.js` | Row 118 dequeue: bulk queue → queued state + waiting task row, dequeue via row link and via the application modal, pre-queue state restored (Not started *and* Succeeded), task row removed, RBAC no-op for pm |

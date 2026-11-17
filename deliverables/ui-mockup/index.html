@@ -111,7 +111,7 @@
 
   /* masthead grouping (row 76): mockup-only demo cluster left, console UX cluster right */
   .mh-group{display:flex; align-items:center; gap: var(--pf-t--global--spacer--md);}
-  .mh-group + .mh-group{border-left:1px solid var(--rh-color-gray-50); padding-left: var(--pf-t--global--spacer--md);}
+  .mh-group + .mh-group{padding-left: var(--pf-t--global--spacer--md);}   /* divider removed (user request) — the content gap carries the separation */
 
   /* RHDS focus indicator (row 78, ux.redhat.com/foundations/interactions/focus-indicators):
      one solid 3px ring for every interactive element — replaces UA defaults and scattered
@@ -188,8 +188,6 @@
      mode) showed its #N bubbles and the authoring drawers' "Implements:" footers with
      annotations OFF. Removed — drawer annotation content follows the masthead switch like
      every screen; the legend keeps its exemption (it documents the namespaces). */
-  .anno-switch{margin-inline: var(--rh-space-md);}
-  .anno-switch .pf-v6-c-switch__label{font-size:var(--rh-font-size-body-text-xs);}
   /* the masthead is dark — the switch needs light-on-dark contrast to be readable (user feedback) */
   .anno-switch .pf-v6-c-switch__input:not(:checked) ~ .pf-v6-c-switch__label,
   .anno-switch .pf-v6-c-switch__input:checked ~ .pf-v6-c-switch__label{color:var(--rh-color-gray-10); font-weight:500;}
@@ -322,6 +320,10 @@
   .pf-v6-c-menu-toggle .inv-multi-input::placeholder{color:var(--pf-t--global--text--color--subtle);}
   .pf-v6-c-menu-toggle .pf-v6-c-badge{margin-inline-start: var(--rh-space-xs);}
   .pf-v6-c-menu__item-check{display:flex; align-items:center; margin-right: var(--rh-space-md);}
+  /* PF6.7 sets .pf-v6-c-menu__item{flex-direction:column} — checkbox items are check+label
+     rows in PF's own examples (and were inline here before the 6.7 pin), so restore the row
+     axis for every menuitemcheckbox (inventory filter menus + help-menu Annotations, row 139) */
+  .pf-v6-c-menu__item[role="menuitemcheckbox"]{flex-direction:row; align-items:center;}
   .pf-v6-c-menu__item-check input{pointer-events:none;}
   #invDynChips{display:contents;}
   /* header select-all "selection options" toggle: plain + compact — must not inherit the toolbar select chrome */
@@ -446,13 +448,6 @@
         <span class="pf-v6-c-menu-toggle__toggle-icon" aria-hidden="true">&#9662;</span>
       </button>
 
-      <!-- mockup affordance: annotation review mode (user request — default off) -->
-      <label class="pf-v6-c-switch pf-m-reverse anno-switch" for="annoToggle" title="Show which parts come from improvement suggestions">
-        <input class="pf-v6-c-switch__input" type="checkbox" id="annoToggle">
-        <span class="pf-v6-c-switch__toggle"></span>
-        <span class="pf-v6-c-switch__label">Annotations</span>
-      </label>
-
       <!-- mockup affordance: per-screen suggestion index -->
       <button class="pf-v6-c-menu-toggle pf-m-plain" id="annoBtn" type="button" title="Suggestions on this screen">
         <span class="pf-v6-pficon pf-v6-pficon-catalog" aria-hidden="true"></span>
@@ -533,6 +528,12 @@
             <li class="pf-v6-c-menu__list-item" role="none"><a class="pf-v6-c-menu__item" href="https://access.redhat.com/support/cases/#/case/new" onclick="closeMenus()"><span class="pf-v6-c-menu__item-text"><svg class="fas" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M28 12h-.05C27.437 5.85 22.28 1 16 1 9.72 1 4.562 5.85 4.05 12H4c-1.654 0-3 1.346-3 3v5c0 1.654 1.346 3 3 3h1c1.654 0 3-1.346 3-3v-5a2.996 2.996 0 0 0-1.96-2.803C6.453 7.057 10.758 3 16 3c5.243 0 9.548 4.058 9.96 9.197A2.997 2.997 0 0 0 24 15v5c0 1.302.839 2.402 2 2.816v2.188c0 1.1-.896 1.996-1.996 1.996h-5.188A2.995 2.995 0 0 0 16 25c-1.654 0-3 1.346-3 3s1.346 3 3 3a2.995 2.995 0 0 0 2.816-2h5.188A4.001 4.001 0 0 0 28 25.004V23c1.654 0 3-1.346 3-3v-5c0-1.654-1.346-3-3-3ZM6 20c0 .552-.449 1-1 1H4c-.551 0-1-.448-1-1v-5c0-.551.449-1 1-1h1c.551 0 1 .449 1 1v5Zm23 0a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-5c0-.551.448-1 1-1h1c.552 0 1 .449 1 1v5Z"/></svg> Support and feedback</span></a></li>
             <li class="pf-v6-c-menu__list-item" role="none"><a class="pf-v6-c-menu__item" href="https://docs.redhat.com/en/documentation/migration_toolkit_for_applications/8.3/html/release_notes/index" onclick="closeMenus()"><span class="pf-v6-c-menu__item-text"><svg class="fas" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M26.5 1H12a1.001 1.001 0 0 0-.708.294L4.294 8.292A1.001 1.001 0 0 0 4 9v20.5c0 .827.673 1.5 1.5 1.5h21c.827 0 1.5-.673 1.5-1.5v-27c0-.827-.673-1.5-1.5-1.5ZM11 4.414V8H7.414L11 4.414ZM26 29H6V10h5.5c.827 0 1.5-.673 1.5-1.5V3h13v26Z"/></svg> Release notes</span></a></li>
             <li class="pf-v6-c-menu__list-item" role="none"><button class="pf-v6-c-menu__item" type="button" onclick="closeMenus();openAbout()"><span class="pf-v6-c-menu__item-text">ℹ️ About</span></button></li>
+          </ul>
+        </section>
+        <section class="pf-v6-c-menu__group">
+          <h1 class="pf-v6-c-menu__group-title">Mockup view</h1>
+          <ul class="pf-v6-c-menu__list" role="menu">
+            <li class="pf-v6-c-menu__list-item" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitemcheckbox" aria-checked="false" id="annoMenuItem" onclick="annoMenuToggle(this)" title="Show which parts come from improvement suggestions"><span class="pf-v6-c-menu__item-check"><input type="checkbox" tabindex="-1" aria-hidden="true"></span><span class="pf-v6-c-menu__item-text" id="annoMenuText">Annotations</span></button></li>
           </ul>
         </section>
       </div>
@@ -5189,10 +5190,21 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
   function annoApply(on, fromHash){
     state.anno = on;
     document.body.classList.toggle('anno-off', !on);
-    document.getElementById('annoToggle').checked = on;
+    /* the toggle lives in the help menu (Mockup view group) — a PF6 menuitemcheckbox */
+    const mi = document.getElementById('annoMenuItem');
+    if (mi){
+      mi.setAttribute('aria-checked', String(on));
+      const cb = mi.querySelector('input[type="checkbox"]');
+      if (cb) cb.checked = on;
+    }
     if (!fromHash) syncHash();
   }
-  document.getElementById('annoToggle').addEventListener('change', e => annoApply(e.target.checked, false));
+  function annoMenuToggle(){
+    /* stays open on toggle (checkbox item, not a navigation); stopPropagation keeps
+       wireMenuRestore from pulling focus to the toggle while the menu is open */
+    event.stopPropagation();
+    annoApply(!state.anno, false);
+  }
 
   function syncHash(){
     const p = new URLSearchParams();

@@ -38,7 +38,7 @@ setTimeout(async () => {
     && d.getElementById('langMenu').hidden);   /* dropdown closed again after selection */
   OK('nav translated', navApp().textContent.includes('Anwendungen'));
   OK('Home page title translated', d.querySelector('#scr-home .page-title').textContent.includes('Startseite'));
-  OK('masthead chrome translated', d.querySelector('.anno-switch .pf-v6-c-switch__label').textContent.includes('Anmerkungen'));
+  OK('help-menu chrome translated', d.getElementById('annoMenuText').textContent.includes('Anmerkungen'));
   OK('KPI card titles translated', [...d.querySelectorAll('#scr-home .pf-v6-c-card__title')].some(t => t.textContent.includes('Aufwandssumme')));
   OK('table headers translated', [...d.querySelectorAll('#scr-home th')].some(t => t.textContent.trim() === 'Domäne') || [...d.querySelectorAll('#scr-home th')].some(t => t.textContent.includes('Domäne')));
   OK('state carries lang', w.eval('state.lang') === 'de');
@@ -127,7 +127,7 @@ setTimeout(async () => {
   OK('AR: document flips to RTL', d.documentElement.dir === 'rtl');
   OK('AR: nav translated', navApp().textContent.includes('التطبيقات'));
   OK('AR: Home title translated', d.querySelector('#scr-home .page-title').textContent.includes('الرئيسية'));
-  OK('AR: masthead chrome translated', d.querySelector('.anno-switch .pf-v6-c-switch__label').textContent.includes('التعليقات التوضيحية'));
+  OK('AR: help-menu chrome translated', d.getElementById('annoMenuText').textContent.includes('التعليقات التوضيحية'));
   w.openTour(1);
   await sleep(60);
   OK('AR: tour composed via rules', d.getElementById('tourRoleName').textContent === 'مهندس'
@@ -147,7 +147,7 @@ setTimeout(async () => {
   OK('ES: switcher + state reflect ES', d.body.dataset.lang === 'es' && langSel('es') && d.getElementById('langToggleLabel').textContent === 'Español');
   OK('ES: nav translated', navApp().textContent.includes('Aplicaciones'));
   OK('ES: Home title translated', d.querySelector('#scr-home .page-title').textContent.includes('Inicio'));
-  OK('ES: masthead chrome translated', d.querySelector('.anno-switch .pf-v6-c-switch__label').textContent.includes('Anotaciones'));
+  OK('ES: help-menu chrome translated', d.getElementById('annoMenuText').textContent.includes('Anotaciones'));
   w.openTour(1);
   await sleep(60);
   OK('ES: tour composed via rules', d.getElementById('tourRoleName').textContent === 'arquitecto'   /* mid-sentence form, matches the modal title */
@@ -165,7 +165,7 @@ setTimeout(async () => {
   OK('FR: switcher + state reflect FR', d.body.dataset.lang === 'fr' && langSel('fr') && d.getElementById('langToggleLabel').textContent === 'Français');
   OK('FR: nav translated', navApp().textContent.includes('Applications'));
   OK('FR: Home title translated', d.querySelector('#scr-home .page-title').textContent.includes('Accueil'));
-  OK('FR: masthead chrome translated', d.querySelector('.anno-switch .pf-v6-c-switch__label').textContent.includes('Annotations'));
+  OK('FR: help-menu chrome translated', d.getElementById('annoMenuText').textContent.includes('Annotations'));
   w.openTour(1);
   await sleep(60);
   OK('FR: tour composed via rules', d.getElementById('tourRoleName').textContent === 'architecte'
@@ -185,7 +185,7 @@ setTimeout(async () => {
   OK('JA: switcher + state reflect JA', d.body.dataset.lang === 'ja' && langSel('ja') && d.getElementById('langToggleLabel').textContent === '日本語');
   OK('JA: nav translated', navApp().textContent.includes('アプリケーション'));
   OK('JA: Home title translated', d.querySelector('#scr-home .page-title').textContent.includes('ホーム'));
-  OK('JA: masthead chrome translated', d.querySelector('.anno-switch .pf-v6-c-switch__label').textContent.includes('アノテーション'));
+  OK('JA: help-menu chrome translated', d.getElementById('annoMenuText').textContent.includes('アノテーション'));
   w.openTour(1);
   await sleep(60);
   OK('JA: tour composed via rules', d.getElementById('tourRoleName').textContent === 'アーキテクト'
@@ -207,7 +207,7 @@ setTimeout(async () => {
   OK('IT: switcher + state reflect IT', d.body.dataset.lang === 'it' && langSel('it') && d.getElementById('langToggleLabel').textContent === 'Italiano');
   OK('IT: nav translated', navApp().textContent.includes('Applicazioni'));
   OK('IT: Home title translated', d.querySelector('#scr-home .page-title').textContent.includes('Pagina iniziale'));
-  OK('IT: masthead chrome translated', d.querySelector('.anno-switch .pf-v6-c-switch__label').textContent.includes('Annotazioni'));
+  OK('IT: help-menu chrome translated', d.getElementById('annoMenuText').textContent.includes('Annotazioni'));
   w.openTour(1);
   await sleep(60);
   OK('IT: tour composed via rules', d.getElementById('tourRoleName').textContent === 'architetto'
@@ -227,7 +227,7 @@ setTimeout(async () => {
   OK('TR: switcher + state reflect TR', d.body.dataset.lang === 'tr' && langSel('tr') && d.getElementById('langToggleLabel').textContent === 'Türkçe');
   OK('TR: nav translated', navApp().textContent.includes('Uygulamalar'));
   OK('TR: Home title translated', d.querySelector('#scr-home .page-title').textContent.includes('Ana Sayfa'));
-  OK('TR: masthead chrome translated', d.querySelector('.anno-switch .pf-v6-c-switch__label').textContent.includes('Açıklamalar'));
+  OK('TR: help-menu chrome translated', d.getElementById('annoMenuText').textContent.includes('Açıklamalar'));
   const trCap = d.getElementById('lpArchTrendCaption').textContent.replace(/\s+/g, ' ');
     OK('TR: trend caption + composed chips translated', trCap.includes('3 Kas, tarihinde')
     && trCap.includes('8 Eyl itibarıyla'));

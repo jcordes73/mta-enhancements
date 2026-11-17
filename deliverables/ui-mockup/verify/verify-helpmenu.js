@@ -38,8 +38,11 @@ setTimeout(() => {
   OK('#tourMenuRole populated and follows persona', d.getElementById('tourMenuRole').textContent === 'Architect'
     && (w.setPersona('admin'), d.getElementById('tourMenuRole').textContent.includes('dmin')));
 
-  // ---- all six items wired (user report: "About" did nothing) ----
-  OK('help menu still has all six items', items.length === 6);
+  // ---- all six Help items wired (user report: "About" did nothing) — row 139 adds the
+  // separate "Mockup view" group with the Annotations menuitemcheckbox (verify-annomenu.js) ----
+  OK('help menu still has all six Help items plus the row-139 Mockup view item', items.length === 7
+    && items.filter(b => b.closest('.pf-v6-c-menu__group') === menu.querySelector('.pf-v6-c-menu__group')).length === 6
+    && !!d.getElementById('annoMenuItem'));
   const docs = menu.querySelector('a[data-x="docs"]') || items.find(b => b.textContent.includes('Product documentation'));
   OK('Product documentation is a real external link (Red Hat docs, new tab)',
     docs.tagName === 'A' && docs.href.includes('docs.redhat.com') && (docs.getAttribute('onclick') || '').includes('closeMenus()'))   /* row 78: external links don't force new tabs */;

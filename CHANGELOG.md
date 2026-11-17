@@ -11,6 +11,16 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Annotations toggle into the help menu; masthead divider removed (defect row 139)** — the
+  dark-scheme masthead switch moves into a new "Mockup view" group in the help menu as a PF6
+  `menuitemcheckbox` (menu stays open on toggle, state synced both ways, `&anno=1` deep link
+  unchanged, `body.anno-off` semantics unchanged), and the `mh-group` vertical divider is
+  removed (the spacing gap carries the separation). En route fixed a latent PF6.7 layout bug:
+  `menu.css`'s column-direction stacked the checkbox above its label on every
+  `menuitemcheckbox` — including the inventory filter menus, which had rendered that way since
+  the 6.7 pin; a mock-layer row-axis override restores check-left-of-label for all 34 items.
+  i18n suite re-anchored to the menu item (`#annoMenuText`). `verify/verify-annomenu.js`
+  (9 assertions), battery 31/31.
 - **Persona switcher as a masthead dropdown with the username (defect row 138)** — the
   six-persona toggle group is replaced by a compact dropdown (full persona names, selected
   state, standard masthead-menu focus/restore behavior), and the active persona's directory
