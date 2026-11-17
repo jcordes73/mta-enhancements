@@ -83,6 +83,10 @@ what-changed-when index. Long-form design-system rules:
   the defined tags with chips; the free-text membership rule is replaced;
   dropdown z-index raised above PF6's `::before` chrome (z100) which was
   overpainting open menus.
+- **Archetype rows collapsible (mock row 114)** — each row on the
+  Archetypes & cohorts table expands to an in-row detail panel
+  (description, criteria/archetype tags, owner, profiles,
+  assessment/review, live member list) via the PF6 toggle-cell idiom.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`

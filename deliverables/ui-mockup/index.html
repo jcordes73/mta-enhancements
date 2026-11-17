@@ -229,6 +229,17 @@
   /* PF6's toggle-icon rotation is scoped to .pf-v6-c-table__toggle cells — the wave lanes have no such wrapper, so mirror the rule on the button */
   .wave-exec .pf-v6-c-table__button .pf-v6-c-table__toggle-icon{display:inline-flex; transform:rotate(0deg); transition:transform var(--pf-t--global--motion--duration--icon--default) var(--pf-t--global--motion--timing-function--default);}
   .wave-exec .pf-v6-c-table__button.pf-m-expanded .pf-v6-c-table__toggle-icon{transform:rotate(-180deg);}
+  /* row 114: archetype expandable detail rows (Applications → Archetypes & cohorts) —
+     the caret rotation mirrors the wave-exec mirror (PF6's own rule is scoped to
+     .pf-v6-c-table__toggle cells, which these now are, but the icon is svg.fas) */
+  #archBody .pf-v6-c-table__toggle{width:var(--rh-space-lg);}
+  #archBody .pf-v6-c-table__button .pf-v6-c-table__toggle-icon{display:inline-flex; transform:rotate(0deg); transition:transform var(--pf-t--global--motion--duration--icon--default) var(--pf-t--global--motion--timing-function--default);}
+  #archBody .pf-v6-c-table__button.pf-m-expanded .pf-v6-c-table__toggle-icon{transform:rotate(-180deg);}
+  .arch-detail > .pf-v6-c-table__td{background:var(--pf-t--global--background--color--secondary--default);}
+  .arch-detail-panel{padding:var(--rh-space-sm) var(--rh-space-md) var(--rh-space-md) 0;}
+  .arch-detail-grid{display:grid; grid-template-columns:150px 1fr; gap:var(--rh-space-sm) var(--rh-space-lg);}
+  .arch-detail-grid .k{color:var(--pf-t--global--text--color--subtle); font-size:var(--rh-font-size-body-text-sm);}
+  .arch-detail-grid .v{font-size:var(--rh-font-size-body-text-sm);}
   .gantt .month-labels{display:flex; justify-content:space-around; font-size:var(--rh-font-size-body-text-xs); color:var(--pf-t--global--text--color--subtle);}
 
   /* queue-health banner (mockup composite) */
@@ -1035,6 +1046,7 @@
         <div class="u-muted" id="archMsg" hidden style="margin-bottom: var(--rh-space-md);"></div>
         <table class="pf-v6-c-table pf-m-compact" role="grid">
           <thead><tr class="pf-v6-c-table__tr">
+            <th class="pf-v6-c-table__th" scope="col"><span class="pf-v6-screen-reader">Row expansion</span></th>
             <th class="pf-v6-c-table__th" scope="col">Name</th>
             <th class="pf-v6-c-table__th" scope="col">Description</th>
             <th class="pf-v6-c-table__th" scope="col">Tags</th>
@@ -7165,6 +7177,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       const nRev = members.filter(x => x.review === 'approved').length;
       const reviewCell = a.assessment.label.indexOf('not started') === 0 ? '&mdash;' : nRev + ' of ' + members.length + ' reviewed';
       return '<tr class="pf-v6-c-table__tr" data-arch-name="' + a.name + '">' +
+      '<td class="pf-v6-c-table__toggle"><button class="pf-v6-c-button pf-m-plain pf-v6-c-table__button" type="button" data-expand="arch-detail-' + a.name + '" aria-expanded="false" aria-controls="arch-detail-' + a.name + '" aria-label="Toggle ' + a.name + ' details" onclick="tglRow(\'arch-detail-' + a.name + '\')"><span class="pf-v6-c-table__toggle-icon"><svg class="fas" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M18.71 5.29a.996.996 0 0 0-1.41 0l-7.29 7.29-7.3-7.29a.987.987 0 0 0-1.41-.02.987.987 0 0 0-.02 1.41l.02.02 7.65 7.65c.29.29.68.44 1.06.44s.77-.15 1.06-.44l7.65-7.65a.996.996 0 0 0 0-1.41Z"/></svg></span></button></td>' +
       '<td class="pf-v6-c-table__td"><b>' + a.name + '</b></td>' +
       '<td class="pf-v6-c-table__td">' + (a.description || '&mdash;') + '</td>' +
       '<td class="pf-v6-c-table__td">' + (tags || '&mdash;') + '</td>' +
@@ -7177,8 +7190,29 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       '<td class="pf-v6-c-table__td">' + editIconBtn('openArchForm(\'' + a.name + '\')') + ' ' + deleteIconBtn('archDeleteArm(this, \'' + a.name + '\')') + '</td>' +
       '</tr>';
   }
+  /* row 114 (user request): each archetype row is collapsible — a pf-v6-c-table__toggle cell
+     (the tglRow idiom) reveals a detail row presenting the archetype's information below it:
+     description, criteria tags, archetype tags, owner, target profile, assessment/review, and
+     the live member applications (upstream's detail-drawer "Details" content, in-row) */
+  function mockArchDetailHtml(a){
+    const members = scopedApps().filter(x => x.archetype === a.name);
+    const nRev = members.filter(x => x.review === 'approved').length;
+    const review = a.assessment.label.indexOf('not started') === 0 ? '&mdash;' : nRev + ' of ' + members.length + ' reviewed';
+    const chips = arr => arr && arr.length ? arr.map(t => mockLabel('teal', t)).join(' ') : '<span class="u-muted">&mdash;</span>';
+    return '<tr class="pf-v6-c-table__tr pf-v6-c-table__expandable-row arch-detail" id="arch-detail-' + a.name + '" hidden>' +
+      '<td class="pf-v6-c-table__td" colspan="11"><div class="arch-detail-panel"><div class="arch-detail-grid">' +
+      '<div class="k">Description</div><div class="v">' + (a.description || '&mdash;') + '</div>' +
+      '<div class="k">Criteria tags <span class="anno" data-tip="#46 item 6: applications matching any criteria tag belong to the archetype — re-validate after editing to recompute membership from the application store">#46</span></div><div class="v">' + chips(a.criteria) + '</div>' +
+      '<div class="k">Archetype tags</div><div class="v">' + chips(a.tags) + '</div>' +
+      '<div class="k">Owner</div><div class="v">' + (a.maintainers || '&mdash;') + '</div>' +
+      '<div class="k">Profiles</div><div class="v">' + (a.profiles || '&mdash;') + '</div>' +
+      '<div class="k">Assessment</div><div class="v">' + mockLabel(a.assessment.color, a.assessment.label) + '</div>' +
+      '<div class="k">Review</div><div class="v">' + review + '</div>' +
+      '<div class="k">Members <span class="anno" data-tip="#44: the member list derives live from the application store — single source of truth, so renames and re-assignments stay consistent">#44</span></div><div class="v">' + (members.length ? members.map(x => mockLabel('grey', x.name)).join(' ') : '<span class="u-muted">&mdash;</span>') + '</div>' +
+      '</div></div></td></tr>';
+  }
   function renderArchetypes(){
-    document.getElementById('archBody').innerHTML = MOCK_ARCHETYPES.map(mockArchRowHtml).join('');
+    document.getElementById('archBody').innerHTML = MOCK_ARCHETYPES.map(a => mockArchRowHtml(a) + mockArchDetailHtml(a)).join('');
     renderArchCohort();   /* the cohort card derives from the same membership (defect #44) */
     /* cascade: the inventory's archetype filter menu reads the same store */
     const ul = document.getElementById('invArchMenuList');
