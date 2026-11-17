@@ -7141,7 +7141,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       '<td class="pf-v6-c-table__td">' + (a.profiles || '&mdash;') + '</td>' +
       '<td class="pf-v6-c-table__td">' + assess + '</td>' +
       '<td class="pf-v6-c-table__td">' + reviewCell + '</td>' +
-      '<td class="pf-v6-c-table__td">' + editIconBtn('openArchForm(\'' + a.name + '\')') + ' ' + deleteIconBtn('archDeleteArm(this, \'' + a.name + '\')') + '</td>' +
+      '<td class="pf-v6-c-table__td"><div class="pf-v6-c-action-list"><div class="pf-v6-c-action-list__item">' + editIconBtn('openArchForm(\'' + a.name + '\')') + '</div><div class="pf-v6-c-action-list__item">' + deleteIconBtn('archDeleteArm(this, \'' + a.name + '\')') + '</div></div></td>' +
       '</tr>';
   }
   /* row 114 (user request): each archetype row is collapsible — a pf-v6-c-table__toggle cell

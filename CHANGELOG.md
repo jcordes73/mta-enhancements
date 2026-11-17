@@ -98,6 +98,10 @@ what-changed-when index. Long-form design-system rules:
   organization admin landing's five statistics dropped `pf-m-plain`
   so they render as bordered PF6 cards, matching the platform-admin
   stat wall (row 110).
+- **Archetype action buttons in a row (mock row 117)** — the
+  Actions cell of the Archetypes & cohorts table wraps its Edit and
+  Delete icon buttons in a PF6 Action list so they render side by
+  side instead of wrapping onto separate lines.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`
