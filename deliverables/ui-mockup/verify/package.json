@@ -4,7 +4,7 @@
   "private": true,
   "description": "jsdom verification suites for ../index.html (see README.md). Run suites from the ui-mockup/ working directory: node verify/<suite>.js",
   "scripts": {
-    "test": "for f in verify-*.js; do node \"$f\" || exit 1; done"
+    "test": "node run-all.js"
   },
   "devDependencies": {
     "jsdom": "^26.0.0"

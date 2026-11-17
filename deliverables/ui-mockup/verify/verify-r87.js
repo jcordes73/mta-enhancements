@@ -8,7 +8,7 @@ setTimeout(() => {
   const d = w.document;
   // row 87 (RHDS per-element guidelines): render the code-block drawer templates into the live DOM
   ['tpl-drawer-qyaml','tpl-drawer-wfyaml'].forEach(id => d.body.appendChild(d.getElementById(id).content.cloneNode(true)));
-  const assert = (name, cond) => console.log((cond ? 'OK  ' : 'FAIL') + ' ' + name);
+  const assert = (name, cond) => { if (!cond) global.__fails = (global.__fails || 0) + 1; console.log((cond ? 'OK  ' : 'FAIL') + ' ' + name); };
   /* Code block: toggle presence/state; the expand/collapse CLICK CYCLE is Chrome-verified
      (mock-live-r87d probe: collapsed->expanded, text Expand->Collapse, aria-expanded false->true,
      and back) — jsdom does not fire the inline onclick reliably for template-cloned content. */
@@ -30,7 +30,10 @@ setTimeout(() => {
   assert('icon-only toggle aria-label', !!catBtn);
   const bare = [...d.querySelectorAll('.pf-v6-c-menu-toggle.pf-m-compact')].filter(b => !b.textContent.trim() && !b.querySelector('.pf-v6-c-menu-toggle__text'));
   assert('all label-less compact toggles have aria-label', bare.every(b => b.getAttribute('aria-label')));
-  assert('multi-select inputs labeled', [...d.querySelectorAll('.select-wrap input')].filter(i => i.type === 'text' && i.className === 'inv-multi-input').every(i => i.getAttribute('aria-label')));
+  /* row 113 note: the archetype form's multi-select inputs are labeled by real
+     <label for> associations (better than aria-label) — only truly label-less
+     toolbar inputs (the inventory's 7) require aria-label here */
+  assert('multi-select inputs labeled', [...d.querySelectorAll('.select-wrap input')].filter(i => i.type === 'text' && i.className === 'inv-multi-input').every(i => i.getAttribute('aria-label') || (i.labels && i.labels.length)));
   // Button: only one Primary per page (inventory)
   const btns = [...d.querySelectorAll('#scr-inventory button.pf-v6-c-button')].filter(b => b.textContent.includes('Import'));
   assert('Import is secondary now', btns.length === 1 && btns[0].classList.contains('pf-m-secondary'));
@@ -45,5 +48,5 @@ setTimeout(() => {
   assert('pager returns for restored results', !d.getElementById('invPag').hidden);
   assert('path data clean', ![...d.querySelectorAll('.pf-v6-c-table__sort-indicator svg path')].some(p => p.getAttribute('d').includes("'")));
   console.log('DONE');
-  process.exit(0);
+  process.exit(global.__fails ? 1 : 0);
 }, 2500);

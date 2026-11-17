@@ -1,7 +1,7 @@
 const { JSDOM } = (() => { try { return require('jsdom'); } catch (e) { return require('/tmp/node_modules/jsdom'); } })();
 const fs = require('fs');
 const html = fs.readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8').replace(/<script[^>]*src=[^>]*><\/script>/g, '').replace(/<link[^>]*>/g, '');
-const OK = (n, c) => console.log((c ? 'PASS' : 'FAIL') + '  ' + n);
+const OK = (n, c) => { if (!c) global.__fails = (global.__fails || 0) + 1; console.log((c ? 'PASS' : 'FAIL') + '  ' + n); };
 const dom = new JSDOM(html, { url: 'http://localhost/mock.html#lang=de', runScripts: 'dangerously', pretendToBeVisual: true });
 const w = dom.window;
 setTimeout(() => {
@@ -17,6 +17,9 @@ setTimeout(() => {
       ' 410 Gone — ticket moved projects ','synced','green'.replace('x','x'),
       '1 DB · 1 queue','1 DB · 2 APIs','2 DBs · 3 APIs · 1 queue',
       'Sep','Nov','Suites','Ticket','Tickets','Tickets ',' svn-read-key','410 Gone — ticket moved projects',
+      /* row 127 member-table chrome is EN-only by the recorded row-127 decision; 'quota-blocked'
+         is a pre-existing state key (identifier-guarded, never translated) */
+      'of 2','quota-blocked',
     ]);
     const left = w.eval(`(() => {
       const out = [];
@@ -43,6 +46,6 @@ setTimeout(() => {
     OK('DE: gate titles translated', txt.includes('Keine Kontingentblocker') && txt.includes('Verifizierung grün'));
     OK('DE: wave chips translated', txt.includes('abgeschlossen') && txt.includes('blockiert'));
     OK('DE: months localized', txt.includes('Okt'));
-    process.exit(0);
+    process.exit(global.__fails ? 1 : 0);
   }, 300);
 }, 900);

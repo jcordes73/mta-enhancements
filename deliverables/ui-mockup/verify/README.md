@@ -14,10 +14,21 @@ matter, but docs and examples assume `deliverables/ui-mockup/`):
 ```sh
 cd ui-mockup
 node verify/verify-waves.js          # one suite
-for f in verify/verify-*.js; do node "$f" || break; done   # all suites
+node verify/run-all.js               # ALL suites, in parallel (default jobs: min(cpus, 6))
+node verify/run-all.js --only=waves,rbac   # subset
+node verify/run-all.js --jobs=1      # sequential, classic order
+(cd verify && npm test)              # same as run-all.js
 # or: (cd verify && npm install) once, then the same commands resolve jsdom
 # from verify/node_modules instead of the /tmp fallback
 ```
+
+`run-all.js` aggregates per-suite results (OK/FAIL with wall time per suite and
+a total) and exits non-zero when any suite fails — a suite fails on a non-zero
+exit OR any `FAIL` line in its output (belt-and-braces: several suites
+historically exited 0 while printing FAIL lines; the exit codes were fixed
+2026-11-17, and the line check guards against regressions of that). Suites are
+independent processes, so parallel execution changes nothing about what each
+asserts.
 
 jsdom is resolved via `require('jsdom')` first (works after
 `npm install` inside `verify/`), falling back to the historical ephemeral
