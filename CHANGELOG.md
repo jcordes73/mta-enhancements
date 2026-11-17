@@ -94,6 +94,10 @@ what-changed-when index. Long-form design-system rules:
   propagate action. `applyTenancy()` now re-renders the archetype
   table, fixing a latent stale-membership staleness on tenancy
   switches.
+- **Org-admin stat tiles are real cards (mock row 116)** — the
+  organization admin landing's five statistics dropped `pf-m-plain`
+  so they render as bordered PF6 cards, matching the platform-admin
+  stat wall (row 110).
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`
