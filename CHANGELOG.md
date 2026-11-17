@@ -64,6 +64,10 @@ what-changed-when index. Long-form design-system rules:
   gained a **View details →** footer deep-linking to its owning surface
   (Controls sub-tabs for Organizations/Teams/Audit, Applications, Agentic,
   Task manager, Reports).
+- **Platform-admin landing carded stats (mock row 110)** — the 8 stat-wall
+  tiles are now real bordered PF6 cards (`pf-m-plain` dropped); both
+  schemes verified. The org-admin/program-manager landings keep plain
+  tiles.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`
