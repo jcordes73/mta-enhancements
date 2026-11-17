@@ -64,7 +64,7 @@ setTimeout(async () => {
   // #62: currency override — Auto (country-derived, USD default) or a fixed currency; persisted + &cur= deep link
   const sel62 = d.getElementById('curOverride');
   const cost62 = () => [...d.getElementById('gwUseBody').querySelectorAll('tr')][0].cells[6].textContent.trim().slice(0, 12);   /* row 122: CA trust column shifted the rate cell 5→6 */
-  OK('currency override: select present with Auto + 7 currencies', !!sel62 && [...sel62.options].length === 8
+  OK('currency override: select present with Auto + 8 currencies (row 121 added BRL)', !!sel62 && [...sel62.options].length === 9
     && sel62.options[0].textContent === 'Auto (USD)' && sel62.value === 'auto');
   sel62.value = 'GBP';
   sel62.dispatchEvent(new w.Event('change'));
