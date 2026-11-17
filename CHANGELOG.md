@@ -60,6 +60,10 @@ what-changed-when index. Long-form design-system rules:
   card moved above the Organizations — tenant portfolio table: the
   padmin Home now reads stat wall → services status → org drill-down →
   cross-tenant audit trail.
+- **Platform-admin landing links (mock row 109)** — every stat-wall tile
+  gained a **View details →** footer deep-linking to its owning surface
+  (Controls sub-tabs for Organizations/Teams/Audit, Applications, Agentic,
+  Task manager, Reports).
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`
