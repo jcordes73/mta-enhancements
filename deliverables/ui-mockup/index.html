@@ -1901,7 +1901,7 @@
       <div id="panel-ag-workflows" role="tabpanel" aria-labelledby="tab-ag-workflows" tabindex="0" hidden style="margin-top: var(--pf-t--global--spacer--md);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Workflows <span class="anno" data-tip="#49: the plan&rarr;execute&rarr;verify sequence as a versioned, org-owned artifact composed from registry agents">#49</span></div>
-            <div class="pf-v6-c-card__actions"><button data-rbac="agents:create" class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="openModal('agWfModal')"><span class="pf-v6-c-button__text">Create workflow</span></button></div></div>
+            <div class="pf-v6-c-card__actions"><button data-rbac="agents:create" class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="agWfOpen()"><span class="pf-v6-c-button__text">Create workflow</span></button></div></div>
           <div class="pf-v6-c-card__body">
             <table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Name</th><th class="pf-v6-c-table__th" scope="col">Stages</th><th class="pf-v6-c-table__th" scope="col">Guide</th><th class="pf-v6-c-table__th" scope="col">Ready</th><th class="pf-v6-c-table__th" scope="col">Age</th><th class="pf-v6-c-table__th" scope="col"></th></tr></thead>
             <tbody id="agWfBody"></tbody></table>
@@ -1912,7 +1912,7 @@
       <div id="panel-ag-agents" role="tabpanel" aria-labelledby="tab-ag-agents" tabindex="0" hidden style="margin-top: var(--pf-t--global--spacer--md);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Agents <span class="anno" data-tip="upstream /agents: Name/Image/Gateways/Skills/Params/Ready/Age — the runnables the workflows compose">#16</span></div>
-            <div class="pf-v6-c-card__actions"><button data-rbac="agents:create" class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="openModal('agAgentModal')"><span class="pf-v6-c-button__text">Create agent</span></button></div></div>
+            <div class="pf-v6-c-card__actions"><button data-rbac="agents:create" class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="agAgentOpen()"><span class="pf-v6-c-button__text">Create agent</span></button></div></div>
           <div class="pf-v6-c-card__body">
             <table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Name</th><th class="pf-v6-c-table__th" scope="col">Image <span class="anno" data-tip="#28: digest-pinned images, not ':latest'">#28</span></th><th class="pf-v6-c-table__th" scope="col">Gateways <span class="anno" data-tip="#20: gateway binding — what the shipped UI lacks, so stages cannot be cost-tiered">#20</span></th><th class="pf-v6-c-table__th" scope="col">Skills</th><th class="pf-v6-c-table__th" scope="col">Params</th><th class="pf-v6-c-table__th" scope="col">Ready</th><th class="pf-v6-c-table__th" scope="col">Age</th><th class="pf-v6-c-table__th" scope="col"></th></tr></thead>
             <tbody id="agAgentsBody"></tbody></table>
@@ -1923,7 +1923,7 @@
       <div id="panel-ag-skills" role="tabpanel" aria-labelledby="tab-ag-skills" tabindex="0" hidden style="margin-top: var(--pf-t--global--spacer--md);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Skills <span class="anno" data-tip="upstream /skills: Name/Display name/Description/Type/Source/Ready/Tags/Age — versioned prompt+tool bundles agents bind">#39</span></div>
-            <div class="pf-v6-c-card__actions"><button data-rbac="agents:create" class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="openModal('agSkillModal')"><span class="pf-v6-c-button__text">Create skill card</span></button></div></div>
+            <div class="pf-v6-c-card__actions"><button data-rbac="agents:create" class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="agSkillOpen()"><span class="pf-v6-c-button__text">Create skill card</span></button></div></div>
           <div class="pf-v6-c-card__body">
             <table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Name</th><th class="pf-v6-c-table__th" scope="col">Display name</th><th class="pf-v6-c-table__th" scope="col">Description</th><th class="pf-v6-c-table__th" scope="col">Type</th><th class="pf-v6-c-table__th" scope="col">Source</th><th class="pf-v6-c-table__th" scope="col">Ready</th><th class="pf-v6-c-table__th" scope="col">Tags</th><th class="pf-v6-c-table__th" scope="col">Age</th><th class="pf-v6-c-table__th" scope="col"></th></tr></thead>
             <tbody id="agSkillsBody"></tbody></table>
@@ -3697,7 +3697,7 @@ artifacts:
       <div class="pf-v6-c-helper-text pf-m-error" id="agAgentError" hidden><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text"></span></div></div>
     </div>
     <footer class="pf-v6-c-modal-box__footer">
-      <button class="pf-v6-c-button pf-m-primary" type="button" onclick="agentCreate()"><span class="pf-v6-c-button__text">Create</span></button>
+      <button class="pf-v6-c-button pf-m-primary" type="button" id="agAgentSaveBtn" onclick="agentSave()"><span class="pf-v6-c-button__text">Create</span></button>
       <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
     </footer>
   </div>
@@ -3716,7 +3716,7 @@ artifacts:
       <div class="pf-v6-c-helper-text pf-m-error" id="agSkillError" hidden><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text"></span></div></div>
     </div>
     <footer class="pf-v6-c-modal-box__footer">
-      <button class="pf-v6-c-button pf-m-primary" type="button" onclick="skillCreate()"><span class="pf-v6-c-button__text">Create</span></button>
+      <button class="pf-v6-c-button pf-m-primary" type="button" id="agSkillSaveBtn" onclick="skillSave()"><span class="pf-v6-c-button__text">Create</span></button>
       <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
     </footer>
   </div>
@@ -3728,14 +3728,18 @@ artifacts:
       <button class="pf-v6-c-button pf-m-plain pf-v6-c-modal-box__close" type="button" aria-label="Close dialog" onclick="closeModals()"><span class="pf-v6-c-button__icon">&#10005;</span></button>
     </div>
     <div class="pf-v6-c-modal-box__body">
-      <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="agWfName"><span class="pf-v6-c-form__label-text">Name</span></label>
+      <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="agWfName"><span class="pf-v6-c-form__label-text">Name <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
         <input class="pf-v6-c-form-control" type="text" id="agWfName" placeholder="e.g. quarkus-containerize"></div>
-      <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="agWfStages"><span class="pf-v6-c-form__label-text">Stages</span></label>
-        <input class="pf-v6-c-form-control" type="number" id="agWfStages" min="1" max="9" value="3"></div>
+      <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="agWfGuide"><span class="pf-v6-c-form__label-text">Guide</span></label>
+        <select class="pf-v6-c-form-control" id="agWfGuide"><option value="">&mdash; (org-authored)</option><option>spring-boot-to-quarkus</option><option>jboss-eap-to-eap</option></select></div>
+      <div class="pf-v6-c-alert pf-m-info pf-m-inline" role="alert" style="margin-top: var(--rh-space-md);"><div class="pf-v6-c-alert__title"><h4>Stages run in order</h4></div><div class="pf-v6-c-alert__description"><p>Each stage receives the previous stage&rsquo;s artifacts &mdash; the chain is the workflow&rsquo;s contract (live: the artifact-chaining note on the stages builder).</p></div></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><span class="pf-v6-c-form__label-text"><b>Stages</b></span>
+        <div id="agWfStageList" style="margin-top: var(--rh-space-xs); display:grid; gap: var(--rh-space-sm);"></div>
+        <button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" style="margin-top: var(--rh-space-sm);" onclick="wfStageAdd()"><span class="pf-v6-c-button__text">Add stage</span></button></div>
       <div class="pf-v6-c-helper-text pf-m-error" id="agWfError" hidden><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text"></span></div></div>
     </div>
     <footer class="pf-v6-c-modal-box__footer">
-      <button class="pf-v6-c-button pf-m-primary" type="button" onclick="wfCreate()"><span class="pf-v6-c-button__text">Create</span></button>
+      <button class="pf-v6-c-button pf-m-primary" type="button" id="agWfSaveBtn" onclick="wfSave()"><span class="pf-v6-c-button__text">Create</span></button>
       <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
     </footer>
   </div>
@@ -6626,6 +6630,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
        (and every other ctrl*Modal's) called closeModals() and nothing happened. The sweep closes
        ALL open modal backdrops; the explicit lines stay for the legacy ids' readability. */
     document.querySelectorAll('.pf-v6-c-backdrop:not([hidden])').forEach(b => { b.hidden = true; });
+    if (typeof agEdit !== 'undefined' && agEdit){ agEdit.agent = null; agEdit.skill = null; }   /* row 136: a cancelled registry edit must not leak into the next create */
     document.getElementById('modalRevoke').hidden = true;
     document.getElementById('modalHot').hidden = true;
     document.getElementById('modalTrackerDelete').hidden = true;
@@ -10069,7 +10074,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       '<td class="pf-v6-c-table__td">' + a.params + '</td>' +
       '<td class="pf-v6-c-table__td">' + (a.ready ? '<span class="pf-v6-c-label pf-m-green"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Ready</span></span></span>' : '<span class="pf-v6-c-label pf-m-yellow"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Not ready</span></span></span> <span class="u-muted u-meta">image pull pending</span>') + '</td>' +
       '<td class="pf-v6-c-table__td">' + a.age + '</td>' +
-      '<td class="pf-v6-c-table__td">' + deleteIconBtn('agentDeleteArm(this, \'' + a.name + '\')', false, 'agents:delete') + '</td></tr>').join('');
+      '<td class="pf-v6-c-table__td">' + editIconBtn('agentEditOpen(\'' + a.name + '\')', 'agents:create') + deleteIconBtn('agentDeleteArm(this, \'' + a.name + '\')', false, 'agents:delete') + '</td></tr>').join('');
     if (b){ pagerState('agagent').rerender = renderAgents; pagerShow('agagent', b, MOCK_AGENTS.length); }   /* pageable (user request) */
   }
   function agentDeleteArm(btn, name){
@@ -10085,13 +10090,60 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       armDeleteBtn(btn, true);
     }
   }
-  function agentCreate(){
+  /* row 136: the registry modals now EDIT too (live kebab Edit/Delete) — agentSave/skillSave
+     are the create+edit paths; renames cascade into the references that key by name (run
+     records point at agent names, agents bind skill names) and every mutation is audited */
+  const agEdit = { agent: null, skill: null };
+  function agAgentOpen(){
+    agEdit.agent = null;
+    document.getElementById('aa-title').textContent = 'Create agent';
+    document.getElementById('agAgentSaveBtn').querySelector('.pf-v6-c-button__text').textContent = 'Create';
+    document.getElementById('agAgentName').value = '';
+    document.getElementById('agAgentImage').value = '';
+    document.getElementById('agAgentError').hidden = true;
+    openModal('agAgentModal');
+  }
+  function agSkillOpen(){
+    agEdit.skill = null;
+    document.getElementById('as-title').textContent = 'Create skill card';
+    document.getElementById('agSkillSaveBtn').querySelector('.pf-v6-c-button__text').textContent = 'Create';
+    document.getElementById('agSkillName').value = '';
+    document.getElementById('agSkillDisplay').value = '';
+    document.getElementById('agSkillError').hidden = true;
+    openModal('agSkillModal');
+  }
+  function agentEditOpen(name){
+    const a = MOCK_AGENTS.find(x => x.name === name); if (!a) return;
+    agEdit.agent = name;
+    document.getElementById('aa-title').textContent = 'Edit agent';
+    document.getElementById('agAgentSaveBtn').querySelector('.pf-v6-c-button__text').textContent = 'Save';
+    document.getElementById('agAgentName').value = name;
+    document.getElementById('agAgentImage').value = a.image;
+    document.getElementById('agAgentError').hidden = true;
+    openModal('agAgentModal');
+  }
+  function agentSave(){
     const name = document.getElementById('agAgentName').value.trim();
     const image = document.getElementById('agAgentImage').value.trim() || 'quay.io/example/agent@sha256:unpinned';
     const err = document.getElementById('agAgentError').querySelector('.pf-v6-c-helper-text__item-text');
     if (!name){ err.textContent = 'Name is required.'; document.getElementById('agAgentError').hidden = false; return; }
-    if (MOCK_AGENTS.some(a => a.name === name)){ err.textContent = 'This agent already exists.'; document.getElementById('agAgentError').hidden = false; return; }
-    MOCK_AGENTS.push({ name: name, image: image, gateways: 'llm-gateway-1', skills: '&mdash;', params: 0, ready: false, age: 'just now' });
+    if (MOCK_AGENTS.some(a => a.name === name && a.name !== agEdit.agent)){ err.textContent = 'This agent already exists.'; document.getElementById('agAgentError').hidden = false; return; }
+    if (agEdit.agent){
+      const a = MOCK_AGENTS.find(x => x.name === agEdit.agent);
+      const renamed = name !== agEdit.agent;
+      a.name = name; a.image = image;
+      if (renamed){
+        /* run records point at the agent name — the rename follows the records */
+        MOCK_AGENT_RUNS.forEach(r => { if (r.agent === agEdit.agent) r.agent = name; });
+      }
+      auditAdd('agents:update', name);
+      rbacToast('<b>' + name + '</b> updated' + (renamed ? ' — its run records follow the rename' : '') + '; recorded in the audit trail <span class=anno-cite>(#42)</span>.');
+      agEdit.agent = null;
+    } else {
+      MOCK_AGENTS.push({ name: name, image: image, gateways: 'llm-gateway-1', skills: '&mdash;', params: 0, ready: false, age: 'just now' });
+      auditAdd('agents:create', name);
+      rbacToast('<b>' + name + '</b> registered — not ready until its image pull verifies <span class=anno-cite>(#28)</span>. Recorded in the audit trail <span class=anno-cite>(#42)</span>.');
+    }
     document.getElementById('agAgentName').value = ''; document.getElementById('agAgentImage').value = '';
     document.getElementById('agAgentError').hidden = true;
     renderAgents();
@@ -10105,7 +10157,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       '<td class="pf-v6-c-table__td">' + k.type + '</td><td class="pf-v6-c-table__td">' + k.source + '</td>' +
       '<td class="pf-v6-c-table__td">' + (k.ready ? '<span class="pf-v6-c-label pf-m-green"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Ready</span></span></span>' : '<span class="pf-v6-c-label pf-m-yellow"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Pending validation</span></span></span>') + '</td>' +
       '<td class="pf-v6-c-table__td">' + k.tags + '</td><td class="pf-v6-c-table__td">' + k.age + '</td>' +
-      '<td class="pf-v6-c-table__td">' + deleteIconBtn('skillDeleteArm(this, \'' + k.name + '\')', false, 'agents:delete') + '</td></tr>').join('');
+      '<td class="pf-v6-c-table__td">' + editIconBtn('skillEditOpen(\'' + k.name + '\')', 'agents:create') + deleteIconBtn('skillDeleteArm(this, \'' + k.name + '\')', false, 'agents:delete') + '</td></tr>').join('');
     if (b){ pagerState('agskill').rerender = renderSkills; pagerShow('agskill', b, MOCK_SKILLS.length); }   /* pageable (user request) */
   }
   function skillDeleteArm(btn, name){
@@ -10127,16 +10179,46 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       armDeleteBtn(btn, true);
     }
   }
-  function skillCreate(){
+  function skillEditOpen(name){
+    const k = MOCK_SKILLS.find(x => x.name === name); if (!k) return;
+    agEdit.skill = name;
+    document.getElementById('as-title').textContent = 'Edit skill card';
+    document.getElementById('agSkillSaveBtn').querySelector('.pf-v6-c-button__text').textContent = 'Save';
+    document.getElementById('agSkillName').value = name;
+    document.getElementById('agSkillDisplay').value = k.display;
+    document.getElementById('agSkillError').hidden = true;
+    openModal('agSkillModal');
+  }
+  function skillSave(){
     const name = document.getElementById('agSkillName').value.trim();
     const display = document.getElementById('agSkillDisplay').value.trim() || name;
     const err = document.getElementById('agSkillError').querySelector('.pf-v6-c-helper-text__item-text');
     if (!name){ err.textContent = 'Name is required.'; document.getElementById('agSkillError').hidden = false; return; }
-    if (MOCK_SKILLS.some(k => k.name === name)){ err.textContent = 'This skill already exists.'; document.getElementById('agSkillError').hidden = false; return; }
-    MOCK_SKILLS.push({ name: name, display: display, desc: '&mdash;', type: 'custom', source: 'org registry', ready: false, tags: '&mdash;', age: 'just now' });
+    if (MOCK_SKILLS.some(k => k.name === name && k.name !== agEdit.skill)){ err.textContent = 'This skill already exists.'; document.getElementById('agSkillError').hidden = false; return; }
+    if (agEdit.skill){
+      const k = MOCK_SKILLS.find(x => x.name === agEdit.skill);
+      const renamed = name !== agEdit.skill;
+      k.name = name; k.display = display;
+      if (renamed){
+        /* agents bind skill names (comma-joined display strings) — the rename follows the bindings */
+        MOCK_AGENTS.forEach(a => {
+          if (String(a.skills).includes(agEdit.skill)){
+            const parts = String(a.skills).split(', ').map(s => s.trim());
+            if (parts.includes(agEdit.skill)) a.skills = parts.map(s => s === agEdit.skill ? name : s).join(', ');
+          }
+        });
+      }
+      auditAdd('skills:update', name);
+      rbacToast('<b>' + name + '</b> updated' + (renamed ? ' — agent skill bindings follow the rename' : '') + '; recorded in the audit trail <span class=anno-cite>(#42)</span>.');
+      agEdit.skill = null;
+    } else {
+      MOCK_SKILLS.push({ name: name, display: display, desc: '&mdash;', type: 'custom', source: 'org registry', ready: false, tags: '&mdash;', age: 'just now' });
+      auditAdd('skills:create', name);
+      rbacToast('<b>' + name + '</b> registered as a custom skill card — pending validation <span class=anno-cite>(#39)</span>. Recorded in the audit trail <span class=anno-cite>(#42)</span>.');
+    }
     document.getElementById('agSkillName').value = ''; document.getElementById('agSkillDisplay').value = '';
     document.getElementById('agSkillError').hidden = true;
-    renderSkills();
+    renderSkills(); renderAgents();   /* the agents' Skills column follows a skill rename */
     document.getElementById('agSkillModal').hidden = true;
   }
   function renderWorkflows(){
@@ -10175,14 +10257,57 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       armDeleteBtn(btn, true);
     }
   }
-  function wfCreate(){
+  function agWfOpen(){
+    document.getElementById('agWfName').value = '';
+    document.getElementById('agWfGuide').value = '';
+    document.getElementById('agWfStageList').innerHTML = '';
+    document.getElementById('agWfError').hidden = true;
+    openModal('agWfModal');
+    wfStageAdd();   /* one starter stage row, like the live builder */
+  }
+  /* row 136: the stages builder replaces the bare stage-count number (live create-workflow):
+     each stage row is name + agent + instructions, the chain carries the previous stage's
+     artifacts (info alert), and the workflow's stage count derives from the rows */
+  function wfStageAdd(){
+    const list = document.getElementById('agWfStageList');
+    const n = list.children.length + 1;
+    const row = document.createElement('div');
+    row.className = 'wf-stage-row';
+    row.style.cssText = 'border:1px solid var(--pf-t--global--border--color--subtle); border-radius:var(--pf-t--global--border--radius--medium); padding: var(--rh-space-md);';
+    row.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:baseline;"><b>Stage ' + n + '</b>'
+      + '<button class="pf-v6-c-button pf-m-plain btn-xs" type="button" aria-label="Remove stage" onclick="wfStageRemove(this)"><span class="pf-v6-c-button__icon">&#10005;</span></button></div>'
+      + '<input class="pf-v6-c-form-control" type="text" placeholder="Stage name (e.g. plan)" aria-label="Stage ' + n + ' name" style="margin-top: var(--rh-space-xs);">'
+      + '<select class="pf-v6-c-form-control" aria-label="Stage ' + n + ' agent" style="margin-top: var(--rh-space-xs);">'
+      + MOCK_AGENTS.map(a => '<option>' + a.name + '</option>').join('') + '</select>'
+      + '<textarea class="pf-v6-c-form-control" rows="2" placeholder="Instructions for this stage" aria-label="Stage ' + n + ' instructions" style="margin-top: var(--rh-space-xs);"></textarea>';
+    list.appendChild(row);
+  }
+  function wfStageRemove(btn){
+    const row = btn.closest('.wf-stage-row');
+    row.parentNode.removeChild(row);
+    /* renumber the headers */
+    [...document.querySelectorAll('#agWfStageList .wf-stage-row')].forEach((r, i) => { r.querySelector('b').textContent = 'Stage ' + (i + 1); });
+  }
+  function wfSave(){
     const name = document.getElementById('agWfName').value.trim();
-    const stages = parseInt(document.getElementById('agWfStages').value, 10) || 2;
+    const guide = document.getElementById('agWfGuide').value;
     const err = document.getElementById('agWfError').querySelector('.pf-v6-c-helper-text__item-text');
+    const rows = [...document.querySelectorAll('#agWfStageList .wf-stage-row')];
     if (!name){ err.textContent = 'Name is required.'; document.getElementById('agWfError').hidden = false; return; }
     if (MOCK_WORKFLOWS.some(w => w.name === name)){ err.textContent = 'This workflow already exists.'; document.getElementById('agWfError').hidden = false; return; }
-    MOCK_WORKFLOWS.push({ name: name, stages: stages, guide: '&mdash; (org-authored)', ready: false, age: 'just now' });
-    document.getElementById('agWfName').value = ''; document.getElementById('agWfStages').value = '';
+    if (!rows.length){ err.textContent = 'A workflow needs at least one stage \u2014 add a stage below.'; document.getElementById('agWfError').hidden = false; return; }
+    const stagesList = rows.map(r => ({
+      name: r.querySelector('input').value.trim(),
+      agent: r.querySelector('select').value,
+      instructions: r.querySelector('textarea').value.trim()
+    }));
+    const unnamed = stagesList.findIndex(s => !s.name);
+    if (unnamed >= 0){ err.textContent = 'Stage ' + (unnamed + 1) + ' needs a name \u2014 the stage list is the workflow\'s contract.'; document.getElementById('agWfError').hidden = false; return; }
+    MOCK_WORKFLOWS.push({ name: name, stages: stagesList.length, guide: guide || '&mdash; (org-authored)', ready: false, age: 'just now', stagesList: stagesList });
+    auditAdd('workflows:create', name + ' (' + stagesList.length + ' stages)');
+    rbacToast('<b>' + name + '</b> drafted from ' + stagesList.length + ' stage' + (stagesList.length === 1 ? '' : 's') + ' — validate, then activate <span class=anno-cite>(#49)</span>. Recorded in the audit trail <span class=anno-cite>(#42)</span>.');
+    document.getElementById('agWfName').value = ''; document.getElementById('agWfGuide').value = '';
+    document.getElementById('agWfStageList').innerHTML = '';
     document.getElementById('agWfError').hidden = true;
     renderWorkflows();
     document.getElementById('agWfModal').hidden = true;

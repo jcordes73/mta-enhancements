@@ -11,6 +11,13 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Agentic authoring (defect row 136)** — agent/skill registries gain Edit verbs (live kebab
+  parity) with pre-filled Save modals; renames cascade into run records / agent skill bindings
+  and every registry mutation is now audited. The workflow modal's stage-count number is
+  replaced by the **live stages builder** (per-stage name + agent + instructions rows, Add
+  stage, artifact-chaining alert, Guide select) with the count derived from the rows. The
+  per-run transcript item was already modeled (structured event stream + the ephemeral-by-design
+  alert) — recorded, not re-built. `verify/verify-agauthor.js` (16 assertions), battery 28/28.
 - **Insights Single-application sub-tab (defect row 135)** — the live two-tab structure:
   the Insights card gains the All insights / Single application sub-tabs, with the single-app
   view carrying the live column set (Insight/Category/Source/Target(s)/**Affected files**),
