@@ -46,6 +46,7 @@ non-zero on failure (silence + exit 0 = pass).
 | `verify-helpmenu.js` | Help menu: tour item markup sanity, click → tour modal opens + menu closes, welcome item |
 | `verify-tourdock.js` | Tour dock: absent without a tour, parked via step CTA, resume reopens the modal at the parked step |
 | `verify-welcome.js` | Welcome flow: first-visit boot, start → flag set + tour opens, unseen persona triggers welcome |
+| `verify-dequeue.js` | Row 118 dequeue: bulk queue → queued state + waiting task row, dequeue via row link and via the application modal, pre-queue state restored (Not started *and* Succeeded), task row removed, RBAC no-op for pm |
 | `verify-adm43.js` | Admin workflow gating: no waves → no gate clause, task-count scoping, Wave-3 pass after credential rotate |
 | `verify-grid93.js` | Row 93 RHDS 12-column grid: container census, no legacy inline `grid-template-columns` at the content layer |
 | `verify-r87.js` | Row 87 RHDS per-element guidelines: code-block drawer templates, menu grouping ≤7, icon-only toggle `aria-label`s |

@@ -224,6 +224,8 @@
  "Project mgr": "PM",
  "Provision organization": "組織をプロビジョン",
  "Queue analysis": "分析をキューに追加",
+ "Dequeue": "キューから削除",
+ "dequeue": "キューから削除",
  "Queue depth": "キューの深さ",
  "Queued": "待機中",
  "Ready": "準備完了",

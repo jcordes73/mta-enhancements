@@ -196,6 +196,8 @@
  "Project mgr": "Chef projet",
  "Provision organization": "Provisionner l'organisation",
  "Queue analysis": "Analyse en file",
+ "Dequeue": "Retirer de la file",
+ "dequeue": "retirer de la file",
  "Queue depth": "Profondeur de file",
  "Queued": "En file",
  "Ready": "Prêt",

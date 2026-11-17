@@ -216,6 +216,8 @@
  "Project mgr": "Dir. progetti",
  "Provision organization": "Provisioning organizzazione",
  "Queue analysis": "Accoda analisi",
+ "Dequeue": "Rimuovi dalla coda",
+ "dequeue": "rimuovi dalla coda",
  "Queue depth": "Profondità coda",
  "Queued": "In coda",
  "Ready": "Pronto",

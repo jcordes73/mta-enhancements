@@ -223,6 +223,8 @@
  "Project mgr": "مدير مشروع",
  "Provision organization": "تجهيز المؤسسة",
  "Queue analysis": "جدولة التحليل",
+ "Dequeue": "إزالة من قائمة الانتظار",
+ "dequeue": "إزالة من قائمة الانتظار",
  "Queue depth": "عمق قائمة الانتظار",
  "Queued": "في قائمة الانتظار",
  "Ready": "جاهز",

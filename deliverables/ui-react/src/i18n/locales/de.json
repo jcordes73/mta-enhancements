@@ -222,6 +222,8 @@
  "Project mgr": "Projekt-Mgr.",
  "Provision organization": "Organisation bereitstellen",
  "Queue analysis": "Analyse beauftragen",
+ "Dequeue": "Aus Warteschlange nehmen",
+ "dequeue": "aus der Warteschlange nehmen",
  "Queue depth": "Warteschlangentiefe",
  "Queued": "In Warteschlange",
  "Re-link": "Neu verknüpfen",

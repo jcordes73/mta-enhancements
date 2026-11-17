@@ -219,6 +219,8 @@
  "Project mgr": "Proje yön.",
  "Provision organization": "Kuruluş sağla",
  "Queue analysis": "Analizi kuyruğa al",
+ "Dequeue": "Kuyruktan çıkar",
+ "dequeue": "kuyruktan çıkar",
  "Queue depth": "Kuyruk derinliği",
  "Queued": "Kuyrukta",
  "Ready": "Hazır",

@@ -218,6 +218,8 @@
  "Project mgr": "Dir. proyectos",
  "Provision organization": "Aprovisionar organización",
  "Queue analysis": "Encolar análisis",
+ "Dequeue": "Sacar de la cola",
+ "dequeue": "sacar de la cola",
  "Queue depth": "Profundidad de cola",
  "Queued": "En cola",
  "Ready": "Listo",

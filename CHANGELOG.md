@@ -102,6 +102,13 @@ what-changed-when index. Long-form design-system rules:
   Actions cell of the Archetypes & cohorts table wraps its Edit and
   Delete icon buttons in a PF6 Action list so they render side by
   side instead of wrapping onto separate lines.
+- **Queued analyses can be dequeued (mock row 118)** — a queued
+  analysis leaves the batch queue and returns to its pre-queue state
+  (Not started, or Succeeded when the previous results are still
+  current); the waiting Task-manager row is removed. Affordances:
+  a dequeue link in the inventory row's Analysis cell and a Dequeue
+  button in the application modal, both gated by
+  `applications:analyze`.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`
