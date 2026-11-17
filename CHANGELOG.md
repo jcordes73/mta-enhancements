@@ -167,6 +167,12 @@ what-changed-when index. Long-form design-system rules:
   so the lens survives re-renders; the pager hides when a cohort fits on one
   page (recorded deviation beyond the row-87 zero-results rule). New chrome
   copy is EN-only this row.
+- **Task-manager checkbox no longer opens the drawer (mock row 124)** — the
+  task rows' click-to-open handler fired before the checkboxes' change-time
+  `stopPropagation`, so checking any task checkbox opened the task drawer;
+  the checkbox inputs now stop the click at the source (7 static rows + the
+  queue-created-row template). Selection and the Cancel-selected counter are
+  unchanged; clicking elsewhere on the row still opens the drawer.
 
 ## 2026-11-16
 
