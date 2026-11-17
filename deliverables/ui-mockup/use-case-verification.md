@@ -204,34 +204,41 @@ The scope model (`TENANCY` in the source) implements the user's definition: **or
 isolated** — switching one changes every application, wave, and aggregate you can see — each
 organization has **departments**, departments have **teams**, every application belongs to
 **exactly one team** (a team may own many), and a team is staffed with **architects, project
-managers, and migrators**. `state.org/dept/team` is the scope: the masthead switcher
+managers, and migrators**.
+
+**How the scope drives the UI:** `state.org/dept/team` is the scope: the masthead switcher
 (🏢 Northwind Financial · Retail Banking · all teams) opens one cascading org → department → team
 menu with member counts; `scopedApps()` is the only application-list source, so team scope filters
 the Applications rows and the wave membership/effort/risk aggregates cascade automatically. Deep
-links carry the scope (`&org=&dept=&team=`). Waves 1–4 are Northwind-owned: other organizations see
-a guided empty state (#43) pointing at the wave-assignment path, and Home/Reports carry a
-"data scope" note. Administration → Controls gains a **Teams** management table (the hierarchy with
+links carry the scope (`&org=&dept=&team=`).
+
+**Waves belong to organizations:** Waves 1–4 are Northwind-owned — other organizations see a guided
+empty state (#43) pointing at the wave-assignment path, and Home/Reports carry a "data scope" note.
+
+**Teams management (Administration → Controls):** a **Teams** management table (the hierarchy with
 the three role columns and live application counts) with `teams:create`/`teams:delete` admin-only
 and the established guarded delete — a team with assigned applications cannot be deleted; the block
 reason names the count and the exactly-one-team invariant. The app form's Team select (grouped by
 department) enforces exactly-one-team on create and edit.
-**the persona × tenancy intersection (user request):** the **Project manager** and **Migrator**
-personas are locked to
-their home team (Claims — switcher disabled with a tooltip, deep-link scope params lose to the
-lock); the **Program manager** persona keeps free org/department scope and gets the **cross-team
-coordination info rendered in each wave** (user request "move the coordination info into each wave" —
-the separate pgm-only card duplicated the wave's own context one section away and is gone): each
-wave's detail opens with its coordination strip — contributing teams with a Cross-team flag when the
-wave spans more than one team (sampled: Wave 4 = Claims + Portfolio + Customer digital), the wave's
-own quota blockers (#38) naming the teams they hit, and the wave's side of the inter-wave dependency
-edge with its team-boundary verdict (Wave 3: edge out, stays within Claims; Wave 4: edge in) — while
-a team-scoped Project manager sees no strips (the info names other teams by definition); the
-**program landing on Home keeps the summary** (teams in scope /
-cross-team waves / shared blockers KPIs), a program item in the notification feed, and its own
-guided tour. Sampled data: Northwind Financial keeps
-the 12 original apps (byte-equality preserved); Meridian Health adds 3 isolated apps
-(patient-records, lab-results, appointment-api). Verified by `verify/verify-tenancy.js`
-(41 checks).
+
+**The persona × tenancy intersection (user request):** the **Project manager** and **Migrator**
+personas are locked to their home team (Claims — switcher disabled with a tooltip, deep-link scope
+params lose to the lock); the **Program manager** persona keeps free org/department scope and gets
+the **cross-team coordination info rendered in each wave** (user request "move the coordination
+info into each wave" — the separate pgm-only card duplicated the wave's own context one section
+away and is gone): each wave's detail opens with its coordination strip — contributing teams with a
+Cross-team flag when the wave spans more than one team (sampled: Wave 4 = Claims + Portfolio +
+Customer digital), the wave's own quota blockers (#38) naming the teams they hit, and the wave's
+side of the inter-wave dependency edge with its team-boundary verdict (Wave 3: edge out, stays
+within Claims; Wave 4: edge in) — while a team-scoped Project manager sees no strips (the info
+names other teams by definition). The **program landing on Home keeps the summary** (teams in
+scope / cross-team waves / shared blockers KPIs), a program item in the notification feed, and its
+own guided tour.
+
+**Sampled data:** Northwind Financial keeps the 12 original apps (byte-equality preserved);
+Meridian Health adds 3 isolated apps (patient-records, lab-results, appointment-api).
+
+Verified by `verify/verify-tenancy.js` (49 checks).
 
 ### 2.0.2 Admin tiers — organization admin vs platform administrator (#41 + #42, user request)
 
