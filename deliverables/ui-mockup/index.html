@@ -185,10 +185,14 @@
   body.anno-off .anno-cite{display:none;}
   /* superseded by the user request above (annotation gating): the per-screen Suggestions
      drawer once rendered its badges in the default mode too (#24), but with the "Suggestions"
-     button gated behind the switch the drawer is only reachable in review mode */
-  body.anno-off #drawerBody .anno{display:inline-flex;}
-  body.anno-off #drawerBody .anno-index{display:block;}
-  body.anno-off #drawerBody .anno-list{display:block;}  .anno-switch{margin-inline: var(--rh-space-md);}
+     button gated behind the switch the drawer is only reachable in review mode.
+     row 126 (user report): the #24 blanket exemption (`body.anno-off #drawerBody .anno` etc.)
+     outlived the Suggestions drawer itself — no drawer carries an anno-index anymore, so the
+     exemption only leaked INTO the other drawers: the task drawer (reachable in the default
+     mode) showed its #N bubbles and the authoring drawers' "Implements:" footers with
+     annotations OFF. Removed — drawer annotation content follows the masthead switch like
+     every screen; the legend keeps its exemption (it documents the namespaces). */
+  .anno-switch{margin-inline: var(--rh-space-md);}
   .anno-switch .pf-v6-c-switch__label{font-size:var(--rh-font-size-body-text-xs);}
   /* the masthead is dark — the switch needs light-on-dark contrast to be readable (user feedback) */
   .anno-switch .pf-v6-c-switch__input:not(:checked) ~ .pf-v6-c-switch__label,
@@ -9732,6 +9736,138 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     return { members: members.map(a => a.name), openTk, quota, suites, red, expiring, unverUsed, unverIdle,
              failing: openTk > 0 || red > 0 || quota.length > 0 || expiring.length > 0 || unverUsed.length > 0 };
   }
+  /* row 127 (user request): the wave member tables are sortable (RHDS sortable headers —
+     stacked glyph unsorted, aria-sort synced, pf-m-selected) and pageable (PF6 pager,
+     invPag anatomy: totals, per-page 3/5/10, first/prev/page-input/next/last). Default
+     sort Risk DESCENDING — the same contract as row 123's cohort member tables; effort
+     and spend default descending (they answer "what drives this wave"), application
+     ascending. The lens rides WAVE_LENS so toolbar re-renders keep it; sort/page handlers
+     re-render only the member table so gate accordions keep their state. The pager hides
+     when the wave fits on one page (the recorded row-123 deviation). tfoot totals always
+     span the whole wave, not the visible page. */
+  const WAVE_LENS = {};
+  const waveLens = wave => WAVE_LENS[wave] || (WAVE_LENS[wave] = { key: 'risk', dir: -1, page: 0, per: 3 });
+  function waveSpendOf(name){
+    const rs = MOCK_AGENT_RUNS.filter(r => r.app === name);
+    return { n: rs.length,
+             tok: rs.reduce((t, r) => t + (parseInt(String(r.tokens).replace(/\D/g, ''), 10) || 0), 0),
+             cost: rs.reduce((t, r) => t + (parseFloat(String(r.cost).replace(/[^0-9.]/g, '')) || 0), 0) };
+  }
+  function waveSpendHtml(sp, bold){
+    const dash = '<span class="u-muted">&mdash;</span>';
+    return !sp.n ? dash :
+      (bold ? '<b>$' + sp.cost.toFixed(2) + '</b>' : '$' + sp.cost.toFixed(2)) +
+      ' <span class="u-muted" style="font-size:var(--rh-font-size-body-text-xs)">' +
+      (n => n >= 1e6 ? (Math.round(n / 1e5) / 10) + 'M' : Math.round(n / 1e3) + 'k')(sp.tok) + ' tokens &middot; ' + sp.n + ' run' + (sp.n > 1 ? 's' : '') + '</span>';
+  }
+  function waveMemberData(wave){
+    return [...document.querySelectorAll('#invBody tr[data-wave="' + wave + '"]')].map(tr => {
+      const c = tr.cells;
+      const riskLab = c[6].querySelector('.pf-v6-c-label__text');
+      return { name: tr.dataset.name, state: tr.dataset.state, pts: parseInt(tr.dataset.pts, 10),
+               analysis: c[4].innerHTML, effort: c[5].innerHTML,
+               risk: riskLab ? riskLab.textContent.trim() : '', riskHtml: c[6].innerHTML,
+               bsvc: c[8].innerHTML, spend: waveSpendOf(tr.dataset.name) };
+    });
+  }
+  function waveMembersTableHtml(wave, data){
+    const l = waveLens(wave);
+    const eff = p => (p == null || isNaN(p)) ? -1 : p;
+    const sorted = data.slice().sort((a, b) => {
+      let d = 0;
+      if (l.key === 'risk') d = ((ARCH_RISK_RANK[a.risk] || 0) - (ARCH_RISK_RANK[b.risk] || 0)) * l.dir;
+      else if (l.key === 'effort') d = (eff(a.pts) - eff(b.pts)) * l.dir;
+      else if (l.key === 'spend') d = (a.spend.cost - b.spend.cost) * l.dir;
+      else d = a.name.localeCompare(b.name) * l.dir;
+      return d !== 0 ? d : a.name.localeCompare(b.name);
+    });
+    const pages = Math.max(1, Math.ceil(data.length / l.per));
+    const page = Math.min(l.page, pages - 1);
+    l.page = page;
+    const bodyRows = sorted.slice(page * l.per, page * l.per + l.per).map(r =>
+      '<tr class="pf-v6-c-table__tr pf-m-clickable" onclick="openApp(\'' + r.name + '\')">' +
+      '<td class="pf-v6-c-table__td"><b>' + r.name + '</b></td>' +
+      '<td class="pf-v6-c-table__td">' + r.analysis + '</td>' +
+      '<td class="pf-v6-c-table__td">' + r.effort + '</td>' +
+      '<td class="pf-v6-c-table__td">' + r.riskHtml + '</td>' +
+      '<td class="pf-v6-c-table__td">' + r.bsvc + '</td>' +
+      '<td class="pf-v6-c-table__td">' + waveSpendHtml(r.spend) + '</td></tr>').join('');
+    const th = (key, label, extra) => {
+      const sel = l.key === key;
+      const dir = sel ? l.dir : (key === 'name' ? 1 : -1);   /* the unclicked glyph's direction mirrors the key's default */
+      const icon = !sel ? rhSvg('sort-unsorted') : rhSvg(dir === 1 ? 'sort-asc' : 'sort-desc');
+      return '<th class="pf-v6-c-table__sort' + (sel ? ' pf-m-selected' : '') + '" data-sort="' + key + '" aria-sort="' + (!sel ? 'none' : (dir === 1 ? 'ascending' : 'descending')) + '" scope="col">' +
+        '<button class="pf-v6-c-table__button" type="button" onclick="waveSort(' + wave + ', \'' + key + '\')">' +
+        '<span class="pf-v6-c-table__button-content"><span class="pf-v6-c-table__text">' + label + (extra || '') + '</span>' +
+        '<span class="pf-v6-c-table__sort-indicator" aria-hidden="true">' + icon + '</span></span></button></th>';
+    };
+    const lo = data.length ? page * l.per + 1 : 0;
+    const hi = Math.min(data.length, page * l.per + l.per);
+    const dis = ok => ok ? '' : 'disabled ';
+    const perOpts = [3, 5, 10].map(n =>
+      '<li class="pf-v6-c-menu__list-item' + (l.per === n ? ' pf-m-selected' : '') + '" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="wavePer(' + wave + ', ' + n + ')"><span class="pf-v6-c-menu__item-text">' + n + ' per page</span></button></li>').join('');
+    const pager = data.length <= l.per ? '' :
+      '<div class="pf-v6-c-pagination pf-m-bottom" style="justify-content:space-between; margin-top: var(--rh-space-md);">' +
+      '<div class="pf-v6-c-pagination__total-items"><b>' + lo + '</b>&ndash;<b>' + hi + '</b> of <b>' + data.length + '</b> applications</div>' +
+      '<div class="select-wrap" style="max-width:none;">' +
+      '<button class="pf-v6-c-menu-toggle pf-m-plain" type="button" onclick="toggleSelect(this)" aria-expanded="false"><span class="pf-v6-c-menu-toggle__text">' + l.per + ' per page</span><span class="pf-v6-c-menu-toggle__toggle-icon" aria-hidden="true">\u25be</span></button>' +
+      '<div class="pf-v6-c-menu" hidden><ul class="pf-v6-c-menu__list" role="menu">' + perOpts + '</ul></div></div>' +
+      '<nav class="pf-v6-c-pagination__nav" aria-label="Wave ' + wave + ' applications pagination">' +
+      '<div class="pf-v6-c-pagination__nav-control pf-m-first"><button class="pf-v6-c-button pf-m-plain" type="button" ' + dis(page > 0) + 'aria-label="Go to first page" onclick="wavePage(' + wave + ', 0)"><span class="pf-v6-c-button__icon">&laquo;</span></button></div>' +
+      '<div class="pf-v6-c-pagination__nav-control pf-m-prev"><button class="pf-v6-c-button pf-m-plain" type="button" ' + dis(page > 0) + 'aria-label="Go to previous page" onclick="wavePage(' + wave + ', ' + (page - 1) + ')"><span class="pf-v6-c-button__icon">&lsaquo;</span></button></div>' +
+      '<div class="pf-v6-c-pagination__nav-page-select"><input class="pf-v6-c-form-control" type="number" value="' + (page + 1) + '" min="1" max="' + pages + '" aria-label="Current page" onchange="wavePageInput(' + wave + ', this.value)"><span>of ' + pages + '</span></div>' +
+      '<div class="pf-v6-c-pagination__nav-control pf-m-next"><button class="pf-v6-c-button pf-m-plain" type="button" ' + dis(page < pages - 1) + 'aria-label="Go to next page" onclick="wavePage(' + wave + ', ' + (page + 1) + ')"><span class="pf-v6-c-button__icon">&rsaquo;</span></button></div>' +
+      '<div class="pf-v6-c-pagination__nav-control pf-m-last"><button class="pf-v6-c-button pf-m-plain" type="button" ' + dis(page < pages - 1) + 'aria-label="Go to last page" onclick="wavePage(' + wave + ', ' + (pages - 1) + ')"><span class="pf-v6-c-button__icon">&raquo;</span></button></div>' +
+      '</nav></div>';
+    const sum = data.reduce((t, r) => t + (eff(r.pts) < 0 ? 0 : r.pts), 0);
+    const unest = data.filter(r => eff(r.pts) < 0).length;
+    const partial = data.some(r => r.state === 'running');
+    const notes = [];
+    if (unest) notes.push(unest + ' app' + (unest > 1 ? 's' : '') + ' unestimated — analysis in flight');
+    if (partial) notes.push('running analyses may still add effort');
+    const foot =
+      '<tfoot><tr class="pf-v6-c-table__tr">' +
+      '<td class="pf-v6-c-table__td" colspan="2"><b>Total effort</b>' +
+      (notes.length ? ' <span class="u-muted" style="font-size:var(--rh-font-size-body-text-xs)">(' + notes.join('; ') + ')</span>' : '') + '</td>' +
+      '<td class="pf-v6-c-table__td"><b>' + sum.toLocaleString('en-US') + '</b></td>' +
+      '<td class="pf-v6-c-table__td"></td>' +
+      '<td class="pf-v6-c-table__td"></td>' +
+      '<td class="pf-v6-c-table__td">' + waveSpendHtml(data.reduce((a, r) => { a.tok += r.spend.tok; a.cost += r.spend.cost; a.n += r.spend.n; return a; }, { n: 0, tok: 0, cost: 0 }), true) + '</td>' +
+      '</tr></tfoot>';
+    return '<table class="pf-v6-c-table pf-m-compact" role="grid" aria-label="Wave ' + wave + ' applications">' +
+      '<thead><tr class="pf-v6-c-table__tr">' +
+      th('name', 'Application') +
+      '<th class="pf-v6-c-table__th" scope="col">Analysis</th>' +
+      th('effort', 'Effort') +
+      th('risk', 'Risk') +
+      '<th class="pf-v6-c-table__th" scope="col">Business service</th>' +
+      th('spend', 'Agent spend', ' <span class="anno" data-tip="#20: actual token/cost spend from the run records — the estimate (#4) and the spend are different numbers on purpose">#20</span>') +
+      '</tr></thead><tbody>' + bodyRows + '</tbody>' + foot + '</table>' + pager;
+  }
+  function waveMembersRender(wave){
+    const host = document.getElementById('waveMembers-' + wave);
+    if (host) host.innerHTML = waveMembersTableHtml(wave, waveMemberData(wave));
+  }
+  function waveSort(wave, key){
+    const l = waveLens(wave);
+    if (l.key === key) l.dir *= -1;
+    else if (key === 'risk' || key === 'effort' || key === 'spend'){ l.key = key; l.dir = -1; }
+    else { l.key = 'name'; l.dir = 1; }
+    l.page = 0;
+    waveMembersRender(wave);
+  }
+  function wavePage(wave, p){
+    const l = waveLens(wave);
+    const n = document.querySelectorAll('#invBody tr[data-wave="' + wave + '"]').length;
+    l.page = Math.max(0, Math.min(p, Math.max(1, Math.ceil(n / l.per)) - 1));
+    waveMembersRender(wave);
+  }
+  function wavePageInput(wave, v){ wavePage(wave, (parseInt(v, 10) || 1) - 1); }
+  function wavePer(wave, n){
+    const l = waveLens(wave);
+    l.per = n; l.page = 0;
+    waveMembersRender(wave);
+  }
   function buildWaveMembers(){
     [1, 2, 3, 4].forEach(wave => {
       const rows = [...document.querySelectorAll('#invBody tr[data-wave="' + wave + '"]')];
@@ -9767,53 +9903,12 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
          cancelled/paused runs' partial accounting included (the record is kept precisely so the money
          stays counted, #42); tenancy and CRUD follow the same visible inventory rows as the estimates */
       const fmtTok = n => n >= 1e6 ? (Math.round(n / 1e5) / 10) + 'M' : Math.round(n / 1e3) + 'k';
-      const spendOf = name => {
-        const rs = MOCK_AGENT_RUNS.filter(r => r.app === name);
-        return { n: rs.length,
-                 tok: rs.reduce((t, r) => t + (parseInt(String(r.tokens).replace(/\D/g, ''), 10) || 0), 0),
-                 cost: rs.reduce((t, r) => t + (parseFloat(String(r.cost).replace(/[^0-9.]/g, '')) || 0), 0) };
-      };
-      const tot = rows.reduce((a, tr) => { const sp = spendOf(tr.dataset.name); a.tok += sp.tok; a.cost += sp.cost; a.n += sp.n; return a; }, { n: 0, tok: 0, cost: 0 });
-      const spendHtml = (sp, bold) => !sp.n ? dash :
-        (bold ? '<b>$' + sp.cost.toFixed(2) + '</b>' : '$' + sp.cost.toFixed(2)) +
-        ' <span class="u-muted" style="font-size:var(--rh-font-size-body-text-xs)">' + fmtTok(sp.tok) + ' tokens &middot; ' + sp.n + ' run' + (sp.n > 1 ? 's' : '') + '</span>';
+      const tot = rows.reduce((a, tr) => { const sp = waveSpendOf(tr.dataset.name); a.tok += sp.tok; a.cost += sp.cost; a.n += sp.n; return a; }, { n: 0, tok: 0, cost: 0 });
       const spendCell = document.getElementById('waveSpend-' + wave);
-      if (spendCell) spendCell.innerHTML = !rows.length ? dash : spendHtml(tot, true);
+      if (spendCell) spendCell.innerHTML = !rows.length ? dash : waveSpendHtml(tot, true);
       const host = document.getElementById('waveMembers-' + wave);
       if (!host) return;
-      const trs = rows.map(tr => {
-        const c = tr.cells;
-        return '<tr class="pf-v6-c-table__tr pf-m-clickable" onclick="openApp(\'' + tr.dataset.name + '\')">' +
-          '<td class="pf-v6-c-table__td"><b>' + tr.dataset.name + '</b></td>' +
-          '<td class="pf-v6-c-table__td">' + c[4].innerHTML + '</td>' +
-          '<td class="pf-v6-c-table__td">' + c[5].innerHTML + '</td>' +
-          '<td class="pf-v6-c-table__td">' + c[6].innerHTML + '</td>' +
-          '<td class="pf-v6-c-table__td">' + c[8].innerHTML + '</td>' +
-          '<td class="pf-v6-c-table__td">' + spendHtml(spendOf(tr.dataset.name)) + '</td>' +
-          '</tr>';
-      }).join('');
-      const fmt = n => n.toLocaleString('en-US');
-      const notes = [];
-      if (unest) notes.push(unest + ' app' + (unest > 1 ? 's' : '') + ' unestimated — analysis in flight');
-      if (partial) notes.push('running analyses may still add effort');
-      const foot =
-        '<tfoot><tr class="pf-v6-c-table__tr">' +
-        '<td class="pf-v6-c-table__td" colspan="2"><b>Total effort</b>' +
-        (notes.length ? ' <span class="u-muted" style="font-size:var(--rh-font-size-body-text-xs)">(' + notes.join('; ') + ')</span>' : '') + '</td>' +
-        '<td class="pf-v6-c-table__td"><b>' + fmt(sum) + '</b></td>' +
-        '<td class="pf-v6-c-table__td"></td>' +
-        '<td class="pf-v6-c-table__td">' + spendHtml(tot, true) + '</td>' +
-        '</tr></tfoot>';
-      host.innerHTML =
-        '<table class="pf-v6-c-table pf-m-compact" role="grid" aria-label="Wave ' + wave + ' applications">' +
-        '<thead><tr class="pf-v6-c-table__tr">' +
-        '<th class="pf-v6-c-table__th" scope="col">Application</th>' +
-        '<th class="pf-v6-c-table__th" scope="col">Analysis</th>' +
-        '<th class="pf-v6-c-table__th" scope="col">Effort</th>' +
-        '<th class="pf-v6-c-table__th" scope="col">Risk</th>' +
-        '<th class="pf-v6-c-table__th" scope="col">Business service</th>' +
-        '<th class="pf-v6-c-table__th" scope="col">Agent spend <span class="anno" data-tip="#20: actual token/cost spend from the run records — the estimate (#4) and the spend are different numbers on purpose">#20</span></th>' +
-        '</tr></thead><tbody>' + trs + '</tbody>' + foot + '</table>';
+      host.innerHTML = waveMembersTableHtml(wave, waveMemberData(wave));   /* row 127: sortable + pageable; totals span the whole wave */
       /* membership-driven expansion content: chip, gate conditions, verification evidence,
          tickets, and the dependency edge all follow the CURRENT members (#46 item 1) */
       const chip = document.getElementById('waveMembersChip-' + wave);

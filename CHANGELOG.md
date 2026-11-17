@@ -182,6 +182,18 @@ what-changed-when index. Long-form design-system rules:
   target the right sub-tab; the organizations RBAC guard moved from the tab to
   the card (greyed with the cause spelled out — Teams/Departments stay
   usable). New chrome copy is EN-only this row.
+- **Task drawer annotations now follow the switch (mock row 126)** — a stale
+  exemption from the removed Suggestions drawer forced `#N` bubbles and
+  "Implements:" footers visible in every drawer even with Annotations off;
+  drawer annotation content now obeys the masthead switch like every screen.
+- **Wave member tables: sortable + pageable (mock row 127)** — the
+  applications table in each wave's expandable detail gains RHDS sortable
+  headers (Application / Effort / Risk / Agent spend) with Risk descending as
+  the default (High → Medium → Low, unassessed last — the row-123 contract),
+  and the full pager (totals, per-page 3/5/10, first/prev/page-input/next/
+  last). The lens survives re-renders; tfoot totals keep spanning the whole
+  wave (and the totals row gained its missing 6th cell). New chrome copy is
+  EN-only this row.
 
 ## 2026-11-16
 
