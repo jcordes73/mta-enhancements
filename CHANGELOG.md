@@ -122,6 +122,16 @@ what-changed-when index. Long-form design-system rules:
   (local history rebased onto the GitHub root; `AGENTS.md` header
   reflects the remote).
 
+- **Hebrew as the 9th locale — full parity (mock row 120)** — the
+  language switcher gains עברית with the same coverage as the other 7
+  locales (1,085-key dict, 64 rules, gate-fragment block, ILS currency,
+  `D MMM` dates) and flips the layout RTL like Arabic;
+  `fmtDate`/`fmtDateRange` handle he. The React port mirrors it:
+  `src/i18n/i18n.ts` dict+rules+gate+meta, a 36-key `he` block in
+  `scripts/i18n-additions.json` (plural pairs included), and
+  `check:i18n` passes at 38 keys × 9 locales. Seed data, incident text,
+  identifiers, and annotation content stay English by design.
+
 ## 2026-11-16
 
 - **hub-backend created** — Quarkus 3.40 + PostgreSQL implementation of

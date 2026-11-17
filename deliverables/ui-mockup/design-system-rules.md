@@ -271,7 +271,7 @@ hand-rolled CSS.
 ## i18n
 
 - i18n covers UI chrome, descriptive attributes, and composed
-  sentences (defect-log row 99): all 8 locales translate the static
+  sentences (defect-log row 99): all 9 locales translate the static
   chrome and the descriptive `aria-label`/`title` attributes —
   attributes ride the text walk through `i18nWalkAttrs()`/`i18nA()`
   (exact dict + rules only, never the phrase pass) with an
