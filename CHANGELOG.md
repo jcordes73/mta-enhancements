@@ -11,6 +11,14 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Parity audit re-executed against the live 8.3.3 console (§7 re-audit)** — headless-Chrome
+  crawl of the sandbox instance (version 8.3.3 re-confirmed, admin persona): 17 navigable routes
+  re-verified column-for-column against the mock (supersets only), the application create-form's
+  new Source-platform/Asset-repository fields folded into §7.1's omission list, a **new upstream
+  Analysis Profiles view** recorded as a §7.1 gap, and the URL-only Users/Tokens/Roles/Scopes
+  views (no nav entry upstream) documented in §7.2. Crawl evidence checked in
+  (`parity-crawl-2026-11-17.json` + About/create-modal screenshots).
+
 - **Agent-run telemetry (mock row 105)** — every agent-run record gained
   `turns` and context-window usage (`current / window (percent)`); the
   Agent runs table gained **Turns**/**Context** columns, the run-record

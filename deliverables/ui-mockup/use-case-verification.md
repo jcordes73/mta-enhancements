@@ -666,7 +666,54 @@ defects found and fixed along the way):
 
 ---
 
-## 7. Parity audit vs. the live MTA 8.3.3 console (2026-11-12)
+## 7. Parity audit vs. the live MTA 8.3.3 console (2026-11-12; re-audited 2026-11-17)
+
+**Re-audit (2026-11-17, headless-Chrome crawl of the same sandbox instance, admin/admin).**
+The instance reports **8.3.3** in its About dialog — the same baseline, so every delta below is an
+audit-coverage finding, not upstream drift. Method: crawl of all 17 navigable routes (per-view table
+column sets, toolbar verbs, pagination, console/API errors), probing of unlisted routes, and the
+application create-modal's form fields.
+
+- **Navigation structure**: the console's nav is flat and grouped — **Migration** (Applications,
+  Archetypes, Migration waves) · **Analysis Results** (Reports, Issues, Insights, Dependencies) ·
+  **Agentic** (Agent runs, Agents, Skills, Workflows, Workflow runs, Gateways) · **Configuration**
+  (Analysis Profiles, Controls, Custom migration targets) · plus Task Manager. **There is no
+  Administration mode switch**: the six access/identity views (Users, Tokens, Roles, Scopes,
+  Identities, Source platforms) still resolve by URL but have **no nav entry at all** (§7.2). The
+  mock's flat six-view + Administration-hub consolidation (#67) is now *ahead* of upstream on
+  discoverability, not behind it.
+- **Column sets re-verified against the mock**: Applications (Name/Business Service/Assessment/
+  Review/Analysis/Tags/Effort + row actions — 123 applications upstream) ✓; Archetypes ✓ (now
+  with a Profiles column); Migration waves (Name/Start/End/Applications/**Stakeholders**/Status) ✓
+  (the mock's WP10 restore is upstream-true); Task Manager (ID/Application/Status/Kind/Priority/
+  Created By) ✓; Reports questionnaire grid ✓; Issues/Insights/Dependencies ✓ (WP9 split and #24
+  inventory confirmed); Controls: 4 tabs (Stakeholders/Stakeholder groups/Job functions/Business
+  services) ✓; Agents (Name/Image/Gateways/**Skills/Params**/Ready/Age) ✓ — the mock's agents
+  table matches column-for-column; Skills ✓ (upstream adds a second skill-*cards* table — the mock
+  renders skills as cards, recorded in §7.1); Workflows ✓; Workflow runs (Name/Workflow/
+  Application/Phase/Stages/Age/Duration — the mock's record superset adds State); Gateways ✓;
+  Agent runs (Name/Agent/Application/Phase/Reason/Age/Duration — the mock's record superset adds
+  the #50 event log and #20 accounting).
+- **New upstream surface disclosed by this crawl**: an **Analysis Profiles** view
+  (`/analysis-profiles`, Name/Description, "Create new") — not present in the 2026-11-12 audit
+  rows; the mock references analysis profiles only in its Hub-API scope catalog. Added to §7.1
+  below as a recorded gap.
+- **Application create-form delta**: upstream's form now also carries **Source platform +
+  Source platform coordinates** and an **Asset repository** block (Repository type/Branch/Root
+  path) beyond the fields §7.1 cites — folded into that row's omitted-fields list.
+- **Console hygiene**: one failed resource on /applications and one PatternFly component warning
+  on /reports ("Cards with a selectable input must have either the selected…") — the 2026-11-12
+  audit's "zero console errors" no longer holds verbatim, but both are cosmetic; zero failed API
+  calls on any view's own data.
+
+### 7.0 Re-audit vs the 2026-11-12 rows
+
+All §7.1 rows marked **implemented** (WP1–WP9) were re-verified against the live surface: each
+crawled column set matches the mock's table (supersets only, listed above); the Agentic registries
+carry the same create/guarded-delete/"Delete finished (N)" verbs; and the per-application detail
+tabs (WP8) are unchanged upstream. The only new surface is Analysis Profiles (new §7.1 row).
+
+
 
 Method: headless-Chrome login (provided sandbox credentials) against the live console at
 `mta-openshift-mta.apps.ocp.2xhp7.sandbox1251.opentlc.com` (SPA reports `VERSION: 8.3.3`, 123
@@ -703,6 +750,7 @@ replica — this audit lists what the mock does not model.
 - **Issues/Incidents**: upstream list (Issue/Category/Source/Target(s)/Effort/Affected
   applications); the mock's Incidents screen adds the triage/effort/verification story (#33 et al.).
 - **Home**: upstream has no dashboard; the mock's Home is suggestion #36's persona workspace.
+- **Access management (Users / Tokens / Roles / Scopes)**: the re-audit (2026-11-17) found these views still resolve by URL (`/users`, `/tokens`, `/roles`, `/scopes`) but carry **no navigation entry** in the 8.3.3 console — upstream itself has demoted them below the sidebar. The mock models the *operational* identity side (the Credentials view, #15) and an Access sub-tab with static sample logins; token/role/scope administration stays out of scope.
 
 ### 7.3 Reading the audit
 

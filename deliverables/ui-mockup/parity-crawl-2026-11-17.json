@@ -1,0 +1,635 @@
+{
+  "version": null,
+  "mode2Routes": 0,
+  "report": [
+    {
+      "href": "/applications",
+      "nav": "Application inventory",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Name",
+            "Business Service",
+            "Assessment",
+            "Review",
+            "Analysis",
+            "Tags",
+            "Effort",
+            "Row actions"
+          ],
+          "rows": 10
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Name",
+        "Create new",
+        "Analyze",
+        "1 - 10 of 123",
+        "Business Service",
+        "Analysis",
+        "Tags",
+        "Effort"
+      ],
+      "rows": 10,
+      "pagination": "1 - 10 of 123 1 - 10 of 123 of 13",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "badResponses": [
+        "404 /hub/version",
+        "404 /hub/api/version"
+      ]
+    },
+    {
+      "href": "/archetypes",
+      "nav": "Archetypes",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Name",
+            "Description",
+            "Tags",
+            "Maintainers",
+            "Applications",
+            "Profiles",
+            "Assessment",
+            "Review",
+            "Row actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Name",
+        "Create new archetype",
+        "1 - 1 of 1"
+      ],
+      "rows": 1,
+      "pagination": "1 - 1 of 1 1 - 1 of 1 of 1",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/migration-waves",
+      "nav": "Migration waves",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Name",
+            "Start date",
+            "End date",
+            "Applications",
+            "Stakeholders",
+            "Status",
+            "Row actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Name",
+        "Create new",
+        "1 - 1 of 1",
+        "Start date",
+        "End date",
+        "1",
+        "Not Started"
+      ],
+      "rows": 1,
+      "pagination": "1 - 1 of 1 1 - 1 of 1 of 1",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/reports",
+      "nav": "Reports",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Questionnaire name",
+            "Section",
+            "Question",
+            "Answer",
+            "Risk",
+            "Application"
+          ],
+          "rows": 10
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "All questionnaires",
+        "Questionnaire",
+        "1 - 10 of 14",
+        "Questionnaire name",
+        "Section",
+        "Question",
+        "Answer",
+        "Risk"
+      ],
+      "rows": 10,
+      "pagination": "1 - 10 of 14 1 - 10 of 14 of 2",
+      "errors": [
+        "Card: Cards with a selectable input must have either the selectableActions.selectableActionAriaLabel or selectableActions.selectableActionAriaLabelledby prop passed in order to provide an accessible n",
+        "Card: Cards with a selectable input must have either the selectableActions.selectableActionAriaLabel or selectableActions.selectableActionAriaLabelledby prop passed in order to provide an accessible n",
+        "Card: Cards with a selectable input must have either the selectableActions.selectableActionAriaLabel or selectableActions.selectableActionAriaLabelledby prop passed in order to provide an accessible n"
+      ],
+      "badResponses": []
+    },
+    {
+      "href": "/issues/all",
+      "nav": "Issues",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Issue",
+            "Category",
+            "Source",
+            "Target(s)",
+            "Effort",
+            "Affected applications"
+          ],
+          "rows": 9
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "All issues",
+        "Single application",
+        "Application name",
+        "1 - 9 of 9",
+        "Issue",
+        "Category",
+        "Affected applications",
+        "1"
+      ],
+      "rows": 9,
+      "pagination": "1 - 9 of 9 1 - 9 of 9 of 1",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/insights/all",
+      "nav": "Insights",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Insight",
+            "Category",
+            "Source",
+            "Target(s)",
+            "Affected applications"
+          ],
+          "rows": 10
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "All insights",
+        "Single application",
+        "Application name",
+        "1 - 10 of 13",
+        "Insight",
+        "Category",
+        "Affected applications",
+        "1"
+      ],
+      "rows": 10,
+      "pagination": "1 - 10 of 13 1 - 10 of 13 of 2",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/dependencies",
+      "nav": "Dependencies",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Dependency name",
+            "Language",
+            "Labels",
+            "Found in"
+          ],
+          "rows": 10
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Application name",
+        "1 - 10 of 28",
+        "Dependency name",
+        "Language",
+        "Found in"
+      ],
+      "rows": 10,
+      "pagination": "1 - 10 of 28 1 - 10 of 28 of 3",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/agent-runs",
+      "nav": "Agent runs",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Name",
+            "Agent",
+            "Application",
+            "Phase",
+            "Reason",
+            "Age",
+            "Duration"
+          ],
+          "rows": 3
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Name",
+        "Delete selected",
+        "Delete finished (3)",
+        "Create run",
+        "1 - 3 of 3",
+        "Agent",
+        "Application",
+        "Age"
+      ],
+      "rows": 3,
+      "pagination": "1 - 3 of 3 1 - 3 of 3 of 1",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/agents",
+      "nav": "Agents",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Name",
+            "Image",
+            "Gateways",
+            "Skills",
+            "Params",
+            "Ready",
+            "Age",
+            "Row actions"
+          ],
+          "rows": 6
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Create agent"
+      ],
+      "rows": 6,
+      "pagination": "",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/skills",
+      "nav": "Skills",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Name",
+            "Display name",
+            "Description",
+            "Type",
+            "Source",
+            "Ready",
+            "Tags",
+            "Age",
+            "Row actions"
+          ],
+          "rows": 6
+        },
+        {
+          "headers": [
+            "Name",
+            "Mode",
+            "Skills",
+            "Ready",
+            "Age",
+            "Row actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Create skill card",
+        "jboss-eap-7-to-8",
+        "verify",
+        "plan",
+        "javaee-to-quarkus",
+        "house-rules",
+        "execute",
+        "Create skill collection",
+        "java-migration-skills"
+      ],
+      "rows": 7,
+      "pagination": "",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/workflows",
+      "nav": "Workflows",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Name",
+            "Stages",
+            "Guide",
+            "Ready",
+            "Age",
+            "Row actions"
+          ],
+          "rows": 2
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Create workflow"
+      ],
+      "rows": 2,
+      "pagination": "",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/workflow-runs",
+      "nav": "Workflow runs",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Name",
+            "Workflow",
+            "Application",
+            "Phase",
+            "Stages",
+            "Age",
+            "Duration"
+          ],
+          "rows": 1
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Name",
+        "Create workflow run",
+        "1 - 1 of 1",
+        "Workflow",
+        "Application",
+        "Age"
+      ],
+      "rows": 1,
+      "pagination": "1 - 1 of 1 1 - 1 of 1 of 1",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/gateways",
+      "nav": "Gateways",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Name",
+            "Provider",
+            "Model",
+            "Endpoint",
+            "Context window",
+            "Credential",
+            "Ready",
+            "Age"
+          ],
+          "rows": 1
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration"
+      ],
+      "rows": 1,
+      "pagination": "",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/analysis-profiles",
+      "nav": "Analysis Profiles",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Name",
+            "Description"
+          ],
+          "rows": 1
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Name",
+        "Create new",
+        "1 - 1 of 1",
+        "Description"
+      ],
+      "rows": 1,
+      "pagination": "1 - 1 of 1 1 - 1 of 1 of 1",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/controls",
+      "nav": "Controls",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "Email",
+            "Name",
+            "Job function",
+            "Group count",
+            "Row actions"
+          ],
+          "rows": 1
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Stakeholders",
+        "Stakeholder groups",
+        "Job functions",
+        "Business services",
+        "Tags",
+        "Email",
+        "Create new",
+        "1 - 1 of 1",
+        "Name",
+        "Job function"
+      ],
+      "rows": 1,
+      "pagination": "1 - 1 of 1 1 - 1 of 1 of 1",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/migration-targets",
+      "nav": "Custom migration targets",
+      "mode": "migration",
+      "tables": [],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "Languages",
+        "Create new",
+        "Clear all filters",
+        "JBoss EAP 8",
+        "Spring Framework 6",
+        "Spring Boot 3",
+        "OpenJDK 11",
+        "camel:3",
+        "Azure App Service"
+      ],
+      "rows": 0,
+      "pagination": "",
+      "errors": [],
+      "badResponses": []
+    },
+    {
+      "href": "/tasks",
+      "nav": "Task Manager",
+      "mode": "migration",
+      "tables": [
+        {
+          "headers": [
+            "ID",
+            "Application",
+            "Status",
+            "Kind",
+            "Priority",
+            "Created By",
+            "Row actions"
+          ],
+          "rows": 10
+        }
+      ],
+      "toolbars": [
+        "admin",
+        "Migration",
+        "Applications",
+        "Analysis Results",
+        "Agentic",
+        "Configuration",
+        "ID",
+        "1 - 10 of 368",
+        "Application",
+        "Status",
+        "Kind",
+        "Priority",
+        "Created By"
+      ],
+      "rows": 10,
+      "pagination": "1 - 10 of 368 1 - 10 of 368 of 37",
+      "errors": [],
+      "badResponses": []
+    }
+  ]
+}
