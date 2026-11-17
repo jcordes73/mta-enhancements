@@ -11,6 +11,21 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Analysis Profiles — the last whole-surface parity gap closed (defect row 130)** — the live
+  8.3.3 `/analysis-profiles` surface (recorded as a gap in the re-audit) now has a mock
+  counterpart on Config → Analysis: a management table over a new `MOCK_APROFILES` store
+  (the live sample "JBoss EAP 7.4 to JBoss EAP 8" verbatim + two profiles matching the
+  archetype table's `profiles` strings) plus a create/edit wizard modal over the real PF6
+  wizard skeleton walking the live step set (required-Name gate, the two live source options,
+  Set Targets with the live skip-warning, Scope, Custom Rules with the live
+  "required if no targets" Next-gate, Review/Finish). Assignment writes through to
+  `MOCK_ARCHETYPES.profiles` (archetype table Profiles column + detail rows); delete is the
+  armed idiom; mutations audited (`profile:create/update/delete`) and RBAC-gated
+  (`profiles:edit`). Recorded simplifications: the un-crawlable live Advanced/Labels panels
+  fold into Scope/Review, target catalog is a 10-entry subset. Also restored two §7.1 records
+  (Analysis-profiles row + app-form delta) that a stale-snapshot bug in the re-audit session's
+  Python edits had silently dropped while its commit message claimed they landed. Verified:
+  `verify/verify-aprofiles.js` (37 assertions), full battery 22/22.
 - **Token administration on the mock's Config → Access tab (defect row 129)** — the static
   2-row Tokens card became a full management surface mirroring the live console's `/tokens`
   column set (ID/Login/Kind/Scopes/Issued/Expiration/Lifespan hours) plus the management half

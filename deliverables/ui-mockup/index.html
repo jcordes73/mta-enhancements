@@ -379,6 +379,15 @@
      keeps min-width:0 so the grid track can't be stretched past the viewport by the table. */
   #panel-cfg-access .gc6:has(#tokPagerSlot){min-width:0;}
   #tokBulk[hidden]{display:none;}
+  /* row 130: analysis-profile wizard modal \u2014 the real PF6 wizard component (same skeleton as
+     the #scr=wizard screen: __outer-wrap > __inner-wrap > __nav + __main); only the scroll cap,
+     the nav group labels and the targets grid are the mock's own layer. */
+  .ap-wiz{min-height:420px;}
+  #modalAProfile .pf-v6-c-wizard__main-body{max-height:55vh; overflow-y:auto; padding-right:var(--rh-space-sm);}
+  .ap-nav-group{font-weight:500; color:var(--rh-color-gray-60); padding:var(--rh-space-sm) 0 0; font-size:var(--rh-font-size-body-text-sm);}
+  .ap-nav-sub{margin-left:var(--rh-space-lg);}
+  .ap-targets{display:grid; grid-template-columns:repeat(2,1fr); gap:var(--rh-space-sm) var(--rh-space-lg); margin-top:var(--rh-space-md);}
+  #apReview .k{font-weight:500;}
   /* RHDS Table guidelines (row 86, Column sorting): the UNSORTED state shows both arrows */
   .pf-v6-c-table__sort-indicator{display:inline-flex; align-items:center; gap:var(--pf-t--global--spacer--xs);}
   /* selected state for facet/toolbar chips (defect #45) */
@@ -2092,6 +2101,30 @@
           <div class="u-muted" style="margin-top: var(--rh-space-md);">Activation on 2026-10-02 propagated v3 answers across the EAP8 cohort; claims-web's completed own-assessment stayed on its recorded version and its per-app deltas remain visible in Reports &rarr; Provenance <span class="anno" data-tip="#45: version activation never silently rewrites answered assessments — member apps keep answer history per version; overrides are re-propagated explicitly from Applications &rarr; Cohorts">#45</span> <a href="#" onclick="showCohorts();return false">Cohorts &rarr;</a></div>
         </div>
       </div>
+      <div class="pf-v6-c-card" id="cfg-aprofiles">
+        <div class="pf-v6-c-card__header">
+          <div class="pf-v6-c-card__title">Analysis profiles <span class="anno" data-tip="live 8.3.3 /analysis-profiles (re-audit 2026-11-17): 'create and manage analysis profiles — save and reuse analysis configurations across multiple applications'; the create/edit wizard walks the live step set (details, source, targets, scope, custom rules, review)">#36</span></div>
+          <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary" type="button" data-rbac="profiles:edit" onclick="apOpen()"><span class="pf-v6-c-button__text">Create analysis profile</span></button></div>
+        </div>
+        <div class="pf-v6-c-card__body">
+        <div class="u-muted" style="margin-bottom: var(--rh-space-md);">Save and reuse analysis configurations across multiple applications &mdash; an archetype carries its profile the way it carries questionnaires, so member applications inherit it at analysis time <span class=anno-cite>(#36)</span>.</div>
+        <div class="tok-scroll" style="overflow-x:auto;">
+        <table class="pf-v6-c-table pf-m-compact" role="grid" id="apTable"><thead><tr class="pf-v6-c-table__tr">
+          <th class="pf-v6-c-table__th" scope="col">Name</th>
+          <th class="pf-v6-c-table__th" scope="col">Description</th>
+          <th class="pf-v6-c-table__th" scope="col">Analysis source</th>
+          <th class="pf-v6-c-table__th" scope="col">Targets</th>
+          <th class="pf-v6-c-table__th" scope="col">Scope</th>
+          <th class="pf-v6-c-table__th" scope="col">Custom rules</th>
+          <th class="pf-v6-c-table__th" scope="col">Assigned archetypes <span class="anno" data-tip="live /archetypes carries a Profiles column — assignment here writes through to the archetype table and its detail rows">#36</span></th>
+          <th class="pf-v6-c-table__th" scope="col"><span class="pf-v6-screen-reader">Row actions</span></th>
+        </tr></thead>
+        <tbody id="apBody"></tbody>
+        </table>
+        </div>
+        <div id="apEmpty" hidden class="u-muted" style="padding: var(--rh-space-md) 0;">No analysis profiles yet &mdash; create one to save a reusable analysis configuration.</div>
+        </div>
+      </div>
       </div>
 
       <div id="panel-cfg-platform" role="tabpanel" aria-labelledby="tab-cfg-platform" tabindex="0" hidden style="margin-top: var(--pf-t--global--spacer--md);">
@@ -3797,6 +3830,104 @@ artifacts:
   </div>
 </div>
 
+<!-- ================= row 130: analysis-profile create/edit wizard (live 8.3.3 /analysis-profiles) ================= -->
+<div class="pf-v6-c-backdrop" id="modalAProfile" hidden>
+  <div class="pf-v6-c-modal-box pf-m-lg" role="dialog" aria-modal="true" aria-labelledby="ap-title">
+    <div class="pf-v6-c-modal-box__header">
+      <h2 class="pf-v6-c-modal-box__title" id="ap-title"><span class="pf-v6-c-modal-box__title-text" id="apTitle">Create analysis profile</span></h2>
+      <button class="pf-v6-c-button pf-m-plain pf-v6-c-modal-box__close" type="button" aria-label="Close dialog" onclick="closeModals()"><span class="pf-v6-c-button__icon">&#10005;</span></button>
+    </div>
+    <div class="pf-v6-c-wizard ap-wiz">
+      <div class="pf-v6-c-wizard__outer-wrap">
+        <div class="pf-v6-c-wizard__inner-wrap">
+      <nav class="pf-v6-c-wizard__nav" aria-label="Analysis profile steps">
+        <ol class="pf-v6-c-wizard__nav-list">
+          <li class="pf-v6-c-wizard__nav-item"><a href="#" data-apstep="1" class="pf-v6-c-wizard__nav-link" onclick="apGo(1); return false">Profile Details</a></li>
+          <li class="pf-v6-c-wizard__nav-item ap-nav-group">Configure Analysis</li>
+          <li class="pf-v6-c-wizard__nav-item ap-nav-sub"><a href="#" data-apstep="2" class="pf-v6-c-wizard__nav-link" onclick="apGo(2); return false">Analysis Source</a></li>
+          <li class="pf-v6-c-wizard__nav-item ap-nav-sub"><a href="#" data-apstep="3" class="pf-v6-c-wizard__nav-link" onclick="apGo(3); return false">Set Targets</a></li>
+          <li class="pf-v6-c-wizard__nav-item ap-nav-sub"><a href="#" data-apstep="4" class="pf-v6-c-wizard__nav-link" onclick="apGo(4); return false">Scope</a></li>
+          <li class="pf-v6-c-wizard__nav-item ap-nav-sub"><a href="#" data-apstep="5" class="pf-v6-c-wizard__nav-link" onclick="apGo(5); return false">Custom Rules</a></li>
+          <li class="pf-v6-c-wizard__nav-item"><a href="#" data-apstep="6" class="pf-v6-c-wizard__nav-link" onclick="apGo(6); return false">Review</a></li>
+        </ol>
+      </nav>
+      <div class="pf-v6-c-wizard__main">
+        <div class="pf-v6-c-wizard__main-body" data-appanel="1">
+          <h3 class="pf-v6-c-title pf-m-md">Profile Details</h3>
+          <p class="u-muted" style="margin-bottom: var(--rh-space-md);">Enter the basic details for the analysis profile.</p>
+          <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="apName"><span class="pf-v6-c-form__label-text">Name <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
+            <input class="pf-v6-c-form-control" type="text" id="apName" oninput="apSyncNext()"></div>
+          <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="apDesc"><span class="pf-v6-c-form__label-text">Description</span></label>
+            <input class="pf-v6-c-form-control" type="text" id="apDesc"></div>
+        </div>
+        <div class="pf-v6-c-wizard__main-body" data-appanel="2" hidden>
+          <h3 class="pf-v6-c-title pf-m-md">Analysis Source</h3>
+          <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" id="apSourceLabel"><span class="pf-v6-c-form__label-text">Source for analysis <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
+            <div class="select-wrap">
+              <button class="pf-v6-c-menu-toggle" type="button" aria-expanded="false" aria-labelledby="apSourceLabel" onclick="toggleSelect(this)"><span class="pf-v6-c-menu-toggle__text" id="apSourceText">Source code + dependencies</span><span class="pf-v6-c-menu-toggle__toggle-icon" aria-hidden="true">&#9662;</span></button>
+              <div class="pf-v6-c-menu" hidden><ul class="pf-v6-c-menu__list" role="menu">
+                <li class="pf-v6-c-menu__list-item pf-m-selected" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="apSourceSet('Source code + dependencies', this)"><span class="pf-v6-c-menu__item-text">Source code + dependencies</span></button></li>
+                <li class="pf-v6-c-menu__list-item" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="apSourceSet('Source code', this)"><span class="pf-v6-c-menu__item-text">Source code</span></button></li>
+              </ul></div>
+            </div>
+          </div>
+        </div>
+        <div class="pf-v6-c-wizard__main-body" data-appanel="3" hidden>
+          <h3 class="pf-v6-c-title pf-m-md">Set Targets</h3>
+          <p class="u-muted" style="margin-bottom: var(--rh-space-md);">Select one or more target options in focus for the analysis.</p>
+          <div class="pf-v6-c-alert pf-m-warning pf-m-inline" id="apTargetWarn" hidden role="alert">
+            <div class="pf-v6-c-alert__icon" aria-hidden="true">!</div>
+            <div class="pf-v6-c-alert__title"><h4>Target selection can be skipped if custom rule file(s) are used</h4></div>
+          </div>
+          <div class="ap-targets" id="apTargets">
+            <label class="pf-v6-c-check"><input class="pf-v6-c-check__input" type="checkbox" value="JBoss EAP 8" onchange="apSyncNext()"><span class="pf-v6-c-check__label">JBoss EAP 8 <span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Java</span></span></span></span></label>
+            <label class="pf-v6-c-check"><input class="pf-v6-c-check__input" type="checkbox" value="Containerization" onchange="apSyncNext()"><span class="pf-v6-c-check__label">Containerization <span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Java</span></span></span></span></label>
+            <label class="pf-v6-c-check"><input class="pf-v6-c-check__input" type="checkbox" value="Spring Framework 6" onchange="apSyncNext()"><span class="pf-v6-c-check__label">Spring Framework 6 <span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Java</span></span></span></span></label>
+            <label class="pf-v6-c-check"><input class="pf-v6-c-check__input" type="checkbox" value="Spring Boot 3" onchange="apSyncNext()"><span class="pf-v6-c-check__label">Spring Boot 3 <span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Java</span></span></span></span></label>
+            <label class="pf-v6-c-check"><input class="pf-v6-c-check__input" type="checkbox" value="Quarkus" onchange="apSyncNext()"><span class="pf-v6-c-check__label">Quarkus <span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Java</span></span></span></span></label>
+            <label class="pf-v6-c-check"><input class="pf-v6-c-check__input" type="checkbox" value="OpenJDK 11" onchange="apSyncNext()"><span class="pf-v6-c-check__label">OpenJDK 11 <span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Java</span></span></span></span></label>
+            <label class="pf-v6-c-check"><input class="pf-v6-c-check__input" type="checkbox" value="camel:3" onchange="apSyncNext()"><span class="pf-v6-c-check__label">camel:3 <span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Java</span></span></span></span></label>
+            <label class="pf-v6-c-check"><input class="pf-v6-c-check__input" type="checkbox" value="Azure App Service" onchange="apSyncNext()"><span class="pf-v6-c-check__label">Azure App Service <span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Java</span></span></span></span></label>
+            <label class="pf-v6-c-check"><input class="pf-v6-c-check__input" type="checkbox" value="OpenJDK 21" onchange="apSyncNext()"><span class="pf-v6-c-check__label">OpenJDK 21 <span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Java</span></span></span></span></label>
+            <label class="pf-v6-c-check"><input class="pf-v6-c-check__input" type="checkbox" value="PatternFly 5 to PatternFly 6" onchange="apSyncNext()"><span class="pf-v6-c-check__label">PatternFly 5 to PatternFly 6 <span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">web</span></span></span></span></label>
+          </div>
+        </div>
+        <div class="pf-v6-c-wizard__main-body" data-appanel="4" hidden>
+          <h3 class="pf-v6-c-title pf-m-md">Scope</h3>
+          <div class="pf-v6-c-radio"><input class="pf-v6-c-radio__input" type="radio" id="apScopeInt" name="apScope" value="internal" checked onchange="apSyncNext()"><label class="pf-v6-c-radio__label" for="apScopeInt">Application and internal dependencies only</label></div>
+          <div class="pf-v6-c-radio"><input class="pf-v6-c-radio__input" type="radio" id="apScopeAll" name="apScope" value="all" onchange="apSyncNext()"><label class="pf-v6-c-radio__label" for="apScopeAll">Application and all dependencies, including known Open Source libraries</label></div>
+          <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="apPkgs"><span class="pf-v6-c-form__label-text">Add the list of packages to be analyzed</span></label>
+            <input class="pf-v6-c-form-control" type="text" id="apPkgs" placeholder="com.example.core, com.example.services"></div>
+          <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="apExcl"><span class="pf-v6-c-form__label-text">Exclude packages</span></label>
+            <input class="pf-v6-c-form-control" type="text" id="apExcl" placeholder="com.example.generated"></div>
+        </div>
+        <div class="pf-v6-c-wizard__main-body" data-appanel="5" hidden>
+          <h3 class="pf-v6-c-title pf-m-md">Custom Rules</h3>
+          <p class="u-muted" style="margin-bottom: var(--rh-space-md);">Include rules for the analysis by uploading them or importing from a repository.</p>
+          <div class="pf-v6-c-alert pf-m-warning pf-m-inline" id="apRuleWarn" hidden role="alert">
+            <div class="pf-v6-c-alert__icon" aria-hidden="true">!</div>
+            <div class="pf-v6-c-alert__title"><h4>At least one custom rule file is required if no targets are selected</h4></div>
+          </div>
+          <div class="pf-v6-c-card__actions" style="margin-bottom: var(--rh-space-sm);"><button class="pf-v6-c-button pf-m-secondary" type="button" onclick="apRuleAdd()"><span class="pf-v6-c-button__text">Add rules</span></button></div>
+          <table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Name</th><th class="pf-v6-c-table__th" scope="col">Sources / Targets</th><th class="pf-v6-c-table__th" scope="col">Number of rules</th><th class="pf-v6-c-table__th" scope="col"><span class="pf-v6-screen-reader">Row actions</span></th></tr></thead>
+          <tbody id="apRulesBody"><tr class="pf-v6-c-table__tr" id="apRulesEmpty"><td class="pf-v6-c-table__td" colspan="4"><span class="u-muted">No custom rules available</span></td></tr></tbody></table>
+        </div>
+        <div class="pf-v6-c-wizard__main-body" data-appanel="6" hidden>
+          <h3 class="pf-v6-c-title pf-m-md">Review</h3>
+          <p class="u-muted" style="margin-bottom: var(--rh-space-md);">Confirm the configuration &mdash; the profile is saved here and every assigned archetype inherits it at analysis time <span class=anno-cite>(#36)</span>.</p>
+          <div id="apReview" class="arch-detail-grid"></div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+    <footer class="pf-v6-c-modal-box__footer">
+      <button class="pf-v6-c-button pf-m-secondary" type="button" id="apBack" onclick="apGo(ap.step - 1)"><span class="pf-v6-c-button__text">Back</span></button>
+      <button class="pf-v6-c-button pf-m-primary" type="button" id="apNext" onclick="apNext()"><span class="pf-v6-c-button__text">Next</span></button>
+      <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
+    </footer>
+  </div>
+</div>
 <!-- ================= row 122: gateway CA-trust confirm (blast radius + re-test-on-apply) ================= -->
 <div class="pf-v6-c-backdrop" id="modalGwTrust" hidden>
   <div class="pf-v6-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="mgt-title">
@@ -7465,7 +7596,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
      table stays the detail view (upstream: /archetypes table vs the group dashboard). */
   const MOCK_ARCHETYPES = [
     { name:'EAP8-archetype', description:'EAP 7 &rarr; 8 migration assessment', criteria:['eap7'], tags:['eap8','jboss'], maintainers:'M. Keller', findings:'JNDI lookups, proprietary ORM, log4j 1.x',
-      profiles:'EAP8 analysis profile', assessment:{label:'v3 · activated 2026-10-02', color:'green'} },
+      profiles:'JBoss EAP 7.4 to JBoss EAP 8', assessment:{label:'v3 · activated 2026-10-02', color:'green'} },
     { name:'Spring', description:'Spring Boot &rarr; Quarkus path', criteria:['spring'], tags:[], maintainers:'P. Schmidt',
       profiles:'Spring &rarr; Quarkus profile', assessment:{label:'not started', color:'outline'}, review:'&mdash;' },
     { name:'Quarkus', description:'Quarkus cloud-native baseline', criteria:['quarkus'], tags:[], maintainers:'J. Cordes',
@@ -8458,6 +8589,196 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     tokPending = null;
     closeModals();
     renderTokens();
+  }
+  /* ---- analysis profiles (row 130, user request "close the Analysis Profile gap"): the live
+     8.3.3 /analysis-profiles surface (re-audit 2026-11-17) modeled on Config -> Analysis. The
+     create/edit wizard walks the live step set — Profile Details, Analysis Source, Set Targets,
+     Scope, Custom Rules, Review (the live wizard's Advanced and Labels panels sit behind target
+     selection and were not crawlable; their fields are folded into Scope/Review). Assignment
+     writes through to MOCK_ARCHETYPES.profiles, which the archetype table and its detail rows
+     already render. Mutations are session-scoped in-memory and audited (#42 pattern). ---- */
+  const MOCK_APROFILES = [
+    { id: 1, name: 'JBoss EAP 7.4 to JBoss EAP 8', description: 'Analysis profile for migrating JBoss EAP 7.4 to JBoss EAP 8', source: 'Source code + dependencies',
+      targets: ['JBoss EAP 8', 'OpenJDK 11'], scope: 'internal', pkgs: '', excl: '', rules: [{ name: 'eap8-migration-ruleset', st: 'JBoss EAP 8', count: 42 }], archs: ['EAP8-archetype'] },
+    { id: 2, name: 'Spring \u2192 Quarkus profile', description: 'Spring Boot 3 applications retargeted to Quarkus', source: 'Source code + dependencies',
+      targets: ['Spring Boot 3', 'Quarkus'], scope: 'all', pkgs: '', excl: '', rules: [], archs: ['Spring'] },
+    { id: 3, name: 'Quarkus baseline', description: 'Container-ready Quarkus baseline for cloud-readiness scoring', source: 'Source code',
+      targets: ['Quarkus', 'Containerization'], scope: 'internal', pkgs: 'com.northwind', excl: 'com.northwind.generated',
+      rules: [{ name: 'platform-custom', st: 'OpenJDK 21', count: 12 }], archs: ['Quarkus'] }
+  ];
+  const AP_RULE_CATALOG = [
+    { name: 'eap8-migration-ruleset', st: 'JBoss EAP 8', count: 42 },
+    { name: 'platform-custom', st: 'OpenJDK 21', count: 12 },
+    { name: 'weblogic-to-eap', st: 'JBoss EAP 8', count: 31 }
+  ];
+  const ap = { step: 1, editId: null };
+  function apChips(arr, color){
+    return arr && arr.length ? arr.map(t => '<span class="pf-v6-c-label pf-m-' + color + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + t + '</span></span></span>').join(' ') : '<span class="u-muted">&mdash;</span>';
+  }
+  function renderAProfiles(){
+    const tb = document.getElementById('apBody'); if (!tb) return;
+    tb.innerHTML = MOCK_APROFILES.map(p =>
+      '<tr class="pf-v6-c-table__tr" data-approfile="' + p.id + '">' +
+      '<td class="pf-v6-c-table__td"><b>' + p.name + '</b>' + (p.name === 'JBoss EAP 7.4 to JBoss EAP 8' ? ' <span class="anno" data-tip="the live console\'s sample profile (re-audit 2026-11-17), verbatim">8.3.3</span>' : '') + '</td>' +
+      '<td class="pf-v6-c-table__td">' + p.description + '</td>' +
+      '<td class="pf-v6-c-table__td">' + p.source + '</td>' +
+      '<td class="pf-v6-c-table__td">' + apChips(p.targets, 'teal') + '</td>' +
+      '<td class="pf-v6-c-table__td">' + (p.scope === 'internal' ? 'App + internal deps' : 'App + all deps') + (p.pkgs ? '<span class="u-muted" style="font-size: var(--rh-font-size-body-text-xs);"> &middot; incl. ' + p.pkgs + '</span>' : '') + (p.excl ? '<span class="u-muted" style="font-size: var(--rh-font-size-body-text-xs);"> &middot; excl. ' + p.excl + '</span>' : '') + '</td>' +
+      '<td class="pf-v6-c-table__td">' + (p.rules.length ? p.rules.map(r => r.name + ' <span class="u-muted">(' + r.count + ')</span>').join(', ') : '&mdash;') + '</td>' +
+      '<td class="pf-v6-c-table__td">' + apChips(p.archs, 'blue') + '</td>' +
+      '<td class="pf-v6-c-table__td"><button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" data-rbac="profiles:edit" onclick="apOpen(' + p.id + ')"><span class="pf-v6-c-button__text">Edit</span></button> ' +
+      '<button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" data-rbac="profiles:edit" data-apid="' + p.id + '" onclick="apDelete(this)"><span class="pf-v6-c-button__text">Delete</span></button></td></tr>'
+    ).join('');
+    document.getElementById('apEmpty').hidden = MOCK_APROFILES.length > 0;
+    document.getElementById('apTable').hidden = MOCK_APROFILES.length === 0;
+    if (typeof applyRbac === 'function') applyRbac();   /* verb gating follows the re-render */
+  }
+  function apOpen(id){
+    ap.editId = id || null;
+    ap.step = 1;
+    const p = id ? MOCK_APROFILES.find(x => x.id === id) : null;
+    document.getElementById('apTitle').textContent = p ? 'Edit analysis profile' : 'Create analysis profile';
+    document.getElementById('apName').value = p ? p.name : '';
+    document.getElementById('apDesc').value = p ? p.description : '';
+    document.getElementById('apSourceText').textContent = p ? p.source : 'Source code + dependencies';
+    document.querySelectorAll('#apTargets input').forEach(c => { c.checked = !!(p && p.targets.includes(c.value)); });
+    (document.getElementById(p && p.scope === 'all' ? 'apScopeAll' : 'apScopeInt')).checked = true;
+    document.getElementById('apPkgs').value = p ? p.pkgs : '';
+    document.getElementById('apExcl').value = p ? p.excl : '';
+    ap.rules = p ? p.rules.map(r => Object.assign({}, r)) : [];
+    apRenderRules();
+    openModal('modalAProfile');
+    apGo(1);
+  }
+  function apRenderRules(){
+    const tb = document.getElementById('apRulesBody');
+    tb.innerHTML = ap.rules.length
+      ? ap.rules.map((r, i) => '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td"><code>' + r.name + '</code></td><td class="pf-v6-c-table__td">' + r.st + '</td><td class="pf-v6-c-table__td">' + r.count + '</td><td class="pf-v6-c-table__td"><button class="pf-v6-c-button pf-m-plain btn-xs" type="button" aria-label="Remove ruleset ' + r.name + '" onclick="apRuleDel(' + i + ')"><span class="pf-v6-c-button__icon">&#10005;</span></button></td></tr>').join('')
+      : '<tr class="pf-v6-c-table__tr" id="apRulesEmpty"><td class="pf-v6-c-table__td" colspan="4"><span class="u-muted">No custom rules available</span></td></tr>';
+  }
+  function apRuleAdd(){
+    const used = new Set(ap.rules.map(r => r.name));
+    const next = AP_RULE_CATALOG.find(r => !used.has(r.name));
+    if (!next) return;
+    ap.rules.push(Object.assign({}, next));
+    apRenderRules(); apSyncNext();
+  }
+  function apRuleDel(i){ ap.rules.splice(i, 1); apRenderRules(); apSyncNext(); }
+  function apSourceSet(v, opt){
+    document.getElementById('apSourceText').textContent = v;
+    const menu = opt.closest('.pf-v6-c-menu');
+    menu.querySelectorAll('.pf-v6-c-menu__list-item').forEach(li => li.classList.toggle('pf-m-selected', li.contains(opt)));
+    menu.hidden = true;   /* pagerPerPage idiom: the item closes its own menu */
+  }
+  function apGo(n){
+    ap.step = Math.min(6, Math.max(1, n));
+    document.querySelectorAll('[data-apstep]').forEach(a => {
+      const s = +a.dataset.apstep;
+      a.classList.toggle('pf-m-current', s === ap.step);
+      a.toggleAttribute('aria-current', s === ap.step);
+      a.classList.toggle('pf-m-done', s < ap.step);
+    });
+    document.querySelectorAll('[data-appanel]').forEach(pn => pn.hidden = +pn.dataset.appanel !== ap.step);
+    document.getElementById('apBack').disabled = ap.step === 1;
+    document.getElementById('apNext').querySelector('.pf-v6-c-button__text').textContent = ap.step === 6 ? 'Finish' : 'Next';
+    if (ap.step === 6) apReview();
+    apSyncNext();
+  }
+  function apNext(){
+    if (ap.step < 6){ apGo(ap.step + 1); return; }
+    apSave();
+  }
+  function apTargets(){ return [...document.querySelectorAll('#apTargets input')].filter(c => c.checked).map(c => c.value); }
+  function apSyncNext(){
+    const nx = document.getElementById('apNext');
+    if (ap.step === 1){
+      const ok = document.getElementById('apName').value.trim().length > 0;
+      nx.disabled = !ok;
+      nx.title = ok ? '' : 'Name is required';
+    } else if (ap.step === 5){
+      /* live gate: at least one custom rule file is required if no targets are selected */
+      const ok = apTargets().length > 0 || ap.rules.length > 0;
+      nx.disabled = !ok;
+      nx.title = ok ? '' : 'At least one custom rule file is required if no targets are selected';
+    } else {
+      nx.disabled = false; nx.title = '';
+    }
+    /* both live warnings are state-aware: visible until targets or rules exist */
+    document.getElementById('apTargetWarn').hidden = apTargets().length > 0 || ap.rules.length > 0;
+  }
+  function apReview(){
+    const src = document.getElementById('apSourceText').textContent;
+    const scope = document.querySelector('input[name=apScope]:checked').value;
+    const rows = [
+      ['Name', '<b>' + (document.getElementById('apName').value || '&mdash;') + '</b>'],
+      ['Description', document.getElementById('apDesc').value || '&mdash;'],
+      ['Analysis source', src],
+      ['Targets', apChips(apTargets(), 'teal')],
+      ['Scope', (scope === 'internal' ? 'App + internal deps' : 'App + all deps') + (document.getElementById('apPkgs').value ? ' &middot; incl. ' + document.getElementById('apPkgs').value : '') + (document.getElementById('apExcl').value ? ' &middot; excl. ' + document.getElementById('apExcl').value : '')],
+      ['Custom rules', ap.rules.length ? ap.rules.map(r => r.name + ' (' + r.count + ')').join(', ') : '&mdash;']
+    ];
+    document.getElementById('apReview').innerHTML = rows.map(r => '<div class="k">' + r[0] + '</div><div class="v">' + r[1] + '</div>').join('');
+  }
+  function apSave(){
+    const name = document.getElementById('apName').value.trim();
+    if (!name) return;
+    const scope = document.querySelector('input[name=apScope]:checked').value;
+    const fields = {
+      name: name,
+      description: document.getElementById('apDesc').value.trim(),
+      source: document.getElementById('apSourceText').textContent,
+      targets: apTargets(),
+      scope: scope,
+      pkgs: document.getElementById('apPkgs').value.trim(),
+      excl: document.getElementById('apExcl').value.trim(),
+      rules: ap.rules.map(r => Object.assign({}, r))
+    };
+    let p;
+    if (ap.editId){
+      p = MOCK_APROFILES.find(x => x.id === ap.editId);
+      const old = p.name;
+      Object.assign(p, fields);
+      apWriteThrough(p, old);
+      auditAdd('profile:update', name);
+    } else {
+      p = Object.assign({ id: Math.max(0, ...MOCK_APROFILES.map(x => x.id)) + 1, archs: [] }, fields);
+      MOCK_APROFILES.push(p);
+      auditAdd('profile:create', name);
+    }
+    apWriteThrough(p, ap.editId ? undefined : null);
+    rbacToast('<b>' + name + '</b> ' + (ap.editId ? 'updated' : 'created') + ' — assigned archetypes inherit it at analysis time; recorded in the audit trail <span class=anno-cite>(#36 / #42)</span>.');
+    ap.editId = null;
+    closeModals();
+    renderAProfiles();
+    if (typeof renderArchetypes === 'function') renderArchetypes();   /* the Profiles column follows the write-through */
+  }
+  function apWriteThrough(p, oldName){
+    /* the archetype table's Profiles cell renders MOCK_ARCHETYPES.profiles — keep it in sync
+       with the store: archetypes assigned here gain the profile name, ones that referenced the
+       previous name (and only it) fall back to an em dash */
+    MOCK_ARCHETYPES.forEach(a => {
+      if (p.archs.includes(a.name)){
+        a.profiles = p.name;
+      } else if (oldName && a.profiles === oldName){
+        a.profiles = '&mdash;';
+      }
+    });
+  }
+  function apDelete(btn){
+    const id = Number(btn.dataset.apid);
+    const p = MOCK_APROFILES.find(x => x.id === id);
+    if (!p) return;
+    if (!btn.dataset.armed){
+      btn.dataset.armed = '1';
+      armDeleteBtn(btn, true);
+      return;
+    }
+    MOCK_APROFILES.splice(MOCK_APROFILES.indexOf(p), 1);
+    apWriteThrough({ name: p.name, archs: [] }, p.name);   /* clear referencing archetypes' Profiles cells */
+    auditAdd('profile:delete', p.name);
+    rbacToast('<b>' + p.name + '</b> deleted — archetype analyses fall back to their default configuration; recorded in the audit trail <span class=anno-cite>(#36 / #42)</span>.');
+    renderAProfiles();
+    if (typeof renderArchetypes === 'function') renderArchetypes();
   }
   function ubPage(delta){ ub.page += delta; renderUserBindings(); }
   function ubGoto(p){ ub.page = p; renderUserBindings(); }   /* render clamps into range, so 'last' can pass a big number */
@@ -10546,6 +10867,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
   renderArchitectLanding();   /* the rest of the architect home's numbers, same discipline */
   renderProvenance();         /* the reports provenance table renders from MOCK_APPS (boot; tenancy re-runs it) */
   renderTokens();             /* row 129: token administration table (own toolbar/pager re-render) */
+  renderAProfiles();          /* row 130: analysis profiles (Config -> Analysis; own wizard re-renders) */
   applyHash();
 </script>
 </body>
