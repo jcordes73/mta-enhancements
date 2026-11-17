@@ -2966,7 +2966,7 @@
     </div>
   </div>
   <div style="display:flex; gap: var(--pf-t--global--spacer--sm); flex-wrap:wrap; margin-top: var(--rh-space-lg);">
-    <button class="pf-v6-c-button pf-m-primary" type="button" onclick="openDrawer('assess')"><span class="pf-v6-c-button__text">Assess</span></button>
+    <button class="pf-v6-c-button pf-m-primary" type="button" onclick="assessGate('payments-api')"><span class="pf-v6-c-button__text">Assess</span></button>
     <button class="pf-v6-c-button pf-m-secondary" type="button" onclick="closeDrawers(); show('waves')"><span class="pf-v6-c-button__text">Open wave 3</span></button>
   </div>
 </template>
@@ -4106,6 +4106,25 @@ artifacts:
     </div>
     <footer class="pf-v6-c-modal-box__footer">
       <button class="pf-v6-c-button pf-m-primary" type="button" id="credSaveBtn" onclick="credSave()" disabled><span class="pf-v6-c-button__text">Create</span></button>
+      <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
+    </footer>
+  </div>
+</div>
+
+<!-- ================= row 137: assessment override (live "New assessment" warning) ================= -->
+<div class="pf-v6-c-backdrop" id="modalAssessOverride" hidden>
+  <div class="pf-v6-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="ao-title">
+    <div class="pf-v6-c-modal-box__header">
+      <h2 class="pf-v6-c-modal-box__title" id="ao-title"><span class="pf-v6-c-modal-box__title-text"><span id="aoIcon" aria-hidden="true" style="color:var(--pf-t--global--color--status--warning--default); margin-right: var(--rh-space-xs);"></span>New assessment</span></h2>
+      <button class="pf-v6-c-button pf-m-plain pf-v6-c-modal-box__close" type="button" aria-label="Close dialog" onclick="closeModals()"><span class="pf-v6-c-button__icon">&#10005;</span></button>
+    </div>
+    <div class="pf-v6-c-modal-box__body">
+      <div class="pf-v6-c-alert pf-m-warning pf-m-inline" role="alert"><div class="pf-v6-c-alert__title"><h4>The application <b id="aoAppName"></b> already is associated with archetypes: <b id="aoArch"></b>.</h4></div></div>
+      <p style="margin-top: var(--rh-space-md);">Do you want to create a dedicated assessment for this application and override the inherited archetype assessment(s)?</p>
+    </div>
+    <footer class="pf-v6-c-modal-box__footer">
+      <button class="pf-v6-c-button pf-m-primary" type="button" id="aoOverrideBtn" onclick="assessOverrideProceed()"><span class="pf-v6-c-button__text">Override</span></button>
+      <button class="pf-v6-c-button pf-m-secondary" type="button" onclick="assessViewArchetypes()"><span class="pf-v6-c-button__text">View archetypes</span></button>
       <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
     </footer>
   </div>
@@ -7842,6 +7861,37 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     document.getElementById('drawerRoot').hidden = false;
     state.drawer = 'assess';
     syncHash();
+  }
+
+  /* ---- assessment override gate (row 137, "implement the remaining gaps"): the live Assess
+     verb on an app associated with archetypes warns first — "New assessment" with the
+     association alert and the Override/View archetypes/Cancel choice. Override creates a
+     DEDICATED assessment (#45: the archetype baseline stays untouched; the app's answers
+     override the inherited ones from here on). View archetypes jumps to the cohort. ---- */
+  function assessGate(name){
+    const n = name || 'payments-api';
+    const a = MOCK_APPS.find(x => x.name === n) || {};
+    document.getElementById('aoAppName').textContent = n;
+    document.getElementById('aoArch').textContent = a.archetype || 'EAP8-archetype';
+    document.getElementById('aoIcon').innerHTML = rhSvg('warning');
+    openModal('modalAssessOverride');
+  }
+  function assessOverrideProceed(){
+    const name = document.getElementById('aoAppName').textContent;
+    const a = MOCK_APPS.find(x => x.name === name) || {};
+    closeModals();
+    openAssessment(name);
+    const note = document.createElement('div');
+    note.className = 'pf-v6-c-alert pf-m-info pf-m-inline';
+    note.setAttribute('role', 'alert');
+    note.style.margin = '0 0 var(--rh-space-lg)';
+    note.innerHTML = '<div class="pf-v6-c-alert__title"><h4>Dedicated assessment</h4></div>'
+      + '<div class="pf-v6-c-alert__description"><p>Answers saved here override the inherited archetype assessment(s) for <b>' + name + '</b> &mdash; the <b>' + (a.archetype || 'EAP8-archetype') + '</b> baseline stays untouched and keeps serving the other member applications <span class=anno-cite>(#45)</span>.</p></div>';
+    document.getElementById('drawerBody').prepend(note);
+  }
+  function assessViewArchetypes(){
+    closeModals();
+    showCohorts();
   }
   function a_incidents(name){ return !!APP_INCIDENTS[name]; }
 

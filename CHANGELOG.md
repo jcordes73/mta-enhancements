@@ -11,6 +11,13 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Assessment override gate (defect row 137)** — the Assess verb on an application associated
+  with archetypes now warns first, at live parity: the "New assessment" modal carries the
+  association alert (app + archetype), the verbatim override question, and
+  **Override / View archetypes / Cancel**. Override opens the questionnaire in dedicated mode
+  (answers override the inherited archetype assessment(s); the archetype baseline stays
+  untouched, #45); View archetypes jumps to the cohorts tab.
+  `verify/verify-assessoverride.js` (11 assertions), battery 29/29.
 - **Agentic authoring (defect row 136)** — agent/skill registries gain Edit verbs (live kebab
   parity) with pre-filled Save modals; renames cascade into run records / agent skill bindings
   and every registry mutation is now audited. The workflow modal's stage-count number is
