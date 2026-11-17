@@ -73,6 +73,10 @@ what-changed-when index. Long-form design-system rules:
   stakeholder directory (both multi-selects; org-scoped for non-padmin);
   `eap8`/`jboss` added to the defined-tag store; table header renamed
   Maintainers → Owners; new i18n key synced to the React dict copy.
+- **Archetype owner immutable (mock row 112)** — the archetype form's
+  Owner is the signed-in user (persona→demo-user mapping) and is locked;
+  edit shows the stored owner, equally unchangeable. Table header now
+  "Owner"; seeds aligned to single-creator; i18n key synced to React.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`
