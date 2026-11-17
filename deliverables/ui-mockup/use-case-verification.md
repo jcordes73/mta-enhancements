@@ -76,30 +76,49 @@ paths as they were recorded at the time; the current canonical location is `veri
 
 Personas are not cosmetic: a `resource:verb` scope model (`RBAC` in the source) drives **navigation,
 deep links, and in-page verbs**. `admin` holds every scope; work personas get the narrow set their
-job needs. Views: **architect** = Home, Applications, Incidents, Waves, Reports, Agentic, Import
-wizard · **pm** = Home, Applications, Incidents, Waves, Reports, Task manager · **migrator** = Home,
-Applications, Incidents, Waves, Agentic, Task manager, Import wizard · **admin** = everything
-(+ the Administration hub) · **padmin** = the same views (UC-X17). **Who sees Reports, and why (user question "who should be able to see reports?"):** five of the six personas — architect, pm, pgm, admin, padmin; the **migrator does not**. The rationale: the migrator's surfaces are *queues and records* (Agentic run tables, Task manager, Incidents) — its own runs' state, event logs, and cost accounting live on the run record itself, while Reports aggregates (showback, trends, risk rollups) answer portfolio questions for the people who own the portfolio. The deep-link guard (`#scr=reports` as migrator → Home + toast) is pinned in the RBAC suite. The question also exposed that Reports → Agent runs was the one report surface not tenancy-clamped (static KPIs contradicting the records) — now the whole tab computes from the scoped store (UC-X16). **Project manager vs Program manager (#41, user request):** the two
-personas share the same read-only view set but differ in *tenancy scope* — the **Project manager**
-belongs to a team (Claims) and is **locked to it** (the masthead 🏢 switcher disables with a
-tooltip pointing at the Program manager persona; `&org=`/`&team=` deep-link params lose to the
+job needs.
+
+**Screen visibility (views list per persona):**
+
+- **architect** — Home, Applications, Incidents, Waves, Reports, Agentic, Import wizard
+- **pm** — Home, Applications, Incidents, Waves, Reports, Task manager
+- **pgm** — the same read-only view set as pm (the difference is tenancy scope — below and §2.0.1)
+- **migrator** — Home, Applications, Incidents, Waves, Agentic, Task manager, Import wizard
+- **admin** — everything, plus the Administration hub · **padmin** — the same views (UC-X17)
+
+**Who sees Reports, and why** (user question "who should be able to see reports?"): five of the six
+personas — architect, pm, pgm, admin, padmin; the **migrator does not**. The rationale: the
+migrator's surfaces are *queues and records* (Agentic run tables, Task manager, Incidents) — its own
+runs' state, event logs, and cost accounting live on the run record itself, while Reports aggregates
+(showback, trends, risk rollups) answer portfolio questions for the people who own the portfolio.
+The deep-link guard (`#scr=reports` as migrator → Home + toast) is pinned in the RBAC suite. The
+question also exposed that Reports → Agent runs was the one report surface not tenancy-clamped
+(static KPIs contradicting the records) — now the whole tab computes from the scoped store (UC-X16).
+
+**Tenancy scope — Project manager vs Program manager vs Migrator (#41):** the Project manager and
+the Program manager share the same read-only view set but differ in *tenancy scope* — the **Project
+manager** belongs to a team (Claims) and is **locked to it** (the masthead 🏢 switcher disables with
+a tooltip pointing at the Program manager persona; `&org=`/`&team=` deep-link params lose to the
 lock), while the **Program manager** keeps the free organization/department scope and additionally
-sees the **cross-team coordination view** on Migration waves (see §2.0.1) plus a program-item in
-the notification feed. **The Migrator is team-locked too** (same home team, Claims): it keeps its
+sees the **cross-team coordination view** on Migration waves (§2.0.1) plus a program-item in the
+notification feed. The **Migrator is team-locked too** (same home team, Claims): it keeps its
 execution verbs (applications CRUD, incident triage/resolve, run creation, task cancel) but
-exercises them within the team that owns the applications — the lock works exactly like the
-Project manager's (switcher disabled with a tooltip, deep-link params lose). **Credential
-governance (#15 + #41, user request):** credentials are **team-owned resources** — every
-credential belongs to exactly one team (the team whose repositories consume it), the same
-ownership invariant as applications — and management follows the tenancy clamp: the
-**architect and migrator** hold `identities:create / edit / verify / delete` for *their team's*
-credentials, the **admin personas** for the whole organization (platform admin: cross-org,
-audited); pm/pgm hold none. Because a team manages its own repos, **Credentials is a
-first-class view** (promoted out of the Administration hub — the WP6 "the hub holds
-configuration, not operations" precedent): `scopedCreds()` is the only credential-list source,
+exercises them within the team that owns the applications — the lock works exactly like the Project
+manager's (switcher disabled with a tooltip, deep-link params lose).
+
+**Credential governance (#15 + #41, user request):** credentials are **team-owned resources** —
+every credential belongs to exactly one team (the team whose repositories consume it), the same
+ownership invariant as applications — and management follows the tenancy clamp: the **architect and
+migrator** hold `identities:create / edit / verify / delete` for *their team's* credentials, the
+**admin personas** for the whole organization (platform admin: cross-org, audited); pm/pgm hold
+none.
+
+**Credentials is a first-class view** (promoted out of the Administration hub — the WP6 "the hub
+holds configuration, not operations" precedent): `scopedCreds()` is the only credential-list source,
 the table shows the current scope's credentials with an **Owner team** column, `#scr=credentials`
-and the legacy `#scr=config&tab=credentials` both land there, and the hub retains 8 tabs. The
-**readiness is a wave GATE condition, not a separate card** (user challenge "do we really need a
+and the legacy `#scr=config&tab=credentials` both land there, and the hub retains 8 tabs.
+
+**Readiness is a wave GATE condition, not a separate card** (user challenge "do we really need a
 pre-wave check card on Migration waves?" — answered: the *check* yes, the *card* no): credential
 readiness appears in the wave's **Gate status** list (#46 definition-of-done) — Wave 3 names the
 expiring `svn-read-key` and the Wave-3 members it serves, and notes the unverified credential is
@@ -107,31 +126,39 @@ expiring `svn-read-key` and the Wave-3 members it serves, and notes the unverifi
 credential *management*: no secrets, no verbs; management stays `identities:*` on the Credentials
 view). The data settled the argument: the card's headline failure (unverified `nexus-mvn`) gated
 nothing (used by 0 applications), while the real Wave-3 risk — an expiring credential used by two
-members — read as one static table row among three. **Assignment at creation (#15 + #41):** the application form's
-**Source credential** select offers exactly the *selected team's* credentials (it repopulates when
-the Team select changes; a team without credentials gets a guided none-option), edit preselects
-the assigned credential, the application detail names it (both the parameterized and the canonical
-template paths follow reassignments), and the "Used by" counts on the Credentials view recompute from the assignments — so creating an app with a credential updates the
-blast radius everywhere. The import wizard's Credentials step (#44/R2-15) offers the owning team's
-credentials, filtered to the scheme's kinds. Verbs: **architect** = applications CRUD + queue analysis, wave
+members — read as one static table row among three.
+
+**Assignment at creation (#15 + #41):** the application form's **Source credential** select offers
+exactly the *selected team's* credentials (it repopulates when the Team select changes; a team
+without credentials gets a guided none-option), edit preselects the assigned credential, the
+application detail names it (both the parameterized and the canonical template paths follow
+reassignments), and the "Used by" counts on the Credentials view recompute from the assignments —
+so creating an app with a credential updates the blast radius everywhere. The import wizard's
+Credentials step (#44/R2-15) offers the owning team's credentials, filtered to the scheme's kinds.
+
+**Verb summary** (full matrix below): **architect** = applications CRUD + queue analysis, wave
 re-validation (`waves:edit`), review sign-off (`review:write`), agent-run creation (`runs:create`)
-and cancellation of running runs (`runs:cancel`),
-credential management within the tenancy clamp (`identities:*`) ·
-**pm** = none (read-only by design) · **migrator** = applications CRUD + queue analysis, incident
-triage/resolve, agent-run creation, **cancellation of running runs** (`runs:cancel` — the executor
-can stop a run that is burning quota or gate time, user request), task cancel, credential
-management within the team (`identities:*`) · **admin** = `*`. Enforcement: nav links and the
-masthead task shortcut hide per view list; gated buttons disable with the missing scope on hover;
-deep links to disallowed screens redirect Home with a warning toast; the notification feed
-(#36 item 5) filters to the active role (its masthead bell renders as a fa-bell icon + unread badge
-per user request — it previously rendered as a bare badge with no icon). **Admin tiers (#41/#42, user request):** the **Admin** is an
-*organization* admin — org-locked like every other persona (the 🏢 switcher's organization entries
-disable; `&org=` deep links lose to the lock; the Teams table shows only its own organization) —
-while the **Platform administrator** (`padmin`) operates *above* the tenancy model (UC-X17).
-**Architect responsibility levels (#41 + #36, user request):** the architect additionally carries a
-**responsibility level** — application / team / department / organization (see §2.0.3) — that clamps
-the tenancy scope (UC-X18).
-Verified by `verify/verify-rbac.js` (92 checks).
+and cancellation of running runs (`runs:cancel`), credential management within the tenancy clamp
+(`identities:*`) · **pm** = none (read-only by design) · **migrator** = applications CRUD + queue
+analysis, incident triage/resolve, agent-run creation, **cancellation of running runs**
+(`runs:cancel` — the executor can stop a run that is burning quota or gate time, user request),
+task cancel, credential management within the team (`identities:*`) · **admin** = `*`.
+
+**Enforcement:** nav links and the masthead task shortcut hide per view list; gated buttons disable
+with the missing scope on hover; deep links to disallowed screens redirect Home with a warning
+toast; the notification feed (#36 item 5) filters to the active role (its masthead bell renders as
+a fa-bell icon + unread badge per user request — it previously rendered as a bare badge with no
+icon).
+
+**Related sections:** **Admin tiers (#41/#42, user request)** — the **Admin** is an *organization*
+admin, org-locked like every other persona (the 🏢 switcher's organization entries disable; `&org=`
+deep links lose to the lock; the Teams table shows only its own organization), while the **Platform
+administrator** (`padmin`) operates *above* the tenancy model (UC-X17) — detailed in §2.0.2.
+**Architect responsibility levels (#41 + #36, user request)** — the architect additionally carries a
+**responsibility level** (application / team / department / organization) that clamps the tenancy
+scope (UC-X18) — detailed in §2.0.3.
+
+Verified by `verify/verify-rbac.js` (171 checks).
 
 **Verb matrix.** The model is verb-based: each persona holds a list of `resource:verb` scopes
 (the `RBAC` const — one source of truth for nav, deep-link guards, and in-page verbs); `can(verb, res)`
