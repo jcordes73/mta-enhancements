@@ -11,6 +11,13 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Stakeholder-side group membership editing (defect row 133)** — the Controls depth gap: the
+  stakeholder modal gains a "Stakeholder groups" checkbox list and an Edit pencil on the rows
+  (live parity: `/controls/stakeholders` carries an Edit action). `stakeholderSave` syncs
+  membership both directions (`stakeSyncGroups` — check grants, uncheck removes), and a rename
+  cascades into group memberships, application owners, business-service owners, and the wave
+  cards' stakeholder cells. Audited (`stakeholder:create/update`). `verify/verify-stakegroups.js`
+  (17 assertions), battery 25/25.
 - **Archetype target profiles (defect row 132)** — the profile-assignment depth gap: each
   archetype's detail row gains a "Target profiles" block (live sample row verbatim) and a
   Manage-target-profiles modal (Name, the four live quickstart generator checkboxes,

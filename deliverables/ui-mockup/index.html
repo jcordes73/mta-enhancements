@@ -3531,6 +3531,8 @@ artifacts:
         <select class="pf-v6-c-form-control" id="ctrlStakeOrg"></select></div>
       <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="ctrlStakeFunc"><span class="pf-v6-c-form__label-text">Job function</span></label>
         <select class="pf-v6-c-form-control" id="ctrlStakeFunc"></select></div>
+      <div class="pf-v6-c-form__group pf-v6-c-form__group-control" style="margin-top: var(--rh-space-md);"><span class="pf-v6-c-form__label-text"><b>Stakeholder groups</b> <span class="u-muted">(live: group.members[] — membership from the stakeholder side; the Groups column and the group tables both follow)</span></span>
+        <div id="ctrlStakeGroups" style="margin-top: var(--rh-space-md); display:grid; gap: var(--rh-space-xs);"></div></div>
       <div class="pf-v6-c-form__group pf-v6-c-form__group-control" style="margin-top: var(--rh-space-md);"><span class="pf-v6-c-form__label-text"><b>Associated business services</b> <span class="u-muted">(live: stakeholder.businessServices[] &mdash; broader than the one owned)</span></span>
         <div id="ctrlStakeBsvcs" style="margin-top: var(--rh-space-md); display:grid; gap: var(--rh-space-xs);"></div></div>
       <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="ctrlStakeEmail"><span class="pf-v6-c-form__label-text">Email <span class="u-muted">(links to the IdP directory, #36 clause a)</span></span></label>
@@ -3538,7 +3540,7 @@ artifacts:
       <div class="pf-v6-c-helper-text pf-m-error" id="ctrlStakeError" hidden><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text"></span></div></div>
     </div>
     <footer class="pf-v6-c-modal-box__footer">
-      <button class="pf-v6-c-button pf-m-primary" type="button" onclick="stakeholderCreate()"><span class="pf-v6-c-button__text">Create</span></button>
+      <button class="pf-v6-c-button pf-m-primary" type="button" id="csSaveBtn" onclick="stakeholderSave()"><span class="pf-v6-c-button__text">Create</span></button>
       <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
     </footer>
   </div>
@@ -8391,17 +8393,32 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     document.getElementById('tmError').hidden = true;
     openModal('ctrlTeamModal');
   }
-  function stakeModalOpen(){
+  function stakeModalOpen(editName){
+    /* row 133: the modal now also edits (live pencil) and carries the stakeholder's group
+       memberships (the depth gap: membership was group-side only) */
+    const editing = !!editName;
+    const p = editing ? MOCK_STAKEHOLDERS.find(x => x.name === editName) : null;
+    stakeModal.editName = editing ? editName : null;
+    document.getElementById('cs-title').textContent = editing ? 'Edit stakeholder' : 'Add stakeholder';
+    document.getElementById('csSaveBtn').querySelector('.pf-v6-c-button__text').textContent = editing ? 'Save' : 'Create';
+    document.getElementById('ctrlStakeName').value = editing ? editName : '';
     const sel = document.getElementById('ctrlStakeFunc');
     if (sel) sel.innerHTML = '<option value=""></option>' + MOCK_FUNCTIONS.map(x => '<option>' + x.name + '</option>').join('');
+    if (editing) sel.value = (p.func || p.role || '');
     /* org is required (user requirement): org admins create stakeholders only in their own org
        (single locked option), the Platform administrator picks the organization */
     const orgs = state.persona === 'padmin' ? TENANCY.orgs : TENANCY.orgs.filter(o => o.id === state.org);
     document.getElementById('ctrlStakeOrg').innerHTML = orgs.map(o => '<option value="' + o.id + '">' + o.name + '</option>').join('');
+    if (editing) document.getElementById('ctrlStakeOrg').value = p.org;
     document.getElementById('ctrlStakeBsvcs').innerHTML = MOCK_BSVCS.map(b =>
-      '<label class="pf-v6-c-check" style="display:flex; align-items:center; gap: var(--rh-space-md);"><input type="checkbox" class="pf-v6-c-check__input" value="' + b.name + '"><span class="pf-v6-c-check__label">' + b.name + '</span></label>').join('');
+      '<label class="pf-v6-c-check" style="display:flex; align-items:center; gap: var(--rh-space-md);"><input type="checkbox" class="pf-v6-c-check__input" value="' + b.name + '"' + (editing && (p.bsvcs || []).includes(b.name) ? ' checked' : '') + '><span class="pf-v6-c-check__label">' + b.name + '</span></label>').join('');
+    document.getElementById('ctrlStakeGroups').innerHTML = MOCK_GROUPS.map(g =>
+      '<label class="pf-v6-c-check" style="display:flex; align-items:center; gap: var(--rh-space-md);"><input type="checkbox" class="pf-v6-c-check__input" value="' + g.name + '"' + (editing && g.members.includes(editName) ? ' checked' : '') + '><span class="pf-v6-c-check__label">' + g.name + '</span></label>').join('');
+    document.getElementById('ctrlStakeEmail').value = editing ? (p.email || '') : '';
+    document.getElementById('ctrlStakeError').hidden = true;
     openModal('ctrlStakeModal');
   }
+  const stakeModal = { editName: null };
   /* ---- stakeholder group management: records with real membership at live
      /hub/stakeholdergroups parity (the group carries its stakeholders) ---- */
   function groupMembersOf(name){ return (MOCK_GROUPS.find(x => x.name === name) || { members: [] }).members; }
@@ -8462,23 +8479,60 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       armDeleteBtn(btn, true);
     }
   }
-  function stakeholderCreate(){
+  function stakeholderSave(){
+    /* row 133: create + edit in one path; membership writes through to MOCK_GROUPS.members
+       (both directions), a rename cascades every name-keyed reference (groups, app owners,
+       business-service owners, wave stakeholder cells) */
+    const editName = stakeModal.editName;
     const name = document.getElementById('ctrlStakeName').value.trim();
     const email = document.getElementById('ctrlStakeEmail').value.trim();
     const err = document.getElementById('ctrlStakeError').querySelector('.pf-v6-c-helper-text__item-text');
     if (!name){ err.textContent = 'Name is required.'; err.closest('.pf-v6-c-helper-text').hidden = false; return; }
-    if (MOCK_STAKEHOLDERS.some(x => x.name === name)){ err.textContent = 'This stakeholder already exists.'; err.closest('.pf-v6-c-helper-text').hidden = false; return; }
+    if (MOCK_STAKEHOLDERS.some(x => x.name === name && x.name !== editName)){ err.textContent = 'This stakeholder already exists.'; err.closest('.pf-v6-c-helper-text').hidden = false; return; }
     const orgId = document.getElementById('ctrlStakeOrg').value;
     if (!orgId){ err.textContent = 'Organization is required \u2014 every stakeholder belongs to exactly one organization.'; err.closest('.pf-v6-c-helper-text').hidden = false; return; }
     const func = document.getElementById('ctrlStakeFunc').value || 'Stakeholder';
     const bsvcs = [...document.querySelectorAll('#ctrlStakeBsvcs input:checked')].map(i => i.value);
-    /* an empty email derives from the org's domain, same rule as the boot roster */
-    MOCK_STAKEHOLDERS.push({ name: name, org: orgId, email: email || stakeEmail(name, orgId), role: func, func: func, bsvcs: bsvcs });
+    const groups = [...document.querySelectorAll('#ctrlStakeGroups input:checked')].map(i => i.value);
+    if (editName){
+      const p = MOCK_STAKEHOLDERS.find(x => x.name === editName);
+      const renamed = name !== editName;
+      Object.assign(p, { name: name, org: orgId, role: func, func: func, bsvcs: bsvcs, email: email || p.email });
+      if (renamed){
+        /* the empty-email derive rule: renaming a boot-roster member keeps the derived address */
+        MOCK_GROUPS.forEach(g => { g.members = g.members.map(m => m === editName ? name : m); });
+        MOCK_APPS.forEach(a => { if (a.owner === editName) a.owner = name; });
+        MOCK_BSVCS.forEach(b => { if (b.owner === editName) b.owner = name; });
+        [1, 2, 3, 4].forEach(n => {
+          const el = document.getElementById('waveStake-' + n);
+          if (el) el.textContent = el.textContent.split(', ').map(m => m === editName ? name : m).join(', ');
+        });
+      }
+      stakeSyncGroups(name, groups, editName, renamed ? editName : null);
+      auditAdd('stakeholder:update', name);
+      rbacToast('<b>' + name + '</b> updated \u2014 ' + groups.length + ' group' + (groups.length === 1 ? '' : 's') + (renamed ? '; the rename cascaded into groups, owners, and wave references' : '') + ' <span class=anno-cite>(#42)</span>.');
+    } else {
+      /* an empty email derives from the org's domain, same rule as the boot roster */
+      MOCK_STAKEHOLDERS.push({ name: name, org: orgId, email: email || stakeEmail(name, orgId), role: func, func: func, bsvcs: bsvcs });
+      stakeSyncGroups(name, groups, null, null);
+      auditAdd('stakeholder:create', name);
+      rbacToast('<b>' + name + '</b> created \u2014 ' + groups.length + ' group' + (groups.length === 1 ? '' : 's') + ' assigned <span class=anno-cite>(#42)</span>.');
+    }
     renderCtrlStatic();
     renderStakeholders();
-    renderStakeholders();
+    renderInventory();   /* the Owner column follows a rename */
     document.getElementById('ctrlStakeError').hidden = true;
-    document.getElementById('ctrlStakeModal').hidden = true;
+    closeModals();
+  }
+  function stakeSyncGroups(name, groups, oldName, removedName){
+    /* both directions: selected groups gain the member; every other group loses the
+       previous membership (an edit that unchecks a group removes the person from it) */
+    MOCK_GROUPS.forEach(g => {
+      const wanted = groups.includes(g.name);
+      const had = g.members.includes(name) || (oldName && g.members.includes(oldName));
+      if (wanted && !had) g.members.push(name);
+      if (!wanted && had) g.members = g.members.filter(m => m !== name && m !== oldName);
+    });
   }
   function renderStakeholders(){
     const body = document.getElementById('stakeBody');
@@ -8491,7 +8545,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       '<td class="pf-v6-c-table__td">' + (p.func || p.role) + '</td>' +
       '<td class="pf-v6-c-table__td">' + (MOCK_GROUPS.filter(g => g.members.includes(p.name)).map(g => g.name).join(', ') || '<span class="u-muted">&mdash;</span>') + '</td>' +
       '<td class="pf-v6-c-table__td">' + ((p.bsvcs || []).length ? p.bsvcs.join(', ') : '<span class="u-muted">&mdash;</span>') + '</td>' +
-      '<td class="pf-v6-c-table__td">' + deleteIconBtn('stakeDeleteArm(this, \'' + p.name + '\')') + '</td>' +
+      '<td class="pf-v6-c-table__td">' + editIconBtn('stakeModalOpen(\'' + p.name + '\')') + deleteIconBtn('stakeDeleteArm(this, \'' + p.name + '\')') + '</td>' +
       '</tr>';
     /* slice paging (user-approved suggestion): the renderer rebuilds innerHTML, so the pager
        slices the derived rows; nothing outside depends on rows being present in the DOM */
