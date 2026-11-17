@@ -14,11 +14,11 @@ jsdom + headless Chrome for the mock, Maven/CDP for the other two.
   `design/` + `implementation/` (elaboration of the proposals) →
   `socialization/` (+ `socialization/presentations/`) → `upstream/`; the code
   deliverables live under `deliverables/` (`ui-mockup/`, `ui-react/`,
-  `hub-backend/`). `README.md` and this file stay at the root.
+  `hub-backend/`). `README.md`, `CHANGELOG.md`, and this file stay at the root.
 - Pipeline: evidence → proposals → design & implementation detail → socialization → upstream filing. Numbering is cross-referenced everywhere:
   - `#N` = suggestion number in `evidence/mta-improvement-suggestions.md` (only #1–#53 exist; annotation badges must not cite numbers > 53).
   - `①–⑤` = the five proposals in `proposals/` (used identically in cross-refs, scripts, decks).
-  - Defect rows in `deliverables/ui-mockup/use-case-verification.md` §4 are append-only; README.md gains a clause per behavior change.
+  - Defect rows in `deliverables/ui-mockup/use-case-verification.md` §4 are append-only; each behavior change also gains a dated clause in the root `CHANGELOG.md` (not README).
 - Design decisions that escape the mock are backfilled into `design/design.md` §19.
 
 ## Editing `deliverables/ui-mockup/index.html`
@@ -60,7 +60,7 @@ Landmines learned the hard way:
 - **Probes for AR (`lang=ar`) runs must use double-quoted, word-free JS** (row-98 lesson): the AR i18n phrase-pass rewrites text inside `<script>` nodes (commas → `،`, dictionary words translated), mangling single-quoted or wordy probe source in dumps — and a mangled probe silently never runs. Keep probe scripts ASCII-punctuated with double quotes and set markers on `documentElement`, not `document.title` (the AR task ticker overwrites the title).
 - Layout/visual checks need headless Chrome: inject the welcome-skip (`localStorage.setItem("mta.welcome.<persona>","1")`) before `</body>`, then load `file://…#scr=<screen>&persona=<role>&lang=de`. `sed`-injection fails when the injected JS contains `|` — use Python. Crop screenshots with PIL. **Always pass `--window-size`**: headless Chrome defaults to an 800px viewport and width-driven artifacts (cards wrapping into tall narrow stacks, phantom row heights) will masquerade as spacing/layout bugs — re-measure at the real width before diagnosing (row-97 lesson).
 - `document.title`-level state is in the URL hash (`#scr=…&persona=…&drawer=…&tab=…&anno=1`); fresh jsdom localStorage is empty.
-- Suggested flow for any behavior change: edit → parse-check → jsdom assertions → headless-Chrome screenshot for anything visual → append a defect-log row (single long line, anchored on exact existing file text) → README clause → re-verify.
+- Suggested flow for any behavior change: edit → parse-check → jsdom assertions → headless-Chrome screenshot for anything visual → append a defect-log row (single long line, anchored on exact existing file text) → CHANGELOG clause → re-verify.
 
 ## AI tooling (Red Hat design-system docs)
 
@@ -419,4 +419,4 @@ with Keycloak bearer tokens (`src/api/auth.ts`, realm `mta`, public client
 
 - References: Red Hat JIRA keys (`MTA-xxxx`) and `org:reponame#issue` for GitHub; upstream statuses are verified inline where they matter.
 - The mock opens via `file://` and needs internet (PatternFly 6.7.0 + Red Hat fonts from unpkg CDN).
-- `evidence/mta-improvement-suggestions.md`, `design/design.md`/`implementation/implementation.md`, and `README.md` are long single-purpose documents with stable section anchors — navigate by `#section` links rather than re-reading whole files.
+- `evidence/mta-improvement-suggestions.md`, `design/design.md`/`implementation/implementation.md`, and `CHANGELOG.md` are long single-purpose documents with stable section anchors — navigate by `#section` links rather than re-reading whole files. (The root `README.md` is the lean map; the mock's long-form design-system clauses live in `deliverables/ui-mockup/design-system-rules.md`.)
