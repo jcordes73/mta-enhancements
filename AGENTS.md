@@ -37,7 +37,7 @@ Landmines learned the hard way:
 
 ## i18n machinery (in `index.html`)
 
-- 9 locales (EN/DE/AR/ES/FR/JA/IT/TR/HE — row 120 added Hebrew with full parity; he is RTL like ar): `I18N` dict (one line per language), `I18N_RULES` per-language regex arrays (~3894), `trNode` (~4600), `setLang` (~4650).
+- 10 locales (EN/DE/AR/ES/FR/JA/IT/TR/HE/PT — row 120 added Hebrew with full parity, he is RTL like ar; row 121 added Brazilian Portuguese with full parity, pt-BR wording, BRL currency, LTR): `I18N` dict (one line per language), `I18N_RULES` per-language regex arrays (~3894), `trNode` (~4600), `setLang` (~4650).
 - Lookup order per text node: identifier guard → exact dict key → first matching rule → phrase pass (`i18nPhrase`: ISO dates, `$`→localized currency, then word-boundary dict substitution).
 - **EN must stay byte-exact**: EN locale is identity; never break EN text when adding keys.
 - **Rule order matters**: specific/whole-sentence rules must be inserted at the TOP of a language's array — the generic `⟨date-range⟩ · ⟨rest⟩` rule otherwise phrase-translates the tail (mixed partials like "gate kritisch").

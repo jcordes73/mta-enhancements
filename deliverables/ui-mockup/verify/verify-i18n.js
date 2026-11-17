@@ -21,14 +21,15 @@ setTimeout(async () => {
   // boot: EN default — dropdown marks EN selected, toggle shows the native name
   OK('boots in English (row 98: toggle label is the native name, no flag)', d.body.dataset.lang === 'en' && langSel('en') && d.getElementById('langToggleLabel').textContent === 'English');
 
-  // dropdown behavior: opens with 9 language options (row 98: countries/flags removed; row 120 added he), selection switches language
+  // dropdown behavior: opens with 10 language options (row 98: countries/flags removed; row 120 he, row 121 pt), selection switches language
   d.getElementById('langSwitch').click();
-  OK('dropdown opens with 9 language options, no flags/countries (row 98/120)', !d.getElementById('langMenu').hidden
-    && d.querySelectorAll('#langMenu [data-lang]').length === 9
+  OK('dropdown opens with 10 language options, no flags/countries (row 98/120/121)', !d.getElementById('langMenu').hidden
+    && d.querySelectorAll('#langMenu [data-lang]').length === 10
     && !d.querySelector('#langMenu .lang-flag')
     && d.querySelector('#langMenu [data-lang="ja"] .pf-v6-c-menu__item-text').textContent === '日本語'
     && d.querySelector('#langMenu [data-lang="de"] .pf-v6-c-menu__item-text').textContent === 'Deutsch'
-    && d.querySelector('#langMenu [data-lang="he"] .pf-v6-c-menu__item-text').textContent === 'עברית');
+    && d.querySelector('#langMenu [data-lang="he"] .pf-v6-c-menu__item-text').textContent === 'עברית'
+    && d.querySelector('#langMenu [data-lang="pt"] .pf-v6-c-menu__item-text').textContent === 'Português');
   d.querySelector('#langMenu [data-lang="de"]').click();
 
   // switch to DE

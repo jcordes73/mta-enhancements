@@ -132,6 +132,19 @@ what-changed-when index. Long-form design-system rules:
   `check:i18n` passes at 38 keys × 9 locales. Seed data, incident text,
   identifiers, and annotation content stay English by design.
 
+- **Brazilian Portuguese as the 10th locale — full parity (mock row 121)** — the
+  language switcher gains Português (pt-BR wording, LTR) with the same
+  coverage as the other locales (1,085-key dict with exact key-set parity,
+  64 rules modeled on the es array, gate-fragment block) and derives BRL
+  currency (R$, Brazilian grouping 1.234,56); `fmtDate`/`fmtDateRange`
+  need no pt case — the new `I18N_MONTHS` pt line feeds the default
+  `MMM D` branches. The React port mirrors it: `src/i18n/i18n.ts`
+  dict+rules+gate+meta (the fused he/tr dict line was split while
+  mirroring), a 36-key `pt` block in `scripts/i18n-additions.json`
+  (plural pairs included), and `check:i18n` passes at 38 keys × 10
+  locales. Seed data, incident text, identifiers, and annotation content
+  stay English by design.
+
 ## 2026-11-16
 
 - **hub-backend created** — Quarkus 3.40 + PostgreSQL implementation of
