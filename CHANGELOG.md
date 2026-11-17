@@ -11,6 +11,12 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Persona switcher as a masthead dropdown with the username (defect row 138)** — the
+  six-persona toggle group is replaced by a compact dropdown (full persona names, selected
+  state, standard masthead-menu focus/restore behavior), and the active persona's directory
+  username from the row-131 user store renders left of it (e.g.
+  `m.keller@northwind-financial.com` for Architect). The `&persona=` deep link follows the
+  new markup. `verify/verify-personamenu.js` (9 assertions), battery 30/30.
 - **Assessment override gate (defect row 137)** — the Assess verb on an application associated
   with archetypes now warns first, at live parity: the "New assessment" modal carries the
   association alert (app + archetype), the verbatim override question, and

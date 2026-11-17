@@ -104,13 +104,7 @@
   }
   .masthead-logo{width:24px; height:24px; background:var(--pf-t--global--color--brand--default); border-radius:var(--pf-t--global--border--radius--small); display:grid; place-items:center; font-size:var(--rh-font-size-body-text-sm);}
   .masthead-tag{font-weight:400; color:var(--pf-t--color--gray--30); font-size:var(--rh-font-size-body-text-xs);}
-  .pf-v6-c-masthead .pf-v6-c-toggle-group{background:transparent;}
-  .pf-v6-c-masthead .pf-v6-c-toggle-group__button{color:var(--pf-t--color--gray--30); font-size:var(--rh-font-size-body-text-xs); background:var(--rh-color-gray-80); border-color:var(--rh-color-gray-80);}
-  .pf-v6-c-masthead .pf-v6-c-toggle-group__item:not(:last-child) .pf-v6-c-toggle-group__button{border-right:1px solid var(--pf-t--color--gray--70); border-radius:var(--rh-border-radius-sharp);}
-  .pf-v6-c-masthead .pf-v6-c-toggle-group__item:first-child .pf-v6-c-toggle-group__button{border-radius:var(--pf-t--global--border--radius--small) 0 0 var(--pf-t--global--border--radius--small);}
-  .pf-v6-c-masthead .pf-v6-c-toggle-group__item:last-child .pf-v6-c-toggle-group__button{border-radius:var(--rh-border-radius-sharp) var(--pf-t--global--border--radius--small) var(--pf-t--global--border--radius--small) 0;}
-  .pf-v6-c-masthead .pf-v6-c-toggle-group__button:hover{color:var(--pf-t--color--white);}
-  .pf-v6-c-masthead .pf-v6-c-toggle-group__button.pf-m-selected{color:var(--pf-t--color--white); background:var(--pf-t--global--color--brand--default);}
+  .masthead-user{color:var(--pf-t--color--gray--30); font-size:var(--rh-font-size-body-text-xs); max-width:26ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .pf-v6-c-masthead .pf-v6-c-menu-toggle{color:var(--pf-t--color--gray--10); --pf-v6-c-menu-toggle__toggle-icon--Color:var(--pf-t--color--gray--10);}
   .pf-v6-c-masthead .pf-v6-c-menu-toggle:hover{background:var(--rh-color-gray-70);}
   .pf-v6-c-masthead .pf-v6-c-menu-toggle.pf-m-expanded{background:var(--pf-t--color--gray--60);}
@@ -413,7 +407,6 @@
   }
   /* the brand remap turns the brand surface light (#92c5f9) — masthead chrome on it flips to dark text
      (row 84), matching how PF6 dark treats on-brand text */
-  html.pf-v6-theme-dark .pf-v6-c-masthead .pf-v6-c-toggle-group__button.pf-m-selected{color:var(--rh-color-gray-95);}
   html.pf-v6-theme-dark .masthead-logo{color:var(--rh-color-gray-95);}
   /* row 85 full audit: PF dark flips status/nonstatus tokens to LIGHT crayons — surfaces that keep
      their light-scheme text color need the inverse flip back */
@@ -444,16 +437,14 @@
 
       <!-- ============ mockup-only controls (demo cluster) ============ -->
 
-      <!-- #36: persona switcher as a real pf-v6-c-toggle-group -->
+      <!-- #36: persona switcher as a masthead dropdown (user request) — the active persona's
+           directory username (row-131 MOCK_USERS via PERSONA_LOGIN) renders left of the toggle -->
       <div class="mh-group mh-demo">
-      <div class="pf-v6-c-toggle-group pf-m-compact" role="group" aria-label="Persona (Suggestion 36: role-adaptive workspaces)">
-        <div class="pf-v6-c-toggle-group__item"><button class="pf-v6-c-toggle-group__button pf-m-selected" data-persona="architect" aria-pressed="true" type="button"><span class="pf-v6-c-toggle-group__text">Architect</span></button></div>
-        <div class="pf-v6-c-toggle-group__item"><button class="pf-v6-c-toggle-group__button" data-persona="pm" aria-pressed="false" type="button"><span class="pf-v6-c-toggle-group__text">Project mgr</span></button></div>
-        <div class="pf-v6-c-toggle-group__item"><button class="pf-v6-c-toggle-group__button" data-persona="pgm" aria-pressed="false" type="button" title="Program manager &mdash; department/organization scope; sees cross-team wave coordination (#41)"><span class="pf-v6-c-toggle-group__text">Program mgr</span></button></div>
-        <div class="pf-v6-c-toggle-group__item"><button class="pf-v6-c-toggle-group__button" data-persona="migrator" aria-pressed="false" type="button"><span class="pf-v6-c-toggle-group__text">Migrator</span></button></div>
-        <div class="pf-v6-c-toggle-group__item"><button class="pf-v6-c-toggle-group__button" data-persona="admin" aria-pressed="false" type="button"><span class="pf-v6-c-toggle-group__text">Admin</span></button></div>
-        <div class="pf-v6-c-toggle-group__item"><button class="pf-v6-c-toggle-group__button" data-persona="padmin" aria-pressed="false" type="button" title="Platform administrator &mdash; operates above the tenancy model: provisions organizations, cross-org access is audit-logged (#41/#42)"><span class="pf-v6-c-toggle-group__text">Platform admin</span></button></div>
-      </div>
+      <span class="masthead-user" id="personaUser" data-i18n-skip></span>
+      <button class="pf-v6-c-menu-toggle pf-m-plain" id="personaBtn" aria-expanded="false" aria-controls="personaMenu" type="button" title="Persona (Suggestion 36: role-adaptive workspaces)">
+        <span id="personaToggleLabel">Architect</span>
+        <span class="pf-v6-c-menu-toggle__toggle-icon" aria-hidden="true">&#9662;</span>
+      </button>
 
       <!-- mockup affordance: annotation review mode (user request — default off) -->
       <label class="pf-v6-c-switch pf-m-reverse anno-switch" for="annoToggle" title="Show which parts come from improvement suggestions">
@@ -524,6 +515,9 @@
     <div class="pf-v6-c-menu masthead-menu" id="tenancyMenu" hidden style="width:340px;">
       <div class="pf-v6-c-menu__content" id="tenancyMenuContent"></div>
       <div class="menu-note"><b>#41 &mdash; multi-tenancy.</b> Organizations are isolated: switching one changes every application, wave, and aggregate you can see. Within your organization, scope further to a department or a team &mdash; teams staff architects, project managers, and migrators, and every application belongs to exactly one team.</div>
+    </div>
+    <div class="pf-v6-c-menu masthead-menu" id="personaMenu" hidden style="width:250px;">
+      <ul class="pf-v6-c-menu__list" id="personaMenuContent"></ul>
     </div>
     <div class="pf-v6-c-menu masthead-menu" id="langMenu" hidden style="width:230px;">
       <ul class="pf-v6-c-menu__list" id="langMenuContent"></ul>
@@ -5766,7 +5760,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       catch(e){ state.scheme = 'light'; }
     }
     applyScheme(state.scheme, true);
-    if (persona && document.querySelector(`.pf-v6-c-toggle-group__button[data-persona="${persona}"]`)) setPersona(persona, true);
+    if (persona && document.querySelector(`#personaMenu [data-persona="${persona}"]`)) setPersona(persona, true);
     const orgP = p.get('org'), deptP = p.get('dept'), teamP = p.get('team');
     if (orgP && ORG_BY_ID[orgP] && state.persona !== 'admin'){   /* org admins are org-locked: &org= deep links lose to the lock (#41) */
       if (state.persona === 'padmin' && orgP !== state.org) tenantAccessAudit(orgP);
@@ -5865,8 +5859,36 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
   }
   window.addEventListener('hashchange', applyHash);
 
-  /* ================= persona switching (#36) — real pf-v6-c-toggle-group ================= */
-  const personaBtns = document.querySelectorAll('.pf-v6-c-toggle-group__button[data-persona]');
+  /* ================= persona switching (#36) — masthead dropdown (user request) ================= */
+  const PERSONA_MENU = [
+    { id: 'architect', name: 'Architect' },
+    { id: 'pm',        name: 'Project manager' },
+    { id: 'pgm',       name: 'Program manager' },
+    { id: 'migrator',  name: 'Migrator' },
+    { id: 'admin',     name: 'Admin' },
+    { id: 'padmin',    name: 'Platform admin' }
+  ];
+  document.getElementById('personaMenuContent').innerHTML = PERSONA_MENU.map(p =>
+    '<li><button class="pf-v6-c-menu__item" data-persona="' + p.id + '" type="button">' +
+    '<span class="pf-v6-c-menu__item-main"><span class="pf-v6-c-menu__item-text">' + p.name + '</span></span></button></li>').join('');
+  /* the active persona's directory username (row-131 MOCK_USERS via PERSONA_LOGIN) sits left of the toggle */
+  function personaLabelApply(){
+    const p = PERSONA_MENU.find(x => x.id === state.persona) || PERSONA_MENU[0];
+    document.getElementById('personaToggleLabel').textContent = p.name;
+    let u = null;
+    try { u = MOCK_USERS.find(x => x.login === PERSONA_LOGIN[state.persona]); } catch (e) { u = null; }   /* MOCK_USERS initializes later (row-131 section) — TDZ-safe */
+    const el = document.getElementById('personaUser');
+    el.textContent = u ? u.login : '';
+    el.title = u ? u.name : '';
+  }
+  document.querySelectorAll('#personaMenu [data-persona]').forEach(b => b.classList.toggle('pf-m-selected', b.dataset.persona === state.persona));
+  personaLabelApply();
+  document.getElementById('personaBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    const m = document.getElementById('personaMenu'); const was = !m.hidden;
+    closeMenus(); if(!was){ anchorMenu(m, document.getElementById('personaBtn')); m.hidden = false; document.getElementById('personaBtn').setAttribute('aria-expanded','true'); menuOpened(m, document.getElementById('personaBtn')); }
+  });
+  document.querySelectorAll('#personaMenu [data-persona]').forEach(b => b.addEventListener('click', () => { setPersona(b.dataset.persona); closeMenus(); }));
   /* the persona x tenancy intersection (#41): team-scoped personas (Project manager, Migrator)
      are locked to their home team — they execute within the team that owns the applications;
      the Program manager keeps the free org/department scope, the Admin is org-locked, and only
@@ -5900,11 +5922,10 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     }
   }
   function setPersona(persona, fromHash){
-    personaBtns.forEach(x => { x.classList.remove('pf-m-selected'); x.setAttribute('aria-pressed', 'false'); });
-    const b = document.querySelector(`.pf-v6-c-toggle-group__button[data-persona="${persona}"]`);
-    b.classList.add('pf-m-selected'); b.setAttribute('aria-pressed', 'true');
+    document.querySelectorAll('#personaMenu [data-persona]').forEach(x => x.classList.toggle('pf-m-selected', x.dataset.persona === persona));
     document.body.dataset.persona = persona;
     state.persona = persona;
+    personaLabelApply();
     tenancySwitcherFor(persona);
     if (persona === 'pm' || persona === 'migrator') teamLockScope();
     else { if (persona === 'architect') archClampScope(); applyTenancy(); }   /* persona switch re-renders the scoped surfaces (pgm coordination card, notes) */
@@ -5916,7 +5937,6 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     else if (!fromHash) welcomeMaybe(persona);   /* first entry into this role greets it; deep links are shared context */
     if (!fromHash) syncHash();
   }
-  personaBtns.forEach(b => b.addEventListener('click', () => setPersona(b.dataset.persona)));
   applyRbac();  /* #36 item 2: boot-time RBAC pass (nav, masthead, action verbs, feed) */
 
   /* ================= persona-specific guided tour (#43 in-console help + #36 role-adaptive,
@@ -6143,6 +6163,8 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     document.getElementById('helpMenu').hidden = true;
     document.getElementById('langMenu').hidden = true;
     document.getElementById('langSwitch').setAttribute('aria-expanded', 'false');
+    document.getElementById('personaMenu').hidden = true;
+    document.getElementById('personaBtn').setAttribute('aria-expanded', 'false');
     document.getElementById('notifDrawer').hidden = true;
     document.getElementById('helpBtn').setAttribute('aria-expanded','false');
     document.getElementById('bellBtn').setAttribute('aria-expanded','false');
@@ -6173,7 +6195,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       setTimeout(() => { if (!document.querySelector('.pf-v6-c-backdrop:not([hidden])')) focusToggle(t); }, 0);
     });
   }
-  ['langMenu','tenancyMenu','archLevelMenu','helpMenu'].forEach(wireMenuRestore);
+  ['langMenu','tenancyMenu','archLevelMenu','helpMenu','personaMenu'].forEach(wireMenuRestore);
   function toggleDrawer(id){
     const m = document.getElementById(id);
     /* snapshot BEFORE closeMenus (defect, user report "the close icon doesn't work" on the
@@ -9196,6 +9218,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     { id: 7, login: 'root@example.com',                 name: 'root',        email: 'root@example.com',                 roles: ['admin'] },
     { id: 8, login: 'd.hoffmann@northwind-financial.com', name: 'D. Hoffmann', email: 'd.hoffmann@northwind-financial.com', roles: ['migrator'] }
   ];
+  personaLabelApply();   /* the username left of the persona toggle now has its store (row 131) */
   const us = { editId: null };
   function usFiltered(){
     const q = document.getElementById('usSearch').value.trim().toLowerCase();
