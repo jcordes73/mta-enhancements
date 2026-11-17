@@ -1,0 +1,103 @@
+/* Thin app layer on PF6 — the mock's own-layer rules apply here too:
+   no raw hex colors, RHDS space tokens for spacers, RHDS font-size tokens. */
+
+.pf-v6-c-page__main { padding-block-start: var(--rh-space-lg); }
+.pf-v6-c-masthead { --pf-v6-c-masthead--PaddingInline: var(--rh-space-lg); }
+.pf-v6-c-masthead__content { margin-inline-start: auto; gap: var(--rh-space-lg); }
+
+.brand-tag { color: var(--pf-t--color--gray--30); margin-left: var(--rh-space-sm, 6px); white-space: nowrap; }
+.scope-label {
+  color: var(--pf-t--color--gray--30);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-width: 0; max-width: 34ch;
+}
+/* same optical height as the 37px toggles in the masthead flex row; :not(:last-child)
+   matches PF's own margin rule's shape and the extra class out-specifies
+   :is(.pf-v6-c-content--small,…):not(:last-child) (0,2,0, later in the bundle) */
+.pf-v6-c-masthead__content > .scope-label:not(:last-child) {
+  align-self: center;
+  margin-block-end: 0;
+}
+/* PF6's author-level display:flex beats the UA's [hidden]{display:none} — the
+   notification drawer must hide explicitly (the mock's #notifDrawer[hidden] rule) */
+.pf-v6-c-notification-drawer[hidden] { display: none; }
+/* hand-rolled inline SVGs (RHDS icon path data, mock row-75 standard: 1em /
+   currentColor) — RhIcon sets these inline, plain svg.fas markup relies on this */
+svg.fas { width: 1em; height: 1em; fill: currentColor; display: inline-block; vertical-align: -0.125em; }
+.pf-v6-c-button__icon svg.fas { display: block; }
+
+.page-title { margin-block-end: var(--rh-space-xs); }
+.page-subtitle { color: var(--pf-t--global--text--color--subtle); }
+
+.kpi {
+  font-family: var(--pf-t--global--font--family--heading--default);
+  font-size: var(--rh-font-size-body-text-2xl);
+  font-weight: 600;
+}
+.kpi small { font-size: var(--rh-font-size-body-text-xs); color: var(--pf-t--global--text--color--subtle); font-weight: 400; display: block; }
+.kpi .u-muted { font-size: var(--rh-font-size-body-text-sm); font-weight: 400; }
+
+.u-muted { color: var(--pf-t--global--text--color--subtle); }
+
+/* persona-blurb banner (home): the role's first question — port of the mock's
+   .persona-blurb (red banner, brand left edge, sharp outer corner) */
+.persona-blurb {
+  padding: var(--rh-space-md) var(--rh-space-lg);
+  background: var(--rh-color-red-10);
+  border-radius: var(--rh-border-radius-sharp) var(--pf-t--global--border--radius--medium)
+    var(--pf-t--global--border--radius--medium) 0;
+  border-left: 3px solid var(--pf-t--global--color--brand--default);
+  font-size: var(--rh-font-size-body-text-xs);
+  color: var(--rh-color-red-70);
+}
+html.pf-v6-theme-dark .persona-blurb {
+  background: var(--rh-color-red-80);
+  color: var(--rh-color-red-20);
+}
+
+/* stacked distribution bar (combined-risk card): segments by count, min 4% */
+.stackBar { display: flex; height: 10px; border-radius: var(--rh-border-radius-default); overflow: hidden; margin-top: var(--rh-space-md); gap: var(--rh-space-xs); }
+.stackBar b { display: block; height: 100%; min-width: 4px; }
+
+/* card footer drill-through links on the home cards */
+.pf-v6-c-card__footer a { font-size: var(--rh-font-size-body-text-xs); }
+
+/* effort mini-bar (inventory) */
+.pts-bar { display: block; width: 90px; height: 4px; border-radius: 2px; background: var(--pf-t--global--background--color--secondary--default); margin-top: 2px; }
+.pts-bar > span { display: block; height: 100%; border-radius: 2px; background: var(--pf-t--global--color--brand--default); }
+
+/* wave gantt (ported from the mock's own layer, tokens intact) */
+.gantt .lane { display: grid; grid-template-columns: minmax(170px, auto) 1fr; align-items: center; margin-bottom: var(--rh-space-md); }
+.gantt .track { position: relative; height: 26px; background: var(--pf-t--global--background--color--secondary--default); border-radius: var(--pf-t--global--border--radius--small); }
+.gantt .bar {
+  position: absolute; top: 3px; height: 20px; border-radius: var(--pf-t--global--border--radius--small);
+  font-size: var(--rh-font-size-body-text-xs); color: var(--pf-t--color--white);
+  display: flex; align-items: center; padding: 0 var(--rh-space-md); white-space: nowrap;
+}
+html.pf-v6-theme-dark .gantt .bar { color: var(--rh-color-gray-95); }
+.gantt .month-labels { display: flex; justify-content: space-around; font-size: var(--rh-font-size-body-text-xs); color: var(--pf-t--global--text--color--subtle); }
+.wave-stats { display: flex; flex-wrap: wrap; gap: var(--rh-space-xs) var(--rh-space-xl); margin: var(--rh-space-xs) 0 var(--rh-space-md) 170px; font-size: var(--rh-font-size-body-text-xs); }
+.wave-stat-k { font-weight: 600; color: var(--pf-t--global--text--color--subtle); }
+.wave-exec-detail { margin: 0 0 var(--rh-space-lg) 170px; padding: var(--rh-space-md) var(--rh-space-lg); background: var(--pf-t--global--background--color--secondary--default); border-radius: var(--pf-t--global--border--radius--small); }
+.wave-exec .pf-v6-c-table__button .pf-v6-c-table__toggle-icon { display: inline-flex; transform: rotate(0deg); transition: transform var(--pf-t--global--motion--duration--icon--default) var(--pf-t--global--motion--timing-function--default); }
+.wave-exec .pf-v6-c-table__button.pf-m-expanded .pf-v6-c-table__toggle-icon { transform: rotate(-180deg); }
+
+/* saved-view filter chips (Applications toolbar, mock line 351): click-to-toggle
+   labels; the active chip gets a brand outline + heavier weight + the × action */
+.saved-chip { cursor: pointer; }
+.saved-chip.on { outline: 2px solid var(--pf-t--global--color--brand--default); outline-offset: 1px; font-weight: 600; }
+
+/* Task queue health strip (mock #30): aggregate decision surface above the row list */
+.qhealth { display: flex; gap: var(--rh-space-xl); align-items: center; background: linear-gradient(90deg, var(--rh-color-red-5), var(--rh-color-white)); border: 1px solid var(--rh-color-red-20); border-radius: var(--pf-t--global--border--radius--medium); padding: var(--rh-space-lg) var(--rh-space-lg); margin-bottom: var(--pf-t--global--spacer--md); }
+.qhealth .big { font-size: var(--rh-font-size-body-text-2xl); font-weight: 700; color: var(--pf-t--global--color--status--danger--default); }
+html.pf-v6-theme-dark .qhealth { background: linear-gradient(90deg, var(--rh-color-red-80), var(--rh-color-gray-95)); border-color: var(--rh-color-red-60); }
+
+/* tour dock (mock #43): the minimized guided tour, fixed bottom-end; flips sides in RTL */
+.tour-dock { position: fixed; right: var(--rh-space-lg); bottom: var(--rh-space-lg); z-index: 400; }
+html[dir="rtl"] .tour-dock { right: auto; left: var(--rh-space-lg); }
+
+/* RHDS focus indicator (mock row 78): solid 3px ring, 3px offset, focus-visible only */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--rh-color-border-interactive);
+  outline-offset: 3px;
+}

@@ -1,0 +1,10 @@
+{
+ "story points · {{n}} apps_one": "story points · {{n}} app",
+ "story points · {{n}} apps_other": "story points · {{n}} apps",
+ "({{n}} apps)_one": "({{n}} app)",
+ "({{n}} apps)_other": "({{n}} apps)",
+ "of {{m}} active waves have failing gates_one": "of {{m}} active wave has failing gates",
+ "of {{m}} active waves have failing gates_other": "of {{m}} active waves have failing gates",
+ "{{n}} pts_one": "{{n}} pt",
+ "{{n}} pts_other": "{{n}} pts"
+}

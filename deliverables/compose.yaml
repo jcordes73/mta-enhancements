@@ -1,0 +1,128 @@
+# ---------------------------------------------------------------------------
+# Podman compose stack — the whole console demo in containers:
+# PostgreSQL + Keycloak (imported realm) + hub-backend (Quarkus %prod) +
+# the React console (nginx static build, /api proxied to the hub).
+#
+# Build & run (from deliverables/):   podman compose up --build -d
+# Console:   http://localhost:5173  — sign in with a demo user (password demo;
+#            the username is the user's email address): m.keller@northwind-financial.com
+#            (architect) · j.cordes@northwind-financial.com (migrator) ·
+#            p.schmidt@northwind-financial.com (pm, team Claims) ·
+#            k.vogel@northwind-financial.com (pgm) · a.weber@northwind-financial.com
+#            (admin) · root@example.com (padmin) · r.olson@northwind-financial.com
+#            (architect, tenancy purely from Keycloak-org membership)
+# Keycloak:  http://localhost:8180  (realm mta — admin console: admin/admin;
+#            all realm users password demo, pipeline client secret
+#            pipeline-secret — plain text in the realm JSON, demo only)
+# Hub API:   http://localhost:8080  (/openapi3.json, Swagger UI /q/swagger-ui)
+#
+# Ports are not arbitrary: 8180 and 5173 are baked into the checked-in realm
+# (keycloak/mta-realm.json redirect URIs / web origins) and into the console's
+# auth defaults (src/api/auth.ts VITE_KEYCLOAK_URL). Don't move them without
+# updating the realm file.
+# ---------------------------------------------------------------------------
+name: mta-console
+
+services:
+  postgres:
+    image: docker.io/library/postgres:18
+    environment:
+      POSTGRES_USER: hub
+      POSTGRES_PASSWORD: hub
+      POSTGRES_DB: hub
+    volumes:
+      # postgres 18+ wants the mount at /var/lib/postgresql (PGDATA is a
+      # subdirectory of it — see the container's own log message)
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hub -d hub"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.4   # the DevServices pin
+    command: ["start-dev", "--import-realm"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/hub
+      KC_DB_USERNAME: hub
+      KC_DB_PASSWORD: hub
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      # bootstrap admin — makes the :8180 admin console usable and lets the
+      # keycloak-bootstrap service add the realm-import-skipped org members
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "8180:8080"
+    volumes:
+      - ./hub-backend/keycloak/mta-realm.json:/opt/keycloak/data/import/mta-realm.json:ro,Z
+    # no curl in the Keycloak image — probe the health port with bash /dev/tcp
+    healthcheck:
+      test: ["CMD", "/usr/bin/bash", "-c",
+             "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '200' <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 60s
+    restart: unless-stopped
+
+  # One-shot init: realm JSON import creates the organizations but IGNORES
+  # their members (keycloak#54343) — this adds the memberships the native
+  # `mta-orgs` token claim is built from. Idempotent.
+  keycloak-bootstrap:
+    image: quay.io/keycloak/keycloak:26.7.4
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      KC_URL: http://keycloak:8080
+      KC_ADMIN_USER: admin
+      KC_ADMIN_PASSWORD: admin
+    volumes:
+      - ./hub-backend/keycloak:/workspace:ro,Z
+    entrypoint: ["bash", "/workspace/sync-org-members.sh"]
+    restart: "no"
+
+  hub-backend:
+    build: ./hub-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    environment:
+      # datasource — the %prod properties expect real connection env vars
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/hub
+      QUARKUS_DATASOURCE_USERNAME: hub
+      QUARKUS_DATASOURCE_PASSWORD: hub
+      # OIDC: validate tokens against the in-network Keycloak, but accept the
+      # issuer the BROWSER sees (http://localhost:8180 — pinned by the realm
+      # and by src/api/auth.ts). connection-delay tolerates Keycloak still
+      # importing the realm when the backend boots.
+      KEYCLOAK_URL: http://keycloak:8080/realms/mta
+      QUARKUS_OIDC_TOKEN_ISSUER: http://localhost:8180/realms/mta
+      QUARKUS_OIDC_CONNECTION_DELAY: 45S
+      # the mock dataset seeds itself into an empty database (hub.seed.enabled
+      # defaults to true) — nothing to configure here
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  console:
+    build:
+      # the ui-react prebuild extracts generated.ts from the mock, so the
+      # build context must span both (see ui-react/Containerfile)
+      context: .
+      dockerfile: ui-react/Containerfile
+    depends_on:
+      - hub-backend
+    ports:
+      - "5173:80"
+
+volumes:
+  pgdata:

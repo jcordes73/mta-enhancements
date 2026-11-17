@@ -1,0 +1,17 @@
+# hub-backend image: Maven/JDK 21 build → Quarkus fast-jar → slim JRE runtime.
+# Build (from deliverables/):  podman build -t hub-backend ./hub-backend
+FROM docker.io/library/maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /project
+
+# cache the dependency tree first (best effort — Quarkus plugins resolve
+# some artifacts lazily, so a failure here only costs layer caching)
+COPY pom.xml .
+RUN mvn -B -q dependency:go-offline || true
+
+COPY src ./src
+RUN mvn -B -q package -DskipTests
+
+FROM docker.io/library/eclipse-temurin:21-jre
+COPY --from=build /project/target/quarkus-app /opt/hub
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/opt/hub/quarkus-run.jar"]

@@ -1,0 +1,23 @@
+# console (ui-react) image: Vite build → nginx static serve + /api proxy.
+#
+# NOTE the build context: compose uses `context: .` (the deliverables/
+# directory), because the prebuild step regenerates src/data/generated.ts
+# from the HTML mock via scripts/extract-data.mjs — the mock IS the data
+# source of truth and must be inside the build context.
+# Build (from deliverables/):  podman build -t mta-console -f ui-react/Containerfile .
+FROM docker.io/library/node:22-alpine AS build
+WORKDIR /src
+
+# install deps first (cacheable layer — package-lock.json pins the tree)
+COPY ui-react/package.json ui-react/package-lock.json ./ui-react/
+RUN cd ui-react && npm ci
+
+# source + the mock the prebuild extracts from
+COPY ui-mockup/index.html ./ui-mockup/index.html
+COPY ui-react ./ui-react
+RUN cd ui-react && npm run build
+
+FROM docker.io/library/nginx:alpine
+COPY ui-react/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /src/ui-react/dist /usr/share/nginx/html
+EXPOSE 80

@@ -1,0 +1,178 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Deterministic Analyses &amp; Incident Identity — Konveyor proposal</title><style>
+:root{--primary:#353688;--deep:#2b2c6e;--accent:#3772ff;--coral:#ed6a5a;
+--lav:#e0e8ff;--teal:#c0e0de;--dark:#232335;--darker:#191a28;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--darker);color:#fff;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;overflow:hidden}
+.slide{position:relative;min-height:100vh;display:flex;flex-direction:column;padding:56px 84px 88px;
+background:linear-gradient(135deg,#1d1e30 0%,#26274a 100%);border-bottom:6px solid #0f1018}
+body.js .slide{position:absolute;inset:0;min-height:0;display:none;border-bottom:none;overflow-y:auto}
+body.js .slide.active{display:flex;animation:fade .35s ease}
+@media print{.nav,.pg,.bar{display:none!important}
+body.js .slide{position:relative;display:flex!important;page-break-after:always;min-height:100vh}
+body{overflow:visible}}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.brand{position:absolute;top:26px;left:84px;font-size:15px;letter-spacing:.35em;font-weight:700;color:var(--lav)}
+.brand b{color:#fff}
+.chip{position:absolute;top:22px;right:84px;font-size:12.5px;letter-spacing:.12em;font-weight:600;
+color:var(--teal);border:1px solid #4a4b78;border-radius:999px;padding:6px 14px;background:rgba(53,54,136,.35)}
+h1{font-size:54px;line-height:1.12;font-weight:800;margin:18px 0 14px}
+h2{font-size:35px;font-weight:800;margin:8px 0 24px;position:relative;padding-bottom:13px}
+h2:after{content:'';position:absolute;left:0;bottom:0;width:76px;height:5px;background:var(--accent);border-radius:3px}
+h3.mini{font-size:15px;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin:18px 0 10px}
+.sub{font-size:20px;color:var(--lav);max-width:950px;line-height:1.5}
+ul{list-style:none;font-size:21.5px;line-height:1.5;max-width:1080px}
+li{margin:13px 0;padding-left:32px;position:relative}
+li:before{content:'▸';position:absolute;left:0;color:var(--accent);font-weight:700}
+li b, .sub b{color:#fff}
+li .mono,.sub .mono,td .mono{font-family:ui-monospace,Consolas,monospace;color:var(--teal);font-size:.92em}
+.evidence{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1100px}
+.card{background:rgba(53,54,136,.30);border:1px solid #45467e;border-left:5px solid var(--accent);
+border-radius:10px;padding:18px 20px}
+.card h3{font-size:13.5px;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin-bottom:8px}
+.card p{font-size:18px;line-height:1.45;color:#eef1ff}
+.card.coral{border-left-color:var(--coral)}
+.code{background:#141422;border:1px solid #3c3d6e;border-radius:12px;padding:22px 28px;
+font-family:ui-monospace,Consolas,monospace;font-size:19px;line-height:1.65;color:var(--lav);
+white-space:pre-wrap;max-width:1100px}
+.code .k{color:#8fa8ff}.code .c{color:#7d7fa8}.code .hl{color:var(--coral);font-weight:700}
+.stats{display:flex;gap:18px;margin-top:8px;flex-wrap:wrap}
+.stat{background:rgba(53,54,136,.35);border:1px solid #45467e;border-radius:12px;padding:16px 24px;text-align:center}
+.stat .n{font-size:36px;font-weight:800;color:var(--accent)}
+.stat .l{font-size:13px;letter-spacing:.08em;color:var(--teal);text-transform:uppercase;margin-top:5px}
+.tbl{width:100%;max-width:1120px;border-collapse:collapse;font-size:18.5px}
+.tbl th{background:rgba(53,54,136,.5);text-align:left;padding:11px 16px;letter-spacing:.07em;color:var(--teal);
+text-transform:uppercase;font-size:12.5px}
+.tbl td{padding:12px 16px;border-top:1px solid #3c3d6e;line-height:1.45;color:#eef1ff}
+.tbl td:first-child{color:#fff;font-weight:600;white-space:nowrap}
+.tbl .mono{font-size:.9em}
+.ask{background:rgba(237,106,90,.10);border:1px solid rgba(237,106,90,.55);border-radius:12px;
+padding:20px 26px;margin:14px 0;max-width:1100px}
+.ask h3{font-size:13px;letter-spacing:.16em;color:var(--coral);text-transform:uppercase;margin-bottom:7px}
+.ask p{font-size:20.5px;line-height:1.5}
+.foot{position:absolute;bottom:24px;left:84px;right:84px;display:flex;justify-content:space-between;
+font-size:13px;color:#8c8db5;letter-spacing:.06em}
+.pg{position:absolute;bottom:58px;right:84px;font-size:14px;color:#8c8db5}
+.nav{position:absolute;bottom:50px;right:84px;display:flex;gap:10px}
+.nav button{background:var(--primary);border:none;color:#fff;width:46px;height:38px;border-radius:8px;
+font-size:18px;cursor:pointer}
+.nav button:hover{background:var(--accent)}
+.nav button:disabled{opacity:.22;cursor:default}
+.nav button:disabled:hover{background:var(--primary)}
+.nav a{background:var(--primary);border:none;color:#fff;width:46px;height:38px;border-radius:8px;
+font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.nav a:hover{background:var(--accent)}
+.bar{position:absolute;top:0;left:0;height:4px;background:var(--accent);transition:width .3s;z-index:10}
+.tico{font-size:92px;line-height:1;margin-bottom:6px}
+.meta{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
+.meta span{background:rgba(53,54,136,.4);border:1px solid #4a4b78;border-radius:999px;
+padding:9px 20px;font-size:15px;color:var(--lav)}
+.title-slide{justify-content:center;background:radial-gradient(1200px 700px at 20% 15%,#31329a 0%,#232345 55%,#191a28 100%)}
+.title-slide .kicker{font-size:15px;letter-spacing:.4em;color:var(--teal);text-transform:uppercase;font-weight:600}
+</style></head>
+<body><script>document.body.classList.add('js')</script><div class="bar"></div><section class="slide title-slide">
+<div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<div class="tico">🎯</div>
+<div class="kicker">Enhancement proposal · ① of 5</div>
+<h1>Deterministic Analyses &amp; Incident Identity</h1>
+<p class="sub">Same app. Same config. Different numbers — until we pin the toolchain, sort the output, and name every incident.</p>
+<div class="meta"><span>📍 Analyzers SIG</span><span>👤 @jcordes73</span><span>🗓 2026-11</span><span>status: provisional</span><span>🖱 click right to advance · left to go back · or use → keys</span></div>
+<div class="pg"></div><div class="nav"><a class="prev" href="index.html" title="Back to proposal index">‹</a><button class="next">›</button></div>
+</section><section class="slide"><div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<h2>The problem: analyses you cannot re-run</h2><ul><li><b>MTA-5170</b> — effort counts vary between runs of the same application</li><li><b>MTA-5179</b> — different rules fire between MTA versions on the same app</li><li><b>MTA-7445</b> — different rules between <b>Hub and IDE</b> with the same synced profile</li><li><b>editor-extensions#1482</b> — an analysis assertion failing <b>silently since July 2025</b></li><li>No gate distinguishes real change from drift — so drift wins</li></ul>
+<div class="foot"><span>Proposal ① · Deterministic analyses &amp; incident identity</span><span>konveyor.io/enhancements</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section><section class="slide"><div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<h2>Documented, recurring, unresolved</h2><div class='evidence'><div class="card"><h3>MTA-4982 · Closed</h3><p>Windup vs Konveyor rulesets produce different results for the same app</p></div><div class="card"><h3>MTA-6530 · New</h3><p>Annotation matching breaks under wildcard imports</p></div><div class="card coral"><h3>MTA-8155 · Dev Complete</h3><p>Dependency-resolution parity vs Maven/Gradle oracles — the oracle work this builds on</p></div><div class="card coral"><h3>The pattern</h3><p>Every large deployment rediscovers this. The numbers migrations are planned on do not reproduce.</p></div></div>
+<div class="foot"><span>Proposal ① · Deterministic analyses &amp; incident identity</span><span>konveyor.io/enhancements</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section><section class="slide"><div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<h2>What users would get (stories)</h2><ul><li><b>The architect</b> diffs two runs and sees only real change — the effort delta reflects remediation, not noise</li><li><b>The migrator</b> triages once; after upstream edits shift lines, decisions carry <b>flagged for re-confirmation</b></li><li><b>The CI operator</b> runs <span class="mono">kantra analyze --strict</span> — incomplete Maven resolution <b>fails with the missing input named</b>, not a silent partial</li><li><b>The engineer</b> investigating "Hub and IDE disagree" reads two toolchain manifests — a floating tag resolved differently; one-paragraph answer</li><li><b>The release manager</b> gets the gate that would have caught #1482 in week one, not month six</li></ul>
+<div class="foot"><span>Proposal ① · Deterministic analyses &amp; incident identity</span><span>konveyor.io/enhancements</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section><section class="slide"><div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<h2>The proposal — four parts</h2><ul><li><b>Toolchain manifest</b> — digest-pinned analyzer image, rule-bundle digests, provider versions, settings fingerprint; rendered in Hub, CLI, static report</li><li><b>Deterministic ordering</b> — defined sort key, stable tiebreak, no timestamps/UUIDs in result payloads</li><li><b>Incident identity key</b> — one hash, computable by Hub, kai, and CLI; carries triage across runs</li><li><b>--strict + nightly gate</b> — fail instead of silently degrading; seven consecutive zero-diff double-runs required for release</li></ul>
+<div class="foot"><span>Proposal ① · Deterministic analyses &amp; incident identity</span><span>konveyor.io/enhancements</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section><section class="slide"><div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<h2>The keystone: an identity key</h2><div class='code'><span class="k">incidentKey</span> = <span class="hl">sha256</span>( ruleset/ruleId
+         | normalizedFilePath   <span class="c"># repo-relative, forward slashes</span>
+         | line
+         | snippetHash )        <span class="c"># sha256 of line ± 3, whitespace-normalized</span>
+
+<span class="c">owned once in tackle2-hub/shared, mirrored in kai,
+contract-tested on both sides</span></div><div class="stats"><div class="stat"><div class="n">3</div><div class="l">primary repos</div></div><div class="stat"><div class="n">≈ 12</div><div class="l">engineer-weeks</div></div><div class="stat"><div class="n">7 nights</div><div class="l">zero-diff gate</div></div></div>
+<div class="foot"><span>Proposal ① · Deterministic analyses &amp; incident identity</span><span>konveyor.io/enhancements</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section><section class="slide"><div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<h2>The toolchain manifest (versioned schema)</h2><div class='code'>{
+  <span class="k">"schemaVersion"</span>: 1,
+  <span class="k">"analyzerImage"</span>:  <span class="hl">"registry@sha256:…"</span>   <span class="c">digest, resolved at task creation</span>,
+  <span class="k">"ruleBundles"</span>:    [ { "name": "…", "digest": "…" } ],
+  <span class="k">"providerVersions"</span>: { "java": "…" },
+  <span class="k">"mode"</span>:           "source+dependencies",
+  <span class="k">"settingsFingerprint"</span>: "sha256:…"   <span class="c">effective settings</span>,
+  <span class="k">"hubVersion"</span>:     "…"
+}
+
+<span class="c">analyses before this enhancement: toolchain = null → rendered
+"pre-determinism run", no backfill (not reconstructible)</span></div>
+<div class="foot"><span>Proposal ① · Deterministic analyses &amp; incident identity</span><span>konveyor.io/enhancements</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section><section class="slide"><div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<h2>Carry-over tiers on re-analysis</h2><table class='tbl'><thead><tr><th>Tier</th><th>Condition</th><th>Behavior</th></tr></thead><tbody><tr><td>exact</td><td>identity key matches</td><td>triage carries <b>silently</b></td></tr><tr><td>fuzzy</td><td>same rule + file, line drift ≤ 10</td><td>carries with <span class="mono">carriedBy: fuzzy</span>; UI asks to re-confirm</td></tr><tr><td>re-ask</td><td>rule + file match, larger drift or snippet changed</td><td><b>offered, never auto-carried</b></td></tr><tr><td>new</td><td>otherwise</td><td>new incident; prior triage visible in history</td></tr></tbody></table><p class="sub" style="margin-top:16px;font-size:17.5px">Classification is a pure function — same implementation in Hub and kai, one shared test-vector set.</p>
+<div class="foot"><span>Proposal ① · Deterministic analyses &amp; incident identity</span><span>konveyor.io/enhancements</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section><section class="slide"><div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<h2>Risks & mitigations (honest list)</h2><ul><li><b>Strict mode breaks best-effort pipelines</b> — opt-in per profile, default unchanged, error names the missing input</li><li><b>Ordering is breaking for positional diff tooling</b> — consumers switch to identity-keyed diffs; transition is noisy once</li><li><b>The key freezes into the data model</b> — schemaVersion field exists precisely because of this; hence the open questions</li><li><b>The gate has teeth</b> — 7 zero-diff nights can hold a release for a variance bug that previously shipped unnoticed. That is the point</li></ul><div class="stats"><div class="stat"><div class="n">4</div><div class="l">risks, all mitigated</div></div><div class="stat"><div class="n">0</div><div class="l">new privileges</div></div></div>
+<div class="foot"><span>Proposal ① · Deterministic analyses &amp; incident identity</span><span>konveyor.io/enhancements</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section><section class="slide"><div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<h2>Alternatives considered & rejected</h2><ul><li><b>Post-hoc normalization</b> (sort/dedupe in the Hub) — hides variance instead of eliminating it; CLI, IDE, kai still see the drift</li><li><b>Timestamp in the key</b> — makes every incident unique per run; exactly the churn we are removing</li><li><b>Content-hash-only identity</b> — different rules flag the same code constantly; collisions</li><li><b>Analyzer-emitted key only</b> — possibly better long-term; deferred to an open question (couples key to analyzer release cycle)</li><li><b>Do nothing, document instability</b> — MTA-7445-class reports recur in every large deployment; the downstream family is blocked without this</li></ul>
+<div class="foot"><span>Proposal ① · Deterministic analyses &amp; incident identity</span><span>konveyor.io/enhancements</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section><section class="slide"><div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<h2>What we need from this room</h2><div class="ask"><h3>Ask 1 — Design decision A</h3><p>Does <span class="mono">line</span> participate in the <b>exact</b> identity key, or only the fuzzy tier? (churn vs. conflation trade-off)</p></div><div class="ask"><h3>Ask 2 — Design decision B</h3><p>Where does the identity function live — <span class="mono">tackle2-hub/shared</span> mirrored in kai (proposed), or emitted by analyzer-lsp?</p></div><div class="ask"><h3>Ask 3 — Commitment</h3><p>Reviewer sign-up from <span class="mono">@shawn-hurley</span> and the kai side; kai incident-storage alignment session</p></div>
+<div class="foot"><span>Proposal ① · Deterministic analyses &amp; incident identity</span><span>konveyor.io/enhancements</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section><section class="slide title-slide">
+<div class="brand">KONVEYOR <b>ENHANCEMENT</b></div><div class="chip">KEP ① · provisional</div>
+<div class="tico">🔗</div><h1 style="font-size:42px">Two ADRs close this design</h1>
+<p class="sub">Decision (a): does <b>line</b> participate in the exact identity key? Decision (b): where does the identity function live — hub-owned &amp; mirrored in kai, or analyzer-emitted? With those closed, this moves <b>provisional → implementable</b>.</p>
+<div class="meta"><span>📄 1-deterministic-analyses.html</span><span>📐 design.md §4.1 · implementation.md §8.1, 8.3</span><span>👤 @jcordes73</span></div>
+<div class="pg"></div><div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
+</section>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+const bar=document.querySelector('.bar'),pg=document.querySelector('.pg');
+function show(n){i=Math.max(0,Math.min(slides.length-1,n));
+slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+bar.style.width=((i+1)/slides.length*100)+'%';pg.textContent=(i+1)+' / '+slides.length;
+/* boundary buttons: disable next on last slide, prev on first */
+const cur=slides[i];
+const nb=cur.querySelector('.nav .next'),pb=cur.querySelector('.nav .prev');
+if(nb)nb.disabled=(i===slides.length-1);
+if(pb)pb.disabled=(i===0);}
+document.addEventListener('keydown',e=>{
+if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1);}
+if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(i-1);}
+if(e.key==='Home')show(0); if(e.key==='End')show(slides.length-1);});
+/* delegation: every slide carries its own buttons; bind once, globally */
+document.addEventListener('click',e=>{
+if(e.target.closest('a'))return;
+const b=e.target.closest('.nav .next');if(b){show(i+1);return;}
+const p=e.target.closest('.nav .prev');if(p){show(i-1);return;}});
+/* click anywhere: right ~2/3 advances, left ~1/3 goes back; ignores links, buttons, text selections */
+document.addEventListener('click',e=>{
+if(e.target.closest('button,a,.nav'))return;
+const sel=window.getSelection&&String(window.getSelection());if(sel&&sel.length)return;
+const x=e.clientX/window.innerWidth;
+(x>0.33)?show(i+1):show(i-1);});
+/* touch swipe */
+let tx=null;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{if(tx===null)return;
+const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40){dx<0?show(i+1):show(i-1);}tx=null;},{passive:true});
+show(0);
+</script></body></html>

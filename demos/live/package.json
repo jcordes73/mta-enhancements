@@ -1,0 +1,9 @@
+{
+  "name": "mta-live-demo-capture",
+  "private": true,
+  "type": "module",
+  "description": "Frame capture for the live-console demo (dev dependency only)",
+  "dependencies": {
+    "puppeteer-core": "25.17.0"
+  }
+}

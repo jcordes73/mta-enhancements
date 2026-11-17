@@ -1,0 +1,13 @@
+# .dockerignore for builds whose context is deliverables/ (currently only the
+# console image — see compose.yaml `console.build`). The hub-backend image
+# builds with context ./hub-backend and has its own .dockerignore.
+
+# the console build needs only ui-react/ + ui-mockup/index.html:
+hub-backend
+ui-mockup/verify
+ui-mockup/demos
+
+# never copy host build/dependency state into image layers:
+**/node_modules
+**/dist
+**/target
