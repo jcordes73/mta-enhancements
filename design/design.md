@@ -861,8 +861,11 @@ Durable interaction decisions:
   explanatory tooltip at every Queue surface (bulk bar, per-app modal,
   flagship template) and must survive RBAC re-passes (`data-gate-disable`
   keeps applyRbac from re-enabling state-disabled buttons; scope gating
-  still applies on top). Any port (ui-react) or backend must reproduce
-  the state rule, not just the UI affordance.
+  still applies on top). Implemented 2026-11-17: the backend enforces the
+  state rule (409 `state.conflict` on single queue, named `skipped[]` on
+  batch) and `ui-react` reproduces the affordances (greyed bulk button +
+  gated app-modal Queue button, armed bulk delete against the cascading
+  `DELETE /applications/{id}`).
 
 ---
 

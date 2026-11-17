@@ -216,6 +216,44 @@ class ApplicationsResourceTest {
                 .statusCode(204);
     }
 
+    /**
+     * Full delete cascade (mock defect-log row 106): the UI's bulk delete
+     * removes seeded apps that carry workflow runs — workflow_run.application_id
+     * is a non-optional FK, so the delete must clear the agentic rows first.
+     */
+    @Test
+    @Order(14)
+    void deleteAppWithWorkflowRunCascades() {
+        String id = given()
+                .auth().oauth2(Tokens.of("test-architect"))
+                .contentType("application/json")
+                .body("""
+                        {"name":"cascade-probe","businessServiceId":"%s","teamId":"%s"}
+                        """.formatted(bsvcId(), teamId()))
+                .when().post("/applications")
+                .then().statusCode(201)
+                .extract().jsonPath().getString("id");
+        given()
+                .auth().oauth2(Tokens.of("test-architect"))
+                .contentType("application/json")
+                .body("""
+                        {"name":"WR-CASCADE","workflow":"spring-boot-to-quarkus","application":"cascade-probe"}
+                        """)
+                .when().post("/workflow-runs")
+                .then().statusCode(201);
+        given()
+                .auth().oauth2(Tokens.of("test-architect"))
+                .when().delete("/applications/" + id)
+                .then()
+                .statusCode(204);
+        // the cascade took the run with it
+        given()
+                .auth().oauth2(Tokens.of("test-architect"))
+                .when().get("/workflow-runs?application=cascade-probe")
+                .then().statusCode(200)
+                .body("totalCount", equalTo(0));
+    }
+
     private static String bsvcId() {
         return given()
                 .auth().oauth2(Tokens.of("test-architect"))

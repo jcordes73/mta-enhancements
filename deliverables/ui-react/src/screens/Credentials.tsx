@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   Alert, Button, Card, CardBody, CardHeader, CardTitle, Content, ContentVariants,
   DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm,
-  Label, Modal, ModalHeader, ModalBody, Title,
+  Label, Modal, ModalHeader, ModalBody, Pagination, Title,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 import { useApp, useScoped, can, TEAM_BY_ID } from '../state/appState';
@@ -72,12 +72,16 @@ export function Credentials() {
   const { path } = useScoped();
   const { data } = useHub();
   const [detail, setDetail] = useState<Cred | null>(null);
+  /* pagination (mock defect-log row 106) — hidden at zero results (row 87) */
+  const [credPage, setCredPage] = useState(1);
+  const [credPer, setCredPer] = useState(10);
 
   /* scopedCreds (port): the tenancy clamp decides visibility, exactly like applications */
   const rows = useMemo(() => (data.creds as Cred[]).filter(c => {
     const t = TEAM_BY_ID[c.team as string];
     return t && t.org === state.org && (!state.team || c.team === state.team);
   }), [state.org, state.team]);
+  const credPageC = Math.min(credPage, Math.max(1, Math.ceil(rows.length / credPer)));
 
   const canCreate = can(state.persona, 'create', 'identities');
   const canVerify = can(state.persona, 'verify', 'identities');
@@ -103,7 +107,7 @@ export function Credentials() {
                   <Th>Name</Th><Th>Kind</Th><Th>Owner team</Th><Th>Expires</Th><Th>Last used</Th><Th>Verified</Th><Th>Used by</Th>
                 </Tr></Thead>
                 <Tbody>
-                  {rows.map(c => {
+                  {rows.slice((credPageC - 1) * credPer, credPageC * credPer).map(c => {
                     const t = TEAM_BY_ID[c.team as string];
                     const used = usedAppsOf(c);
                     return (
@@ -128,6 +132,14 @@ export function Credentials() {
                   })}
                 </Tbody>
               </Table>}
+          {rows.length > 0 && (
+            <Pagination
+              itemCount={rows.length} page={credPageC} perPage={credPer} variant="bottom" isCompact
+              onSetPage={(_e, p) => setCredPage(p)}
+              onPerPageSelect={(_e, pp) => { setCredPer(pp); setCredPage(1); }}
+              style={{ marginTop: 'var(--rh-space-md)' }}
+            />
+          )}
           <Content component={ContentVariants.small} className="u-muted" style={{ marginTop: 'var(--rh-space-md)' }}>
             Ownership follows the tenancy model: every credential belongs to exactly one team (the team whose repositories consume it), the table shows the current scope only, and secret values are never displayed — expiry warnings at 30d, re-test before wave start, and revocation with the blast radius named before it lands · the readiness half lives on Migration waves (Credential readiness card); this surface is the management half
           </Content>

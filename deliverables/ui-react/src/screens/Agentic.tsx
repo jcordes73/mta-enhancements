@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import {
   Alert, Button, Card, CardBody, CardHeader, CardTitle, Content, ContentVariants,
-  Form, FormGroup, Label, Modal, ModalHeader, ModalBody, ModalFooter, Tabs, Tab, TabTitleText,
+  Form, FormGroup, Label, Modal, ModalHeader, ModalBody, ModalFooter, Pagination, Tabs, Tab, TabTitleText,
   TextInput, Title,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
@@ -86,6 +86,35 @@ function DetailCard({ children, style }: { children: React.ReactNode; style?: Re
     <div style={{ border: '1px solid var(--pf-t--global--border--color--subtle)', borderRadius: 'var(--pf-t--global--border--radius--medium)', marginTop: 'var(--rh-space-lg)', padding: 'var(--rh-space-lg)', ...style }}>
       {children}
     </div>
+  );
+}
+
+/* per-stage agent-loop telemetry (mock defect-log row 105): the composed line
+   keeps ONE text node per segment so the legacy i18n walker's exact-node dict
+   keys ("Agent loop ", " turns · context ") hit — never concatenate. */
+function LoopTelemetry({ turns, ctx, live }: { turns: number | null; ctx: string | null; live?: boolean }) {
+  if (turns == null && !ctx) return null;
+  return (
+    <Content component={ContentVariants.small} style={{ marginTop: 'var(--rh-space-xs)' }}>
+      Agent loop <b>{turns ?? '—'}</b> turns · context <b>{ctx ?? '—'}</b>
+      {live && <> <Label color="blue" isCompact>live</Label></>}
+    </Content>
+  );
+}
+
+/* shared bottom pager (mock defect-log row 106: the seven secondary tables
+   page; hidden at zero results per row 87) */
+function TablePager({ count, page, perPage, onSet }: {
+  count: number; page: number; perPage: number; onSet: (page: number, perPage: number) => void;
+}) {
+  if (count === 0) return null;
+  return (
+    <Pagination
+      itemCount={count} page={page} perPage={perPage} variant="bottom" isCompact
+      onSetPage={(_e, p) => onSet(p, perPage)}
+      onPerPageSelect={(_e, pp) => onSet(1, pp)}
+      style={{ marginTop: 'var(--rh-space-md)' }}
+    />
   );
 }
 
@@ -235,6 +264,7 @@ function RunDetailModal({ rec, onClose, onJump }: {
                     <Content component={ContentVariants.small} className="u-muted" style={{ marginTop: 'var(--rh-space-md)' }}>
                       Token accounting: <b>{dec(String(k.tokens))}</b>{k.tokDetail ? <span className="u-meta"> ({k.tokDetail} prompt/completion)</span> : ''} · est. cost <b>{dec(String(k.cost))}</b> · gateway {k.gw} ({k.model}) · image <code>{k.image}</code>
                     </Content>
+                    <LoopTelemetry turns={k.turns} ctx={k.ctx} live={k.state === 'running'} />
                   </DetailCard>
                 ))}
                 <Content component={ContentVariants.small} className="u-muted" style={{ marginTop: 'var(--rh-space-md)', borderTop: '1px solid var(--pf-t--global--border--color--subtle)', paddingTop: 'var(--rh-space-md)' }}>
@@ -271,6 +301,7 @@ function RunDetailModal({ rec, onClose, onJump }: {
             <Content component={ContentVariants.small} className="u-muted" style={{ marginTop: 'var(--rh-space-md)' }}>
               Est. cost <b>{dec(String(run.cost))}</b> · gateway <a href="#scr=config">{run.gw} ({run.model})</a> → · agent image <code>{run.image}</code>
             </Content>
+            <LoopTelemetry turns={run.turns} ctx={run.ctx} live={run.state === 'running'} />
           </DetailCard>
           {run.events && (
             <DetailCard>
@@ -527,6 +558,26 @@ export function Agentic() {
   const scopedRuns = runs.filter(r => names.has(r.app as string));
   const finishedN = scopedRuns.filter(r => !['running', 'queued', 'paused'].includes(String(r.state))).length;
 
+  /* pagination (mock defect-log row 106): the five agentic tables page, 10 per
+     page — PF6 Pagination slicing the in-memory rows; hidden at zero results
+     (row 87). Page clamps when a reload shrinks the store. */
+  const [pgState, setPgState] = useState<Record<string, { page: number; perPage: number }>>({
+    wfruns: { page: 1, perPage: 10 }, agentruns: { page: 1, perPage: 10 },
+    workflows: { page: 1, perPage: 10 }, agents: { page: 1, perPage: 10 },
+    skills: { page: 1, perPage: 10 },
+  });
+  const paged = <T,>(tab: string, rows: T[]) => {
+    const { page, perPage } = pgState[tab];
+    const pages = Math.max(1, Math.ceil(rows.length / perPage));
+    const p = Math.min(page, pages);
+    return { rows: rows.slice((p - 1) * perPage, p * perPage), page: p, perPage, count: rows.length };
+  };
+  const wfrP = paged('wfruns', scopedWf);
+  const runP = paged('agentruns', scopedRuns);
+  const wfP = paged('workflows', workflows);
+  const agP = paged('agents', agents);
+  const skP = paged('skills', skills);
+
   const emptyRow = (cols: number, text: React.ReactNode) => (
     <Tr><Td colSpan={cols}><span className="u-muted">{text}</span></Td></Tr>
   );
@@ -550,7 +601,7 @@ export function Agentic() {
                 </Tr></Thead>
                 <Tbody>
                   {scopedWf.length === 0 && emptyRow(10, <>No workflow runs in this scope — runs execute against applications in scope.</>)}
-                  {scopedWf.map(r => (
+                  {wfrP.rows.map(r => (
                     <Tr key={String(r.name)} isClickable onClick={() => setDetail({ kind: 'wfrun', wf: r })}>
                       <Td dataLabel="Name"><b>{r.name}</b></Td>
                       <Td dataLabel="Workflow">{dec(String(r.wf))}</Td>
@@ -574,6 +625,7 @@ export function Agentic() {
                   ))}
                 </Tbody>
               </Table>
+              <TablePager count={wfrP.count} page={wfrP.page} perPage={wfrP.perPage} onSet={(p, pp) => setPgState(s => ({ ...s, wfruns: { page: p, perPage: pp } }))} />
             </CardBody>
           </Card>
         </Tab>
@@ -593,11 +645,11 @@ export function Agentic() {
             <CardBody>
               <Table aria-label="Agent runs" variant="compact">
                 <Thead><Tr>
-                  <Th>Name</Th><Th>Agent</Th><Th>Application</Th><Th>Phase</Th><Th>Reason</Th><Th>State</Th><Th>Age</Th><Th>Duration</Th>
+                  <Th>Name</Th><Th>Agent</Th><Th>Application</Th><Th>Phase</Th><Th>Reason</Th><Th>State</Th><Th>Age</Th><Th>Duration</Th><Th>Turns</Th><Th>Context</Th>
                 </Tr></Thead>
                 <Tbody>
-                  {scopedRuns.length === 0 && emptyRow(9, <>No agent runs in this scope — runs execute against applications in scope. Create one from an application or the run wizard.</>)}
-                  {scopedRuns.map(r => (
+                  {scopedRuns.length === 0 && emptyRow(10, <>No agent runs in this scope — runs execute against applications in scope. Create one from an application or the run wizard.</>)}
+                  {runP.rows.map(r => (
                     <Tr key={String(r.id)} isClickable onClick={() => setDetail({ kind: 'agentrun', run: r })}>
                       <Td dataLabel="Name"><b>#{r.id}</b> {dec(String(r.name))}{r.events ? <><span className="u-muted">event log</span></> : null}</Td>
                       <Td dataLabel="Agent">{r.agent || <>{r.gw} · {r.model}</>}</Td>
@@ -614,12 +666,15 @@ export function Agentic() {
                         </>}
                         {r.state === 'paused' && <IconBtn icon="play" scope="runs:pause" label="Resume run" title="Resume the run from its last checkpoint (runs:pause)" onClick={() => lifecycle('agentrun', String(r.id), 'running')} />}
                       </Td>
+                      <Td dataLabel="Turns">{r.turns ?? <span className="u-muted">—</span>}</Td>
+                      <Td dataLabel="Context">{r.ctx ?? <span className="u-muted">—</span>}</Td>
                     </Tr>
                   ))}
                 </Tbody>
               </Table>
+              <TablePager count={runP.count} page={runP.page} perPage={runP.perPage} onSet={(p, pp) => setPgState(s => ({ ...s, agentruns: { page: p, perPage: pp } }))} />
               <Content component={ContentVariants.small} className="u-muted" style={{ marginTop: 'var(--rh-space-md)' }}>
-                1–6 of <b>16</b> runs this month · most recent first · token/cost showback per run on the record, monthly rollup in Reports → Agent runs
+                Most recent first · token/cost showback per run on the record, monthly rollup in Reports → Agent runs
               </Content>
             </CardBody>
           </Card>
@@ -634,7 +689,7 @@ export function Agentic() {
               <Table aria-label="Workflows" variant="compact">
                 <Thead><Tr><Th>Name</Th><Th>Stages</Th><Th>Guide</Th><Th>Ready</Th><Th>Age</Th><Th screenReaderText="Actions" /></Tr></Thead>
                 <Tbody>
-                  {workflows.map(w => (
+                  {wfP.rows.map(w => (
                     <Tr key={String(w.name)}>
                       <Td dataLabel="Name"><b><code>{w.name}</code></b></Td>
                       <Td dataLabel="Stages">{w.stages}</Td>
@@ -646,6 +701,7 @@ export function Agentic() {
                   ))}
                 </Tbody>
               </Table>
+              <TablePager count={wfP.count} page={wfP.page} perPage={wfP.perPage} onSet={(p, pp) => setPgState(s => ({ ...s, workflows: { page: p, perPage: pp } }))} />
             </CardBody>
           </Card>
         </Tab>
@@ -661,7 +717,7 @@ export function Agentic() {
                   <Th>Name</Th><Th>Image</Th><Th>Gateways</Th><Th>Skills</Th><Th>Params</Th><Th>Ready</Th><Th>Age</Th><Th screenReaderText="Actions" />
                 </Tr></Thead>
                 <Tbody>
-                  {agents.map(a => (
+                  {agP.rows.map(a => (
                     <Tr key={String(a.name)}>
                       <Td dataLabel="Name"><b><code>{a.name}</code></b></Td>
                       <Td dataLabel="Image"><code>{a.image}</code></Td>
@@ -675,6 +731,7 @@ export function Agentic() {
                   ))}
                 </Tbody>
               </Table>
+              <TablePager count={agP.count} page={agP.page} perPage={agP.perPage} onSet={(p, pp) => setPgState(s => ({ ...s, agents: { page: p, perPage: pp } }))} />
             </CardBody>
           </Card>
         </Tab>
@@ -690,7 +747,7 @@ export function Agentic() {
                   <Th>Name</Th><Th>Display name</Th><Th>Description</Th><Th>Type</Th><Th>Source</Th><Th>Ready</Th><Th>Tags</Th><Th>Age</Th><Th screenReaderText="Actions" />
                 </Tr></Thead>
                 <Tbody>
-                  {skills.map(k => (
+                  {skP.rows.map(k => (
                     <Tr key={String(k.name)}>
                       <Td dataLabel="Name"><b><code>{k.name}</code></b></Td>
                       <Td dataLabel="Display name">{k.display}</Td>
@@ -705,6 +762,7 @@ export function Agentic() {
                   ))}
                 </Tbody>
               </Table>
+              <TablePager count={skP.count} page={skP.page} perPage={skP.perPage} onSet={(p, pp) => setPgState(s => ({ ...s, skills: { page: p, perPage: pp } }))} />
             </CardBody>
           </Card>
         </Tab>

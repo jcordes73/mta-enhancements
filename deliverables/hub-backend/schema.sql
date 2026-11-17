@@ -1,7 +1,7 @@
 -- ============================================================================
 -- schema.sql — schema of record for the hub-backend implementation
 --
--- Provenance (refreshed 2026-11-16):
+-- Provenance (refreshed 2026-11-17; previous refresh 2026-11-16):
 --   Part 1 is the Hibernate-generated schema of the 35 JPA entities in
 --   src/main/java/org/konveyor/mta/hub/model/ (45 tables including the 10
 --   @ManyToMany join tables), exported verbatim via pg_dump from the
@@ -11,7 +11,10 @@
 --   have since landed — platform, target, gateway, skill, agent (+agent_skills
 --   join), workflow, workflow_run, agent_run (+agent_run_event),
 --   wave_dependency, wave_evidence, wave_ticket, trend_point — plus the
---   identity extension (expireson/verified/description) and the application
+--   identity extension (expireson/verified/description) and the application.
+--   2026-11-17 refresh: agent_run gains the agent-loop telemetry columns
+--   (turns, ctxcurrent, ctxwindow — mock defect-log row 105; nullable, created
+--   runs carry no telemetry yet).
 --   extension (riskkind, platform/identity/credential FKs, repositorytype,
 --   binaryartifact, assessmentversion, reviewstate, progress on analysis).
 --   Tables PROMOTED from the former Part 2 into Part 1 (now entity-backed):
@@ -77,6 +80,8 @@ CREATE TABLE public.agent_run (
     updatedat timestamp(6) with time zone NOT NULL,
     version bigint NOT NULL,
     cost character varying(32),
+    ctxcurrent integer,
+    ctxwindow integer,
     duration character varying(64),
     image character varying(1024),
     model character varying(255) NOT NULL,
@@ -86,6 +91,7 @@ CREATE TABLE public.agent_run (
     state smallint NOT NULL,
     tokdetail character varying(64),
     tokens character varying(32),
+    turns integer,
     agent_id uuid NOT NULL,
     application_id uuid NOT NULL,
     gateway_id uuid NOT NULL,
@@ -1843,6 +1849,10 @@ ALTER TABLE ONLY public.application
 ALTER TABLE ONLY public.webhook_kinds
     ADD CONSTRAINT fkwb23ibnmo9jlidp6c8bm12nr FOREIGN KEY (webhook_id) REFERENCES public.webhook(id);
 
+
+--
+-- PostgreSQL database dump complete
+--
 
 -- ############################################################################
 -- # PART 2 — DESIGNED, NOT YET ENTITY-BACKED: mock-model extension tables    #

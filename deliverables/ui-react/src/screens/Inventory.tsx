@@ -242,14 +242,60 @@ export function Inventory() {
   const bulkQueue = async () => {
     setBulkMsg('');
     try {
-      await api('/batch/analyses', { method: 'POST', body: { applicationIds: [...sel] } });
-      setBulkMsg(`Queued analysis for ${sel.size} application${sel.size === 1 ? '' : 's'}.`);
+      /* queue gating (mock defect-log row 106): only queueable selections are
+         sent — the backend additionally rejects ineligible states (409
+         state.conflict) as the enforcement layer */
+      const ids = [...sel].filter(id => {
+        const a = (apps as Row[]).find(x => x.id === id);
+        return !!a && (a.state === 'notstarted' || a.state === 'succeeded');
+      });
+      if (!ids.length) {
+        setBulkMsg('Only Not started or Succeeded analyses can be queued — none of the selected applications qualifies.');
+        return;
+      }
+      await api('/batch/analyses', { method: 'POST', body: { applicationIds: ids } });
+      setBulkMsg(`Queued analysis for ${ids.length} application${ids.length === 1 ? '' : 's'}.`);
       setSel(new Set());
       await reload();
     } catch (e) {
       setBulkMsg(e instanceof Error ? e.message : 'Request failed');
     }
   };
+
+  /* bulk delete (mock defect-log row 106): two-step armed confirm — the
+     trigger stays secondary; only the armed state turns danger (row 95).
+     The hub's DELETE /applications/{id} enforces the wave-membership guard
+     (409 resource.in-use) — surfaced per app, the rest still delete. */
+  const [delArmed, setDelArmed] = useState(false);
+  const canDelete = can(state.persona, 'delete', 'applications');
+  useEffect(() => { if (sel.size === 0) setDelArmed(false); }, [sel.size]);
+  const bulkDelete = async () => {
+    if (!delArmed) { setDelArmed(true); return; }
+    setDelArmed(false);
+    setBulkMsg('');
+    const deleted: string[] = [];
+    const failures: string[] = [];
+    for (const id of sel) {
+      const a = (apps as Row[]).find(x => x.id === id);
+      if (!a) continue;
+      try {
+        await api(`/applications/${id}`, { method: 'DELETE' });
+        deleted.push(a.name as string);
+      } catch (e) {
+        failures.push(`${a.name}: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+    const parts: string[] = [];
+    if (deleted.length) parts.push(`Deleted ${deleted.length} application${deleted.length === 1 ? '' : 's'} (${deleted.join(', ')}) — waves, effort and coverage recomputed.`);
+    if (failures.length) parts.push(`Could not delete: ${failures.join('; ')}`);
+    setBulkMsg(parts.join(' '));
+    if (deleted.length) { setSel(new Set()); await reload(); }
+  };
+  /* queueable selection count drives the bulk Queue button's greyed state */
+  const queueableSel = [...sel].filter(id => {
+    const a = (apps as Row[]).find(x => x.id === id);
+    return !!a && (a.state === 'notstarted' || a.state === 'succeeded');
+  }).length;
 
   const exportCsv = () => {
     const esc = (v: unknown) => JSON.stringify(String(v ?? ''));
@@ -563,7 +609,7 @@ export function Inventory() {
 
               {/* bulk actions appear when rows are selected — real hub endpoints
                  (PUT /waves/{id}, POST /batch/analyses), RBAC-gated per persona */}
-              {sel.size > 0 && (canEdit || canAnalyze) && (
+              {sel.size > 0 && (canEdit || canAnalyze || canDelete) && (
                 <Alert
                   isInline
                   variant="info"
@@ -595,7 +641,16 @@ export function Inventory() {
                       </div>
                     )}
                     {canAnalyze && (
-                      <Button variant="secondary" onClick={bulkQueue} aria-label="Queue analysis for the selected applications">Queue analysis</Button>
+                      <Button variant="secondary" onClick={bulkQueue}
+                        isDisabled={queueableSel === 0}
+                        title={queueableSel === 0 ? 'Only Not started or Succeeded analyses can be queued — none of the selected applications qualifies' : undefined}
+                        aria-label="Queue analysis for the selected applications">Queue analysis</Button>
+                    )}
+                    {canDelete && (
+                      <Button variant={delArmed ? 'danger' : 'secondary'} onClick={bulkDelete}
+                        aria-label="Delete the selected applications">
+                        {delArmed ? 'Confirm delete' : 'Delete'}
+                      </Button>
                     )}
                     {bulkMsg && <span className="u-muted">{bulkMsg}</span>}
                   </div>
@@ -888,9 +943,27 @@ function incidentLabelColor(c: string): 'green' | 'blue' | 'orange' | 'red' | 'y
 }
 
 function AppModal({ app, onClose }: { app: Row | null; onClose: () => void }) {
-  const { data } = useHub();          // unconditional: the body branches below
+  const { data, reload } = useHub();          // unconditional: the body branches below
+  const { state } = useApp();
   const [tab, setTab] = useState(0);
+  const [queueMsg, setQueueMsg] = useState<string | null>(null);
   if (!app) return null;
+
+  /* queue gating (mock defect-log row 106): only Not started / Succeeded
+     analyses queue a fresh run — greyed out with the reason otherwise; the
+     backend enforces the same rule (409 state.conflict) */
+  const canAnalyze = can(state.persona, 'create', 'analyses');
+  const queueable = app.state === 'notstarted' || app.state === 'succeeded';
+  const queueAnalysis = async () => {
+    setQueueMsg(null);
+    try {
+      await api('/analyses', { method: 'POST', body: { applicationId: app.id } });
+      setQueueMsg(`Analysis queued for ${app.name} — tasks are in the task manager.`);
+      await reload();
+    } catch (e) {
+      setQueueMsg(e instanceof Error ? e.message : 'Request failed');
+    }
+  };
 
   const incidents = data.incidents[app.name] as { total: number; pts: string; rows: IncRow[] } | undefined;
   const tasks = data.tasks.filter(t => t.app === app.name);
@@ -916,6 +989,14 @@ function AppModal({ app, onClose }: { app: Row | null; onClose: () => void }) {
           background: 'var(--pf-t--global--background--color--secondary--default)',
           borderRadius: 'var(--pf-t--global--border--radius--medium)',
         }}>
+          {canAnalyze && (
+            <div>
+              <Button variant="primary" isDisabled={!queueable} onClick={queueAnalysis}
+                title={queueable ? undefined : `Only Not started or Succeeded analyses can be queued — this application's analysis is ${STATE_LABEL[app.state]?.text ?? app.state}`}
+              >Queue analysis</Button>
+              {queueMsg && <div className="u-muted" style={{ marginTop: 'var(--rh-space-xs)', fontSize: 'var(--rh-font-size-body-text-xs)' }}>{queueMsg}</div>}
+            </div>
+          )}
           <div>
             <div className="u-muted" style={{ fontSize: 'var(--rh-font-size-body-text-xs)' }}>Effort</div>
             <div style={{ fontSize: 'var(--rh-font-size-body-text-lg)', fontWeight: 600 }}>

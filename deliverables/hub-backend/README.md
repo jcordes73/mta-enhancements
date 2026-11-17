@@ -30,7 +30,7 @@ QUARKUS_DATASOURCE_USERNAME=hub QUARKUS_DATASOURCE_PASSWORD=hub \
 java -jar target/quarkus-app/quarkus-run.jar
 ```
 
-Tests: `mvn test` (25 tests; DevServices boots a fresh, seeded PostgreSQL
+Tests: `mvn test` (30 tests; DevServices boots a fresh, seeded PostgreSQL
 per run — drop-and-create in the `%test` profile).
 
 First boot seeds the **mock's full dataset** (rewritten 2026-11-16 to mirror
@@ -84,16 +84,20 @@ PostgreSQL), then `podman exec <container> pg_dump -U quarkus -d quarkus
 
 ## Endpoints
 
-- **Inventory** — `/applications` (CRUD + upsert + `/analysis/diff`),
+- **Inventory** — `/applications` (CRUD + upsert + `/analysis/diff`; DELETE cascades through tasks, workflow/agent runs + events, and wave content),
   `/platforms`, `/targets`, `/tags` (+ reverse relation), `/tag-types`,
   `/business-services`, `/archetypes`, `/waves`, `/report/effort?groupBy=…`,
   `/report/trend` (trend-point series for the landing chart), `/report/dashboard`
   (deprecated, `Deprecation`/`Sunset` headers)
-- **Analysis** — `/analyses` (list/queue), `/analyses/incidents`,
+- **Analysis** — `/analyses` (list/queue; queueing is STATE-GATED — only
+  `NOT_STARTED`/`CURRENT` applications queue a fresh run, other states
+  → 409 `state.conflict` with the reason), `/analyses/incidents`,
   `/analyses/{id}/triage`, `/incidents/{incidentKey}/triage` (writable
   triage, §9.1 anchor), `/analysis-profiles`
 - **Batch & events** — `/batch/tags` (202), `/batch/analyses` (202 →
-  taskgroup ref), `/events` (SSE, `?kind=` filter), `/user-settings`
+  taskgroup ref; applications in non-queueable states are **skipped and
+  named** in the response's `skipped[]`, mirroring the mock's bulk-queue
+  behavior), `/events` (SSE, `?kind=` filter), `/user-settings`
   (self-scoped, merge semantics), `/tasks` (+ `/tasks/health` queue health #30)
 - **Automation/controls** — `/manifests` (#33 item 11), `/webhooks` (+
   `/deliveries` log + replay), `/identities` (credentials, secret
@@ -103,7 +107,9 @@ PostgreSQL), then `podman exec <container> pg_dump -U quarkus -d quarkus
   trail, padmin read)
 - **Agentic (console extension, 2026-11-16)** — `/gateways`, `/skills`,
   `/agents` (+skills binding), `/workflows`, `/workflow-runs`,
-  `/agent-runs` (+ per-run event log; token/cost showback #20),
+  `/agent-runs` (+ per-run event log; token/cost showback #20; since
+  2026-11-17 agent-loop telemetry: `turns`, `ctxCurrent`, `ctxWindow`,
+  and the derived `ctx` display form `"38,412 / 128,000 (30%)"`),
   `/wave-dependencies`, `/wave-evidence`, `/wave-tickets` (wave content
   #46)
 

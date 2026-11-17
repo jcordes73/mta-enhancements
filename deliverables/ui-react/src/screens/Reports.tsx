@@ -1,7 +1,7 @@
 import { Fragment, useMemo, useState } from 'react';
 import {
   Card, CardBody, CardHeader, CardTitle, Title, Content, ContentVariants, Tabs, Tab, TabTitleText,
-  Label, Button, List, ListItem, Grid, GridItem,
+  Label, Button, List, ListItem, Grid, GridItem, Pagination,
 } from '@patternfly/react-core';
 import { Table, Thead, Tbody, Tr, Th, Td } from '@patternfly/react-table';
 /* hand-rolled pf-v6-c-progress markup (combined-risks distribution bars) needs the
@@ -179,6 +179,9 @@ function CombinedRows({ c, open, onToggle }: { c: (typeof COMBINED)[number]; ope
 /* ---------- tab 2: risk provenance (derived, #32 item 6) ---------- */
 function Provenance({ apps }: { apps: Array<Record<string, unknown>> }) {
   const [facets, setFacets] = useState<string[]>([]);
+  /* pagination (mock defect-log row 106) — hidden at zero results (row 87) */
+  const [provPage, setProvPage] = useState(1);
+  const [provPer, setProvPer] = useState(10);
   const rows = apps.map(a => {
     const kind = String(a.riskKind ?? 'unassessed');
     const prov = kind === 'inherited' ? 'inherited' : kind === 'own' ? 'own' : 'unassessed';
@@ -190,6 +193,8 @@ function Provenance({ apps }: { apps: Array<Record<string, unknown>> }) {
   rows.forEach(r => { counts[r.prov] = (counts[r.prov] || 0) + 1; });
   const order = ['own', 'inherited', 'unassessed'].filter(k => counts[k]);
   const visible = rows.filter(r => !facets.length || facets.includes(r.prov));
+  const provPageC = Math.min(provPage, Math.max(1, Math.ceil(visible.length / provPer)));
+  const provRows = visible.slice((provPageC - 1) * provPer, provPageC * provPer);
   return (
     <Card style={{ marginTop: 'var(--pf-t--global--spacer--md)' }}>
       <CardHeader><CardTitle>Risk provenance</CardTitle></CardHeader>
@@ -204,7 +209,7 @@ function Provenance({ apps }: { apps: Array<Record<string, unknown>> }) {
         <Table aria-label="Risk provenance" variant="compact">
           <Thead><Tr><Th>Application</Th><Th>Risk</Th><Th>Provenance</Th></Tr></Thead>
           <Tbody>
-            {visible.map(({ a, provText }) => (
+            {provRows.map(({ a, provText }) => (
               <Tr key={a.name as string}>
                 <Td dataLabel="Application"><a href="#scr=inventory">{a.name as string}</a></Td>
                 <Td dataLabel="Risk">{a.risk
@@ -218,6 +223,14 @@ function Provenance({ apps }: { apps: Array<Record<string, unknown>> }) {
             )}
           </Tbody>
         </Table>
+        {visible.length > 0 && (
+          <Pagination
+            itemCount={visible.length} page={provPageC} perPage={provPer} variant="bottom" isCompact
+            onSetPage={(_e, p) => setProvPage(p)}
+            onPerPageSelect={(_e, pp) => { setProvPer(pp); setProvPage(1); }}
+            style={{ marginTop: 'var(--rh-space-md)' }}
+          />
+        )}
         <div style={{ marginTop: 'var(--rh-space-md)' }}>
           <Button variant="secondary">⬇ Export CSV/JSON</Button> <span className="u-muted" style={{ fontSize: 'var(--rh-font-size-body-text-xs)' }}></span>
         </div>

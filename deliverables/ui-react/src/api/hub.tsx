@@ -41,6 +41,7 @@ export interface WfRunRow { id: string; name: string; wf: string; app: string; p
 export interface AgentRunRow {
   id: string; name: string; agent: string; app: string; phase: string; state: string; reason: string;
   duration: string; gw: string; model: string; tokens: string; tokDetail: string; cost: string;
+  turns: number | null; ctx: string | null;
   image: string; wr: string; age: string; events: string[][];
 }
 export interface AgentRow { id: string; name: string; image: string; gateways: string; skills: string; params: number; ready: boolean; age: string }
@@ -160,7 +161,9 @@ interface WfRunV { id: string; name: string; workflow: string; application: stri
 interface AgentRunV {
   id: string; name: string; agent: string; application: string; workflowRun: string; phase: string; state: string;
   reason: string | null; duration: string | null; gateway: string; model: string; tokens: string | null;
-  tokDetail: string | null; cost: string | null; image: string | null; age: string; events: [string, string][] | null;
+  tokDetail: string | null; cost: string | null;
+  turns: number | null; ctxCurrent: number | null; ctxWindow: number | null; ctx: string | null;
+  image: string | null; age: string; events: [string, string][] | null;
 }
 interface AgentV { id: string; name: string; image: string; gateway: string; tierPin: string | null; skills: string[]; params: number; ready: boolean; age: string }
 interface SkillV { id: string; name: string; display: string; description: string; type: string; source: string; ready: boolean; tags: string | null; age: string }
@@ -514,7 +517,8 @@ function agentRunsAll(rows: AgentRunV[]): AgentRunRow[] {
     id: r.id, name: r.name, agent: r.agent, app: r.application, phase: r.phase,
     state: r.state.toLowerCase(), reason: r.reason || '', duration: r.duration || '',
     gw: r.gateway, model: r.model, tokens: r.tokens || '', tokDetail: r.tokDetail || '',
-    cost: r.cost || '', image: r.image || '', wr: r.workflowRun, age: r.age,
+    cost: r.cost || '', turns: r.turns, ctx: r.ctx,
+    image: r.image || '', wr: r.workflowRun, age: r.age,
     events: r.events || [],
   }));
 }
