@@ -56,6 +56,10 @@ what-changed-when index. Long-form design-system rules:
   cluster: the padmin Home now opens with a full 8-tile stat wall
   (4+4, `gc3` whole-track spans) before the tenant-portfolio table; the
   org-admin landing keeps the centered 5-tile placement.
+- **Platform-admin landing order (mock row 108)** — the Platform health
+  card moved above the Organizations — tenant portfolio table: the
+  padmin Home now reads stat wall → services status → org drill-down →
+  cross-tenant audit trail.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`

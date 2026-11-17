@@ -722,6 +722,13 @@
           <div class="pf-v6-c-card pf-m-plain gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Failed tasks <span class="anno" data-tip="#3: diagnostics with cause + action">#3</span></div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default);"><b>3</b><div class="u-muted" style="font-size:var(--rh-font-size-body-text-xs); font-weight:400;">1 quota-blocked <span class="anno" data-tip="#38: quota-blocked with named quota">#38</span></div></div></div></div>
           <div class="pf-v6-c-card pf-m-plain gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Verification pass rate <span class="anno" data-tip="#47: platform-wide verification signal">#47</span></div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default); color:var(--pf-t--global--color--status--success--default);"><b>82%</b><div class="u-muted" style="font-size:var(--rh-font-size-body-text-xs); font-weight:400;">last 7 days</div></div></div></div>
         </div>
+        <!-- row 108 (user request): Platform health moved ABOVE the tenant-portfolio
+             table — services status first, then the org drill-down -->
+        <div class="pf-v6-c-card"><div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Platform health <span class="anno" data-tip="platform services are operator-side concerns — the platform admin owns them; the org admin's landing answers organization questions instead (user challenges, §2.0.2)">#30/#37/#47</span></div></div>
+          <div class="pf-v6-c-card__body">
+          <ul class="pf-v6-c-list" id="lpPaHealth"></ul>
+          </div>
+        </div>
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Organizations — tenant portfolio</div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" data-rbac="tenants:create" onclick="openOrgModal()">Provision organization</button></div></div>
@@ -739,11 +746,6 @@
             </tr></thead>
             <tbody id="lpPaOrgsBody"></tbody>
           </table>
-          </div>
-        </div>
-        <div class="pf-v6-c-card"><div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Platform health <span class="anno" data-tip="platform services are operator-side concerns — the platform admin owns them; the org admin's landing answers organization questions instead (user challenges, §2.0.2)">#30/#37/#47</span></div></div>
-          <div class="pf-v6-c-card__body">
-          <ul class="pf-v6-c-list" id="lpPaHealth"></ul>
           </div>
         </div>
         <div class="pf-v6-c-card"><div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Cross-tenant audit trail <span class="anno" data-tip="#42: your own accountability surface, up front — provisioning events and audited cross-organization reads; the full trail is in Administration → Controls → Organizations">#42</span></div><div class="pf-v6-c-card__actions"><a href="#" onclick="show('config');cfgTabApply('controls');return false">Full trail &rarr;</a></div></div>
