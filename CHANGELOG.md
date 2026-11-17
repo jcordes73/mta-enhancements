@@ -11,6 +11,14 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Identities: Created By + per-type credential entry (defect row 134)** — the Add-credential
+  button on the Credentials screen was inert; it now opens the live "New credential" modal
+  (five live types, each with its own field set — Source Control user-credentials + the
+  Default-credential switch, Maven settings upload/paste, Proxy, Basic/Bearer Token (Jira)),
+  validation gates state location+cause+fix, and the secret is never stored (#15). The table
+  gains the live **Created by** column (persona directory login, row 131) and the kebab's
+  **Remove default** verb — the default flag is exclusive, and taking it is audited.
+  `verify/verify-identities.js` (24 assertions), battery 26/26.
 - **Stakeholder-side group membership editing (defect row 133)** — the Controls depth gap: the
   stakeholder modal gains a "Stakeholder groups" checkbox list and an Edit pencil on the rows
   (live parity: `/controls/stakeholders` carries an Edit action). `stakeholderSave` syncs

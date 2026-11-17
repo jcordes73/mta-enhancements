@@ -1751,7 +1751,7 @@
       <div class="pf-v6-c-card" id="credsCard">
         <div class="pf-v6-c-card__header">
           <div class="pf-v6-c-card__title">Repository credentials <span class="anno" data-tip="#15: verification + effective-credential display; #42: last-used is an audit event; #33 item 9: used-by blast radius">#15</span></div>
-          <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary" type="button" data-rbac="identities:create"><span class="pf-v6-c-button__text">Add credential</span></button></div>
+          <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary" type="button" data-rbac="identities:create" onclick="credNewOpen()"><span class="pf-v6-c-button__text">Add credential</span></button></div>
         </div>
         <div class="pf-v6-c-card__body">
         <table class="pf-v6-c-table pf-m-compact" id="credsTable" role="grid">
@@ -1763,6 +1763,8 @@
             <th class="pf-v6-c-table__th" scope="col">Last used <span class="anno" data-tip="#42: revocation hygiene needs last-used &mdash; it is an audit event">#42</span></th>
             <th class="pf-v6-c-table__th" scope="col">Verified <span class="anno" data-tip="#15: a test action with a real outcome &mdash; not a saved-but-broken secret">#15</span></th>
             <th class="pf-v6-c-table__th" scope="col">Used by <span class="anno" data-tip="#33 item 9: reverse relations &mdash; see the blast radius before rotating">#33</span></th>
+            <th class="pf-v6-c-table__th" scope="col">Created by <span class="anno" data-tip="live 8.3.3 /identities column: who registered the identity &mdash; ties the credential to the row-131 directory (admin seeded the samples)">8.3.3</span></th>
+            <th class="pf-v6-c-table__th" scope="col"><span class="pf-v6-screen-reader">Row actions</span></th>
           </tr></thead>
           <tbody id="credsBody"></tbody>
         </table>
@@ -4040,6 +4042,37 @@ artifacts:
   </div>
 </div>
 
+<!-- ================= row 134: new credential (live 8.3.3 /identities "New credential") ================= -->
+<div class="pf-v6-c-backdrop" id="modalCred" hidden>
+  <div class="pf-v6-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="mc-title">
+    <div class="pf-v6-c-modal-box__header">
+      <h2 class="pf-v6-c-modal-box__title" id="mc-title"><span class="pf-v6-c-modal-box__title-text">New credential</span></h2>
+      <button class="pf-v6-c-button pf-m-plain pf-v6-c-modal-box__close" type="button" aria-label="Close dialog" onclick="closeModals()"><span class="pf-v6-c-button__icon">&#10005;</span></button>
+    </div>
+    <div class="pf-v6-c-modal-box__body">
+      <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="credName"><span class="pf-v6-c-form__label-text">Name <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
+        <input class="pf-v6-c-form-control" type="text" id="credName" oninput="credSync()"></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="credDesc"><span class="pf-v6-c-form__label-text">Description</span></label>
+        <input class="pf-v6-c-form-control" type="text" id="credDesc"></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="credType"><span class="pf-v6-c-form__label-text">Type <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
+        <select class="pf-v6-c-form-control" id="credType" onchange="credTypeApply(); credSync();">
+          <option value="">Select&hellip;</option>
+          <option value="source">Source Control</option>
+          <option value="maven">Maven Settings File</option>
+          <option value="proxy">Proxy</option>
+          <option value="basic-jira">Basic Auth (Jira)</option>
+          <option value="bearer-jira">Bearer Token (Jira)</option>
+        </select></div>
+      <div id="credTypeFields"></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);" id="credMsg" hidden><div class="pf-v6-c-helper-text"><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text pf-m-error" id="credMsgText"></span></div></div></div>
+    </div>
+    <footer class="pf-v6-c-modal-box__footer">
+      <button class="pf-v6-c-button pf-m-primary" type="button" id="credSaveBtn" onclick="credSave()" disabled><span class="pf-v6-c-button__text">Create</span></button>
+      <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
+    </footer>
+  </div>
+</div>
+
 <!-- ================= row 122: gateway CA-trust confirm (blast radius + re-test-on-apply) ================= -->
 <div class="pf-v6-c-backdrop" id="modalGwTrust" hidden>
   <div class="pf-v6-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="mgt-title">
@@ -5207,11 +5240,11 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
      team — the same ownership invariant as applications — so scopedCreds() is the only
      credential-list source and the tenancy clamp decides visibility */
   const CREDS = [
-    { name: 'gitlab-pat',       kind: 'source &middot; PAT (https)',    team: 'claims',    expires: '2027-09-12', expLabel: 'ok',       expColor: 'green',  lastUsed: '14m ago', verifiedLabel: 'verified',   verColor: 'green', usedBy: '7 applications' },
-    { name: 'svn-read-key',     kind: 'source &middot; SSH key',        team: 'claims',    expires: 'in 6 days',  expLabel: 'expiring', expColor: 'yellow', lastUsed: '3d ago',  verifiedLabel: 'verified',   verColor: 'green', usedBy: '2 applications' },
-    { name: 'nexus-mvn',        kind: 'maven &middot; user/password',   team: 'claims',    expires: '&mdash;',    expLabel: '',         expColor: 'green',  lastUsed: 'never',   verifiedLabel: 'unverified', verColor: 'red',   usedBy: '0 applications' },
-    { name: 'github-wealth-pat',kind: 'source &middot; PAT (https)',    team: 'portfolio', expires: '2027-01-30', expLabel: 'ok',       expColor: 'green',  lastUsed: '1h ago',  verifiedLabel: 'verified',   verColor: 'green', usedBy: '2 applications' },
-    { name: 'epic-fhir-token',  kind: 'source &middot; OAuth2',         team: 'records',   expires: '2026-12-01', expLabel: 'expiring', expColor: 'yellow', lastUsed: '6h ago',  verifiedLabel: 'verified',   verColor: 'green', usedBy: '1 application' },
+    { name: 'gitlab-pat',       kind: 'source &middot; PAT (https)',    team: 'claims',    expires: '2027-09-12', expLabel: 'ok',       expColor: 'green',  lastUsed: '14m ago', verifiedLabel: 'verified',   verColor: 'green', usedBy: '7 applications' , createdBy: 'admin', isDefault: true},
+    { name: 'svn-read-key',     kind: 'source &middot; SSH key',        team: 'claims',    expires: 'in 6 days',  expLabel: 'expiring', expColor: 'yellow', lastUsed: '3d ago',  verifiedLabel: 'verified',   verColor: 'green', usedBy: '2 applications' , createdBy: 'admin'},
+    { name: 'nexus-mvn',        kind: 'maven &middot; user/password',   team: 'claims',    expires: '&mdash;',    expLabel: '',         expColor: 'green',  lastUsed: 'never',   verifiedLabel: 'unverified', verColor: 'red',   usedBy: '0 applications' , createdBy: 'admin'},
+    { name: 'github-wealth-pat',kind: 'source &middot; PAT (https)',    team: 'portfolio', expires: '2027-01-30', expLabel: 'ok',       expColor: 'green',  lastUsed: '1h ago',  verifiedLabel: 'verified',   verColor: 'green', usedBy: '2 applications' , createdBy: 'admin'},
+    { name: 'epic-fhir-token',  kind: 'source &middot; OAuth2',         team: 'records',   expires: '2026-12-01', expLabel: 'expiring', expColor: 'yellow', lastUsed: '6h ago',  verifiedLabel: 'verified',   verColor: 'green', usedBy: '1 application' , createdBy: 'admin'},
   ];
   function scopedCreds(){
     return CREDS.filter(c => { const t = TEAM_BY_ID[c.team]; return t && t.org === state.org && (!state.team || c.team === state.team); });
@@ -5227,10 +5260,105 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       const usedTxt = used.length ? used.length + (used.length === 1 ? ' application' : ' applications') : '0 applications';
       const exp = c.expLabel ? '<span class="pf-v6-c-label pf-m-' + c.expColor + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + c.expLabel + '</span></span></span>' : '&mdash;';
       const ver = '<span class="pf-v6-c-label pf-m-' + c.verColor + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + c.verifiedLabel + '</span></span></span>' + (c.verifiedLabel === 'unverified' ? ' <span class="anno" data-tip="#15: the field failure \u2014 credentials saved but never tested, tasks fail at clone time">#15</span>' : '');
-      return '<tr class="pf-v6-c-table__tr" onclick="openDrawer(\'credential\')"><td class="pf-v6-c-table__td"><b>' + c.name + '</b></td><td class="pf-v6-c-table__td">' + c.kind + '</td><td class="pf-v6-c-table__td">' + t.name + '</td><td class="pf-v6-c-table__td">' + c.expires + ' ' + exp + '</td><td class="pf-v6-c-table__td">' + c.lastUsed + '</td><td class="pf-v6-c-table__td">' + ver + ' <button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" data-rbac="identities:verify" onclick="event.stopPropagation()"><span class="pf-v6-c-button__text">re-test</span></button></td><td class="pf-v6-c-table__td">' + usedTxt + '</td></tr>';
+      const def = c.isDefault ? ' <span class="pf-v6-c-label pf-m-blue"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">default</span></span></span>' : '';
+      const rmDef = c.isDefault ? ' <button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" data-rbac="identities:edit" onclick="event.stopPropagation(); credRemoveDefault(this)" data-credname="' + c.name + '" title="Live kebab verb: the hub keeps ONE default source-control credential — this row currently holds it"><span class="pf-v6-c-button__text">Remove default</span></button>' : '';
+      return '<tr class="pf-v6-c-table__tr" onclick="openDrawer(\'credential\')"><td class="pf-v6-c-table__td"><b>' + c.name + '</b>' + def + '</td><td class="pf-v6-c-table__td">' + c.kind + '</td><td class="pf-v6-c-table__td">' + t.name + '</td><td class="pf-v6-c-table__td">' + c.expires + ' ' + exp + '</td><td class="pf-v6-c-table__td">' + c.lastUsed + '</td><td class="pf-v6-c-table__td">' + ver + ' <button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" data-rbac="identities:verify" onclick="event.stopPropagation()"><span class="pf-v6-c-button__text">re-test</span></button></td><td class="pf-v6-c-table__td">' + usedTxt + '</td><td class="pf-v6-c-table__td">' + (c.createdBy || '<span class="u-muted">&mdash;</span>') + '</td><td class="pf-v6-c-table__td">' + rmDef + '</td></tr>';
     }).join('');
     pagerState('cred').rerender = renderCreds; pagerShow('cred', tb, rows.length);   /* pageable (user request) */
     if (typeof applyRbac === 'function') applyRbac();   /* verb gating follows the re-render */
+  }
+
+  /* ---- identities: the live 8.3.3 "New credential" form (row 134, "implement the remaining
+     gaps"): the Add-credential button was inert; it now opens the live modal — Name/Description/
+     Type* with the FIVE live types, each driving its own field set (Source Control -> user
+     credentials + the "Default credential?" switch; Maven Settings File -> upload/paste;
+     Proxy -> username/password; Basic Auth (Jira) -> jira username or email + token;
+     Bearer Token (Jira) -> token). The table gains the live Created-by column (who registered
+     the identity — the row-131 directory answers it) and the live kebab's "Remove default"
+     verb (the hub keeps ONE default source-control credential; taking it from a row is audited).
+     Secret values are never stored or rendered (#15). ---- */
+  const CRED_KINDS = { source: 'source &middot; user/password', maven: 'maven &middot; settings file', proxy: 'proxy &middot; user/password', 'basic-jira': 'jira &middot; basic auth', 'bearer-jira': 'jira &middot; bearer token' };
+  const PERSONA_LOGIN = { architect: 'm.keller@northwind-financial.com', migrator: 'j.cordes@northwind-financial.com', admin: 'a.weber@northwind-financial.com', pm: 'p.schmidt@northwind-financial.com', pgm: 'k.vogel@northwind-financial.com', padmin: 'root@example.com' };
+  function credNewOpen(){
+    document.getElementById('credName').value = '';
+    document.getElementById('credDesc').value = '';
+    document.getElementById('credType').value = '';
+    document.getElementById('credTypeFields').innerHTML = '';
+    document.getElementById('credMsg').hidden = true;
+    document.getElementById('credSaveBtn').disabled = true;
+    openModal('modalCred');
+  }
+  function credTypeApply(){
+    const t = document.getElementById('credType').value;
+    const f = document.getElementById('credTypeFields');
+    const sw = '<div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-switch" for="credDefaultSw"><input class="pf-v6-c-switch__input" type="checkbox" id="credDefaultSw" onchange="credSync()"><span class="pf-v6-c-switch__toggle"></span><span class="pf-v6-c-switch__label pf-m-off" aria-hidden="true">Default credential?</span></label>'
+      + '<div class="u-muted" style="font-size: var(--rh-font-size-body-text-xs); margin-top: var(--rh-space-xs);">Use as the source control credential if an application does not have one assigned?</div></div>';
+    if (t === 'source'){
+      f.innerHTML = '<div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><span class="pf-v6-c-form__label-text"><b>User credentials</b></span>'
+        + '<input class="pf-v6-c-form-control" type="text" id="credUser" placeholder="Username" aria-label="Username" style="margin-top: var(--rh-space-xs);" oninput="credSync()">'
+        + '<input class="pf-v6-c-form-control" type="password" id="credPass" placeholder="Password" aria-label="Password" autocomplete="new-password" style="margin-top: var(--rh-space-xs);" oninput="credSync()"></div>' + sw;
+    } else if (t === 'maven'){
+      f.innerHTML = sw
+        + '<div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><span class="pf-v6-c-form__label-text">Settings file</span><div class="u-muted" style="font-size: var(--rh-font-size-body-text-xs); margin-top: var(--rh-space-xs);">Upload your Settings file or paste its contents below.</div>'
+        + '<textarea class="pf-v6-c-form-control" id="credSettings" rows="4" aria-label="Settings file contents" style="margin-top: var(--rh-space-xs); font-family: var(--pf-t--global--font--family--mono);"></textarea></div>';
+    } else if (t === 'proxy'){
+      f.innerHTML = '<div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><input class="pf-v6-c-form-control" type="text" id="credUser" placeholder="Username" aria-label="Username">'
+        + '<input class="pf-v6-c-form-control" type="password" id="credPass" placeholder="Password" aria-label="Password" autocomplete="new-password" style="margin-top: var(--rh-space-xs);"></div>';
+    } else if (t === 'basic-jira'){
+      f.innerHTML = '<div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="credJiraUser"><span class="pf-v6-c-form__label-text">Jira username or email</span></label>'
+        + '<input class="pf-v6-c-form-control" type="text" id="credJiraUser" style="margin-top: var(--rh-space-xs);">'
+        + '<label class="pf-v6-c-form__label" for="credTok" style="margin-top: var(--rh-space-md);"><span class="pf-v6-c-form__label-text">Token <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>'
+        + '<input class="pf-v6-c-form-control" type="password" id="credTok" autocomplete="new-password" style="margin-top: var(--rh-space-xs);" oninput="credSync()"></div>';
+    } else if (t === 'bearer-jira'){
+      f.innerHTML = '<div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="credTok"><span class="pf-v6-c-form__label-text">Token <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>'
+        + '<input class="pf-v6-c-form-control" type="password" id="credTok" autocomplete="new-password" style="margin-top: var(--rh-space-xs);" oninput="credSync()"></div>';
+    } else {
+      f.innerHTML = '';
+    }
+  }
+  function credError(msg){
+    const m = document.getElementById('credMsg');
+    m.hidden = !msg;
+    document.getElementById('credMsgText').textContent = msg || '';
+    document.getElementById('credSaveBtn').disabled = !!msg;
+  }
+  function credSync(){
+    const name = document.getElementById('credName').value.trim();
+    const t = document.getElementById('credType').value;
+    if (!name){ credError('Name is required.'); return; }
+    if (!t){ credError('Type is required \u2014 pick one of the five live identity types.'); return; }
+    const g = id => { const el = document.getElementById(id); return el ? el.value : null; };
+    if (t === 'source' && (!g('credUser') || !g('credUser').trim() || !g('credPass') || !g('credPass').length)){ credError('User credentials are required for a Source Control identity \u2014 username and password.'); return; }
+    if ((t === 'basic-jira' || t === 'bearer-jira') && (!g('credTok') || !g('credTok').length)){ credError('Token is required for a Jira identity.'); return; }
+    if (CREDS.some(c => c.name.toLowerCase() === name.toLowerCase())){ credError('A credential with this name already exists \u2014 names key the application-credential binding.'); return; }
+    credError('');
+  }
+  function credSave(){
+    if (document.getElementById('credSaveBtn').disabled) return;
+    const name = document.getElementById('credName').value.trim();
+    const t = document.getElementById('credType').value;
+    const g = id => { const el = document.getElementById(id); return el ? el.value : null; };
+    const isDefault = !!document.getElementById('credDefaultSw') && document.getElementById('credDefaultSw').checked;
+    if (isDefault){
+      /* the hub keeps ONE default source-control credential — a new default takes the flag */
+      CREDS.forEach(c => { c.isDefault = false; });
+    }
+    const team = state.team || TENANCY.orgs.find(o => o.id === state.org).departments[0].teams[0].id;
+    CREDS.push({ name: name, kind: CRED_KINDS[t], team: team, expires: '&mdash;', expLabel: '', expColor: 'green',
+      lastUsed: 'never', verifiedLabel: 'unverified', verColor: 'red', usedBy: '0 applications',
+      createdBy: PERSONA_LOGIN[state.persona] || 'admin', isDefault: isDefault });
+    auditAdd('identities:create', name + (isDefault ? ' (default)' : ''));
+    rbacToast('<b>' + name + '</b> created &mdash; the secret value is never stored or rendered <span class=anno-cite>(#15)</span>' + (isDefault ? '; it is now the default source-control credential.' : '.') + ' Recorded in the audit trail <span class=anno-cite>(#42)</span>.');
+    closeModals();
+    renderCreds();
+  }
+  function credRemoveDefault(btn){
+    const c = CREDS.find(x => x.name === btn.dataset.credname);
+    if (!c || !c.isDefault) return;
+    c.isDefault = false;
+    auditAdd('identities:update', c.name + ' \u2014 default removed');
+    rbacToast('<b>' + c.name + '</b> is no longer the default source-control credential \u2014 applications without an explicit credential lose their fallback <span class=anno-cite>(#15)</span>. Recorded in the audit trail <span class=anno-cite>(#42)</span>.');
+    renderCreds();
   }
   function applyTenancy(){
     document.getElementById('tenancyLabel').textContent = tenancyPath();
