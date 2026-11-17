@@ -11,6 +11,16 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Token administration on the mock's Config → Access tab (defect row 129)** — the static
+  2-row Tokens card became a full management surface mirroring the live console's `/tokens`
+  column set (ID/Login/Kind/Scopes/Issued/Expiration/Lifespan hours) plus the management half
+  comment 9 (enhancements#266) called for: search, kind filter, show-expired toggle, summary
+  line, sortable headers, pagination, and single/cross-page-bulk revoke through the previously
+  stubbed `modalRevoke` dialog — every revocation audited (#42) and RBAC-gated
+  (`tokens:revoke`). Answers the #35 pain point (13,500 rows, no bulk cleanup). The Agentic
+  "rotate under Tokens" link now routes to the tab. New suite `verify/verify-tokens.js`
+  (35 assertions); full battery 21/21 green.
+
 - **Parity audit re-executed against the live 8.3.3 console (§7 re-audit)** — headless-Chrome
   crawl of the sandbox instance (version 8.3.3 re-confirmed, admin persona): 17 navigable routes
   re-verified column-for-column against the mock (supersets only), the application create-form's

@@ -48,6 +48,7 @@ non-zero on failure (silence + exit 0 = pass).
 | `verify-i18nfilters.js` | Toolbar filters work under translation (the DE defect: translated filter menus must still filter) |
 | `verify-i18ninc.js` | i18n observer reactivity (#70): dynamically written nodes translate; EN baseline unchanged |
 | `verify-tokengate.js` | DE renders: admin wave-gate summary composition, reports/credentials copy |
+| `verify-tokens.js` | Row 129 token administration: boot render + live column set, kind filter, search, show-expired toggle, sortable headers + `aria-sort`, shared pager, single/bulk revoke (modal → audit + toast), cross-page select-all, empty state + row-87 pager hiding, RBAC gating, wired Tokens link |
 | `verify-tenancy.js` | Tenancy invariants: org scoping at boot, exactly-one-team data, org isolation / platform-admin pivot, inventory rows vs fixture |
 | `verify-rbac.js` | Persona nav matrix, flat nav (no Administration header), masthead task shortcut, inventory rows vs fixture |
 | `verify-migr.js` | My-work reactivity: ticket cleared → row drops out; incident assigned → becomes my work; empty state |

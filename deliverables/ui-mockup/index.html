@@ -374,6 +374,11 @@
   /* RHDS Table guidelines (row 86, Scrolling): a table scrolls horizontally when content exceeds
    its container — table-bearing card bodies get an overflow scroller (no scrollbar until needed) */
   .pf-v6-c-card__body:has(> .pf-v6-c-table){overflow-x:auto;}
+  /* row 129: the Tokens card carries a 10-column table in a half-width grid12 track — the table
+     scrolls inside .tok-scroll (row-86 scrolling) while the toolbar/pager stay fixed; the card
+     keeps min-width:0 so the grid track can't be stretched past the viewport by the table. */
+  #panel-cfg-access .gc6:has(#tokPagerSlot){min-width:0;}
+  #tokBulk[hidden]{display:none;}
   /* RHDS Table guidelines (row 86, Column sorting): the UNSORTED state shows both arrows */
   .pf-v6-c-table__sort-indicator{display:inline-flex; align-items:center; gap:var(--pf-t--global--spacer--xs);}
   /* selected state for facet/toolbar chips (defect #45) */
@@ -1974,11 +1979,49 @@
         <div class="pf-v6-c-card gc6">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Tokens <span class="anno" data-tip="comment 9 (enhancements#266): management UX half — last-used, expiry warnings, sane defaults">c9</span></div></div>
           <div class="pf-v6-c-card__body">
-          <table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Kind</th><th class="pf-v6-c-table__th" scope="col">Expiration</th><th class="pf-v6-c-table__th" scope="col">Last used <span class="anno" data-tip="hygiene revocation needs this — it's an audit event (#42)">#42</span></th><th class="pf-v6-c-table__th" scope="col"></th></tr></thead>
-          <tbody>
-          <tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td">api-key</td><td class="pf-v6-c-table__td">2027-09-12 <span class="pf-v6-c-label pf-m-green"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">ok</span></span></span></td><td class="pf-v6-c-table__td">14m ago</td><td class="pf-v6-c-table__td"><button class="pf-v6-c-button pf-m-danger btn-xs" type="button" onclick="openModal('modalRevoke')"><span class="pf-v6-c-button__text">revoke</span></button></td></tr>
-          <tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td">api-key</td><td class="pf-v6-c-table__td">2036-08-01 <span class="pf-v6-c-label pf-m-red"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">~10y default</span></span></span> <span class="anno" data-tip="hub#1082 + #1451: lifespan data + unrealistic durations; guidance, cap, expiry warnings">hub#1082</span></td><td class="pf-v6-c-table__td">never</td><td class="pf-v6-c-table__td"><button class="pf-v6-c-button pf-m-danger btn-xs" type="button" onclick="openModal('modalRevoke')"><span class="pf-v6-c-button__text">revoke</span></button></td></tr>
-          </tbody></table>
+          <!-- row 129 (user request): token administration. The live console's /tokens column set
+               (ID/Login/Kind/Scopes/Issued/Expiration/Lifespan hours) upgraded with the management
+               half comment 9 asked for: search, kind filter, show-expired toggle, cross-page bulk
+               revoke, sortable headers, pagination (#35: 13,500 rows, no bulk cleanup).
+               JS-rendered from MOCK_TOKENS; revocation is audited (#42), RBAC-gated. -->
+          <div class="pf-v6-c-toolbar" style="margin-bottom: var(--rh-space-md);">
+            <div class="pf-v6-c-toolbar__content">
+              <div class="pf-v6-c-toolbar__content-section">
+                <div class="pf-v6-c-toolbar__item"><input class="pf-v6-c-form-control" type="search" id="tokSearch" placeholder="Search by login, id or scope&hellip;" aria-label="Search tokens" oninput="tokApply()" style="width: 250px;"></div>
+                <div class="pf-v6-c-toolbar__item"><div class="select-wrap">
+                  <button class="pf-v6-c-menu-toggle" type="button" aria-expanded="false" onclick="toggleSelect(this)"><span class="pf-v6-c-menu-toggle__text" id="tokKindText">All kinds</span><span class="pf-v6-c-menu-toggle__toggle-icon" aria-hidden="true">&#9662;</span></button>
+                  <div class="pf-v6-c-menu" hidden><ul class="pf-v6-c-menu__list" role="menu">
+                    <li class="pf-v6-c-menu__list-item pf-m-selected" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="tokKindSet('', 'All kinds', this)"><span class="pf-v6-c-menu__item-text">All kinds</span></button></li>
+                    <li class="pf-v6-c-menu__list-item" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="tokKindSet('api-key', 'Kind: api-key', this)"><span class="pf-v6-c-menu__item-text">api-key</span></button></li>
+                    <li class="pf-v6-c-menu__list-item" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="tokKindSet('service-account', 'Kind: service-account', this)"><span class="pf-v6-c-menu__item-text">service-account</span></button></li>
+                    <li class="pf-v6-c-menu__list-item" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="tokKindSet('oauth', 'Kind: oauth', this)"><span class="pf-v6-c-menu__item-text">oauth</span></button></li>
+                  </ul></div>
+                </div></div>
+                <div class="pf-v6-c-toolbar__item"><label class="pf-v6-c-switch" for="tokExpiredSw"><input class="pf-v6-c-switch__input" type="checkbox" id="tokExpiredSw" onchange="tokApply()"><span class="pf-v6-c-switch__toggle"></span><span class="pf-v6-c-switch__label pf-m-off" aria-hidden="true">Show expired</span></label></div>
+                <div class="pf-v6-c-toolbar__item" id="tokBulk" hidden><div style="display:flex; align-items:center; gap: var(--rh-space-xs);">
+                  <span class="u-muted" id="tokBulkText"></span>
+                  <button class="pf-v6-c-button pf-m-danger btn-xs" type="button" data-rbac="tokens:revoke" onclick="tokBulkRevoke()"><span class="pf-v6-c-button__text">Revoke selected</span></button>
+                  <button class="pf-v6-c-button pf-m-link btn-xs" type="button" onclick="tokSel('none')"><span class="pf-v6-c-button__text">Clear</span></button>
+                </div></div>
+                <div class="pf-v6-c-toolbar__item"><span class="u-muted" id="tokSummary" style="font-size: var(--rh-font-size-body-text-xs);"></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="tok-scroll" style="overflow-x:auto;"><table class="pf-v6-c-table pf-m-compact" role="grid" id="tokTable"><thead id="tokHead"><tr class="pf-v6-c-table__tr">
+            <th class="pf-v6-c-table__check"><span class="pf-v6-screen-reader">Row select</span></th>
+            <th class="pf-v6-c-table__sort" data-sort="id" aria-sort="none" scope="col"><button class="pf-v6-c-table__button" type="button" onclick="tokSort('id')"><span class="pf-v6-c-table__button-content"><span class="pf-v6-c-table__text">ID</span><span class="pf-v6-c-table__sort-indicator" aria-hidden="true"></span></span></button></th>
+            <th class="pf-v6-c-table__sort" data-sort="login" aria-sort="none" scope="col"><button class="pf-v6-c-table__button" type="button" onclick="tokSort('login')"><span class="pf-v6-c-table__button-content"><span class="pf-v6-c-table__text">Login</span><span class="pf-v6-c-table__sort-indicator" aria-hidden="true"></span></span></button></th>
+            <th class="pf-v6-c-table__sort" data-sort="kind" aria-sort="none" scope="col"><button class="pf-v6-c-table__button" type="button" onclick="tokSort('kind')"><span class="pf-v6-c-table__button-content"><span class="pf-v6-c-table__text">Kind</span><span class="pf-v6-c-table__sort-indicator" aria-hidden="true"></span></span></button></th>
+            <th class="pf-v6-c-table__th" scope="col">Scopes <span class="anno" data-tip="least-privilege: one scope bundle per pipeline identity, not a shared admin key">#48</span></th>
+            <th class="pf-v6-c-table__sort" data-sort="issued" aria-sort="none" scope="col"><button class="pf-v6-c-table__button" type="button" onclick="tokSort('issued')"><span class="pf-v6-c-table__button-content"><span class="pf-v6-c-table__text">Issued</span><span class="pf-v6-c-table__sort-indicator" aria-hidden="true"></span></span></button></th>
+            <th class="pf-v6-c-table__sort" data-sort="expires" aria-sort="none" scope="col"><button class="pf-v6-c-table__button" type="button" onclick="tokSort('expires')"><span class="pf-v6-c-table__button-content"><span class="pf-v6-c-table__text">Expiration</span><span class="pf-v6-c-table__sort-indicator" aria-hidden="true"></span></span></button></th>
+            <th class="pf-v6-c-table__sort" data-sort="lifespan" aria-sort="none" scope="col"><button class="pf-v6-c-table__button" type="button" onclick="tokSort('lifespan')"><span class="pf-v6-c-table__button-content"><span class="pf-v6-c-table__text">Lifespan (h)</span><span class="pf-v6-c-table__sort-indicator" aria-hidden="true"></span></span></button></th>
+            <th class="pf-v6-c-table__sort" data-sort="used" aria-sort="none" scope="col"><button class="pf-v6-c-table__button" type="button" onclick="tokSort('used')"><span class="pf-v6-c-table__button-content"><span class="pf-v6-c-table__text">Last used <span class="anno" data-tip="hygiene revocation needs this — it's an audit event (#42)">#42</span></span><span class="pf-v6-c-table__sort-indicator" aria-hidden="true"></span></span></button></th>
+            <th class="pf-v6-c-table__th" scope="col"><span class="pf-v6-screen-reader">Row actions</span></th>
+          </tr></thead>
+          <tbody id="tokBody"></tbody></table></div>
+          <div id="tokEmpty" hidden class="u-muted" style="padding: var(--rh-space-md) 0;">No tokens match the current filters &mdash; adjust the search, kind or show-expired toggle.</div>
+          <div id="tokPagerSlot"></div>
           </div>
         </div>
       </div>
@@ -2427,7 +2470,7 @@
           <tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td"><code>/manifests, /adoptionplans</code></td><td class="pf-v6-c-table__td"><span class="pf-v6-c-label pf-m-yellow"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">evolving</span></span></span></td><td class="pf-v6-c-table__td">agentic surfaces — expect additive change; tracked in release notes</td></tr>
           </tbody>
         </table>
-        <div class="u-muted" style="margin-top: var(--rh-space-md);"><b>Automation access:</b> one service account per pipeline, least-privilege scopes (rotate under <a href="#" onclick="return false">Tokens</a>); every mutation attributed in the audit log <span class="anno" data-tip="#48 item 5: the identity story is documented — credential rotation through #15's machinery, attribution through #42's audit record">#15/#42</span>. Generated Go/Python/TypeScript clients and the import &rarr; analyze &rarr; triage &rarr; report walkthrough ship with the spec <span class="anno" data-tip="#48 item 6: clients generated from the parity-gated spec — no more network-tab reverse engineering">#48</span>.</div>
+        <div class="u-muted" style="margin-top: var(--rh-space-md);"><b>Automation access:</b> one service account per pipeline, least-privilege scopes (rotate under <a href="#" onclick="show('config');cfgTabApply('access');return false">Tokens</a>); every mutation attributed in the audit log <span class="anno" data-tip="#48 item 5: the identity story is documented — credential rotation through #15's machinery, attribution through #42's audit record">#15/#42</span>. Generated Go/Python/TypeScript clients and the import &rarr; analyze &rarr; triage &rarr; report walkthrough ship with the spec <span class="anno" data-tip="#48 item 6: clients generated from the parity-gated spec — no more network-tab reverse engineering">#48</span>.</div>
         </div>
       </div>
       </div>
@@ -3780,9 +3823,9 @@ artifacts:
       <h2 class="pf-v6-c-modal-box__title" id="mr-title"><span class="pf-v6-c-modal-box__title-text">Revoke API key?</span></h2>
       <button class="pf-v6-c-button pf-m-plain pf-v6-c-modal-box__close" type="button" aria-label="Close dialog" onclick="closeModals()"><span class="pf-v6-c-button__icon">✕</span></button>
     </div>
-    <div class="pf-v6-c-modal-box__body"><p>The key stops authenticating immediately. Anything still using it (automation, integrations) will fail with 401 until re-issued. <span class="anno" data-tip="comment 9: revocation with visible blast radius; last-used (#42) tells you what breaks">c9</span></p></div>
+    <div class="pf-v6-c-modal-box__body"><p>The key stops authenticating immediately. Anything still using it (automation, integrations) will fail with 401 until re-issued. <span class="anno" data-tip="comment 9: revocation with visible blast radius; last-used (#42) tells you what breaks">c9</span></p></p><div class="u-muted" id="mr-target"></div></div>
     <footer class="pf-v6-c-modal-box__footer">
-      <button class="pf-v6-c-button pf-m-danger" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Revoke</span></button>
+      <button class="pf-v6-c-button pf-m-danger" type="button" onclick="tokRevokeConfirm()"><span class="pf-v6-c-button__text">Revoke</span></button>
       <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
     </footer>
   </div>
@@ -8274,6 +8317,148 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     auditAdd(USER_INACTIVE[login] ? 'user:deactivate' : 'user:activate', login);
     renderUserBindings();
   }
+  /* ---- token administration (row 129, user request): the live console's /tokens surface
+     (ID/Login/Kind/Scopes/Issued/Expiration/Lifespan hours) upgraded with the management half
+     comment 9 (enhancements#266) called for: search, kind filter, show-expired toggle, bulk
+     revoke, sortable headers, pagination. The pain point is #35's — 13,500 token rows with no
+     bulk cleanup — so selection works across pages ("select all filtered"), expiration carries
+     an at-a-glance status, and every revocation is audited (#42) and RBAC-gated (tokens:revoke,
+     satisfied by the admin/padmin '*' scopes). The two rows the static demo carried keep their
+     visible content byte-identical (api-key 2027-09-12 ok 14m; api-key 2036-08-01 ~10y never,
+     hub#1082). Mutations are session-scoped in-memory like every mock verb. ---- */
+  const MOCK_TOKENS = [
+    { id: 1,  login: 'a.weber@northwind-financial.com',    kind: 'api-key',         scopes: 'applications:get applications:post',      issued: '2026-09-12', expires: '2027-09-12', expLabel: 'ok',            expColor: 'green',  usedTxt: '14m ago', used: 14 },
+    { id: 2,  login: 'svc-discovery',                      kind: 'service-account', scopes: 'addons:decrypt addons:get',               issued: '2026-02-03', expires: '2036-08-01', expLabel: '~10y default',  expColor: 'red',    usedTxt: 'never',   used: null, hub: 1 },
+    { id: 3,  login: 'svc-maven-proxy',                    kind: 'service-account', scopes: 'repositories:get',                        issued: '2025-10-31', expires: '2026-10-31', expLabel: 'expired',       expColor: 'red',    usedTxt: '17d ago', used: 24480 },
+    { id: 4,  login: 'j.cordes@northwind-financial.com',   kind: 'oauth',           scopes: 'analyses:get analyses:post incidents:get', issued: '2026-05-30', expires: '2026-11-30', expLabel: 'expires in 13d', expColor: 'yellow', usedTxt: '4m ago',  used: 4 },
+    { id: 5,  login: 'svc-report-gen',                     kind: 'service-account', scopes: 'reports:get batch:post',                  issued: '2026-05-01', expires: '2027-05-01', expLabel: 'ok',            expColor: 'green',  usedTxt: '1h ago',  used: 60 },
+    { id: 6,  login: 'p.schmidt@northwind-financial.com',  kind: 'api-key',         scopes: 'applications:get waves:get',               issued: '2026-06-30', expires: '2026-12-31', expLabel: 'ok',            expColor: 'green',  usedTxt: '2d ago',  used: 2880 },
+    { id: 7,  login: 'svc-addon-runner',                   kind: 'service-account', scopes: 'addons:get addons:post addons:decrypt',   issued: '2026-01-15', expires: '2027-01-15', expLabel: 'ok',            expColor: 'green',  usedTxt: '38m ago', used: 38 },
+    { id: 8,  login: 'k.vogel@northwind-financial.com',    kind: 'oauth',           scopes: 'waves:get waves:post',                    issued: '2026-02-14', expires: '2027-02-14', expLabel: 'ok',            expColor: 'green',  usedTxt: 'never',   used: null },
+    { id: 9,  login: 't.novak@northwind-financial.com',    kind: 'api-key',         scopes: 'applications:get',                        issued: '2025-09-30', expires: '2026-09-30', expLabel: 'expired',       expColor: 'red',    usedTxt: '48d ago', used: 69120 },
+    { id: 10, login: 'svc-git-sync',                       kind: 'service-account', scopes: 'repositories:get repositories:post',     issued: '2026-08-15', expires: '2027-08-15', expLabel: 'ok',            expColor: 'green',  usedTxt: '8m ago',  used: 8 },
+    { id: 11, login: 'd.hoffmann@northwind-financial.com', kind: 'api-key',         scopes: 'applications:get analyses:get',           issued: '2025-11-25', expires: '2026-11-25', expLabel: 'expires in 8d', expColor: 'yellow', usedTxt: '3h ago',  used: 180 },
+    { id: 12, login: 'svc-hub-cli',                        kind: 'service-account', scopes: 'hub:get hub:post',                        issued: '2026-01-01', expires: '2036-01-01', expLabel: '~9y default',   expColor: 'red',    usedTxt: '6d ago',  used: 8640, hub: 1 },
+    { id: 13, login: 'svc-quota-watch',                    kind: 'service-account', scopes: 'tasks:get',                               issued: '2026-07-01', expires: '2027-07-01', expLabel: 'ok',            expColor: 'green',  usedTxt: '26m ago', used: 26 }
+  ];
+  const TOK_REVOKED = [];   /* session-scoped: revoked tokens leave the table but stay counted in the summary + audit trail (#42) */
+  const tok = { kind: '', sortKey: 'id', sortDir: 1 };
+  let tokPending = null;    /* ids awaiting the modalRevoke confirmation */
+  function tokIsExpired(t){ return t.expLabel === 'expired'; }
+  function tokFiltered(){
+    const q = document.getElementById('tokSearch').value.trim().toLowerCase();
+    const showExpired = document.getElementById('tokExpiredSw').checked;
+    return MOCK_TOKENS.filter(t => {
+      if (tok.kind && t.kind !== tok.kind) return false;
+      if (tokIsExpired(t) && !showExpired) return false;
+      if (q && !(t.login.toLowerCase().includes(q) || String(t.id).includes(q) || t.scopes.toLowerCase().includes(q))) return false;
+      return true;
+    });
+  }
+  function tokLifespan(t){
+    const h = Math.round((new Date(t.expires) - new Date(t.issued)) / 36e5);
+    return h > 0 ? h.toLocaleString('en-US') : '&mdash;';
+  }
+  function renderTokens(){
+    const tb = document.getElementById('tokBody'); if (!tb) return;
+    /* keep the sortable-header glyphs in sync (row-92 RHDS idiom) */
+    document.querySelectorAll('#tokHead [data-sort]').forEach(th => {
+      const sel = th.dataset.sort === tok.sortKey;
+      th.classList.toggle('pf-m-selected', sel);
+      th.querySelector('.pf-v6-c-table__sort-indicator').innerHTML = sel ? rhSvg(tok.sortDir === 1 ? 'sort-asc' : 'sort-desc') : rhSvg('sort-unsorted');
+      th.setAttribute('aria-sort', sel ? (tok.sortDir === 1 ? 'ascending' : 'descending') : 'none');
+    });
+    const showExpired = document.getElementById('tokExpiredSw').checked;
+    const rows = tokFiltered().sort((a, b) => {
+      const key = tok.sortKey, dir = tok.sortDir;
+      let x, y;
+      if (key === 'lifespan'){ x = new Date(a.expires) - new Date(a.issued); y = new Date(b.expires) - new Date(b.issued); }
+      else if (key === 'used'){ x = a.used == null ? Infinity : a.used; y = b.used == null ? Infinity : b.used; }
+      else if (key === 'id'){ x = a.id; y = b.id; }
+      else { x = String(a[key]).toLowerCase(); y = String(b[key]).toLowerCase(); }
+      return (x < y ? -1 : x > y ? 1 : 0) * dir;
+    });
+    document.getElementById('tokEmpty').hidden = rows.length > 0;
+    document.getElementById('tokTable').hidden = rows.length === 0;
+    tb.innerHTML = rows.map(t => {
+      const exp = '<span class="pf-v6-c-label pf-m-' + t.expColor + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + t.expLabel + '</span></span></span>';
+      const hub = t.hub ? ' <span class="anno" data-tip="hub#1082 + #1451: lifespan data + unrealistic durations; guidance, cap, expiry warnings">hub#1082</span>' : '';
+      const scopes = '<span class="u-muted" style="font-size: var(--rh-font-size-body-text-xs);">' + t.scopes + '</span>';
+      return '<tr class="pf-v6-c-table__tr" data-tok="' + t.id + '"><td class="pf-v6-c-table__check"><label class="pf-v6-c-check pf-m-standalone"><input class="pf-v6-c-check__input" type="checkbox" onchange="tokUpdateBulk()"><span class="pf-v6-c-check__label pf-m-hidden"></span></label></td>'
+        + '<td class="pf-v6-c-table__td">' + t.id + '</td>'
+        + '<td class="pf-v6-c-table__td"><b>' + t.login + '</b></td>'
+        + '<td class="pf-v6-c-table__td">' + t.kind + '</td>'
+        + '<td class="pf-v6-c-table__td">' + scopes + '</td>'
+        + '<td class="pf-v6-c-table__td">' + t.issued + '</td>'
+        + '<td class="pf-v6-c-table__td">' + t.expires + ' ' + exp + hub + '</td>'
+        + '<td class="pf-v6-c-table__td">' + tokLifespan(t) + '</td>'
+        + '<td class="pf-v6-c-table__td">' + t.usedTxt + '</td>'
+        + '<td class="pf-v6-c-table__td"><button class="pf-v6-c-button pf-m-danger btn-xs" type="button" data-rbac="tokens:revoke" onclick="tokRevoke(' + t.id + ')"><span class="pf-v6-c-button__text">revoke</span></button></td></tr>';
+    }).join('');
+    pagerState('tok').rerender = renderTokens; pagerShow('tok', tb, rows.length);   /* pageable (shared pager) */
+    const nExp = MOCK_TOKENS.filter(tokIsExpired).length;
+    document.getElementById('tokSummary').innerHTML = '<b>' + MOCK_TOKENS.length + '</b> tokens &middot; ' + (MOCK_TOKENS.length - nExp) + ' active &middot; ' + nExp + ' expired' + (TOK_REVOKED.length ? ' &middot; ' + TOK_REVOKED.length + ' revoked this session' : '');
+    tokUpdateBulk();
+    if (typeof applyRbac === 'function') applyRbac();   /* verb gating follows the re-render */
+  }
+  function tokApply(){ pagerState('tok').page = 1; renderTokens(); }
+  function tokSort(key){
+    if (tok.sortKey === key) tok.sortDir *= -1; else { tok.sortKey = key; tok.sortDir = 1; }
+    renderTokens();
+  }
+  function tokKindSet(kind, label, opt){
+    tok.kind = kind; pagerState('tok').page = 1;
+    document.getElementById('tokKindText').textContent = label;
+    const menu = opt.closest('.pf-v6-c-menu');
+    menu.querySelectorAll('.pf-v6-c-menu__list-item').forEach(li => li.classList.toggle('pf-m-selected', li.contains(opt)));
+    menu.hidden = true;   /* pagerPerPage idiom: the item closes its own menu */
+    renderTokens();
+  }
+  function tokSelectedIds(){
+    return [...document.querySelectorAll('#tokBody input[type=checkbox]')].filter(c => c.checked)
+      .map(c => Number(c.closest('tr').dataset.tok));
+  }
+  function tokUpdateBulk(){
+    const cbs = [...document.querySelectorAll('#tokBody input[type=checkbox]')];
+    const n = cbs.filter(c => c.checked).length;
+    const total = tokFiltered().length;
+    const bulk = document.getElementById('tokBulk');
+    if (bulk) bulk.hidden = n === 0;
+    if (n) document.getElementById('tokBulkText').innerHTML = '<b>' + n + ' selected</b>' + (n < total ? ' &mdash; <a href="#" onclick="tokSelAll(); return false">select all ' + total + ' filtered</a>' : '');
+  }
+  function tokSel(mode){   /* 'none' from the bulk bar's Clear; 'all' via tokSelAll */
+    const ids = new Set(mode === 'none' ? [] : tokFiltered().map(t => t.id));
+    document.querySelectorAll('#tokBody input[type=checkbox]').forEach(c => { c.checked = ids.has(Number(c.closest('tr').dataset.tok)); });
+    tokUpdateBulk();
+  }
+  function tokSelAll(){ tokSel('all'); }
+  function tokRevoke(id){
+    const t = MOCK_TOKENS.find(x => x.id === id); if (!t) return;
+    tokPending = { ids: [id] };
+    document.getElementById('mr-target').textContent = 'Token #' + t.id + ' — ' + t.login;
+    openModal('modalRevoke');
+  }
+  function tokBulkRevoke(){
+    const ids = tokSelectedIds();
+    if (!ids.length) return;
+    tokPending = { ids: ids };
+    document.getElementById('mr-target').textContent = ids.length + ' selected tokens (#' + ids.slice(0, 6).join(', #') + (ids.length > 6 ? ', …' : '') + ')';
+    openModal('modalRevoke');
+  }
+  function tokRevokeConfirm(){
+    if (tokPending && tokPending.ids.length){
+      const names = tokPending.ids.map(id => { const t = MOCK_TOKENS.find(x => x.id === id); return t ? t.login + ' (#' + id + ')' : '#' + id; });
+      for (const id of tokPending.ids){
+        const i = MOCK_TOKENS.findIndex(x => x.id === id);
+        if (i >= 0){ TOK_REVOKED.push(MOCK_TOKENS[i]); MOCK_TOKENS.splice(i, 1); }
+      }
+      auditAdd('token:revoke', names.join(', '));
+      rbacToast('<b>' + (names.length === 1 ? names[0] : names.length + ' tokens') + '</b> revoked — clients using ' + (names.length === 1 ? 'it' : 'them') + ' fail with 401 until re-issued; recorded in the audit trail <span class=anno-cite>(c9 / #42)</span>.');
+    }
+    tokPending = null;
+    closeModals();
+    renderTokens();
+  }
   function ubPage(delta){ ub.page += delta; renderUserBindings(); }
   function ubGoto(p){ ub.page = p; renderUserBindings(); }   /* render clamps into range, so 'last' can pass a big number */
   function ubPageInput(v){
@@ -8329,7 +8514,8 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
      ['agwfr', 'Workflow runs', 'agwfrPagerSlot'], ['agrun', 'Agent runs', 'agrunPagerSlot'],
      ['agwf', 'Workflows', 'agwfPagerSlot'], ['agagent', 'Agents', 'agagentPagerSlot'],
      ['agskill', 'Skills', 'agskillPagerSlot'], ['cred', 'Credentials', 'credPagerSlot'],
-     ['prov', 'Risk provenance', 'provPagerSlot']].forEach(x => {
+     ['prov', 'Risk provenance', 'provPagerSlot'],
+     ['tok', 'Tokens', 'tokPagerSlot']].forEach(x => {
       const el = document.getElementById(x[2]);
       if (el) el.innerHTML = pagerHtml(x[0], x[1]);
     });
@@ -10359,6 +10545,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
   homeCoverageUpdate();   /* architect home KPI derives from the store (boot: after MOCK_APPS) */
   renderArchitectLanding();   /* the rest of the architect home's numbers, same discipline */
   renderProvenance();         /* the reports provenance table renders from MOCK_APPS (boot; tenancy re-runs it) */
+  renderTokens();             /* row 129: token administration table (own toolbar/pager re-render) */
   applyHash();
 </script>
 </body>
