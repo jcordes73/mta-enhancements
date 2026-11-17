@@ -253,6 +253,7 @@
      (left) and the member table (right) — component-internal grid (PF6 scope), stacks
      below 1100px; the member table is sortable (default Risk high → low) and pageable */
   .arch-detail-cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--rh-space-lg) var(--rh-space-2xl); align-items:start;}
+  .arch-tp-block .arch-detail-head{margin-bottom: var(--rh-space-sm);}
   .arch-member-table{margin-top:0;}
   .arch-member-pager{margin-top:var(--rh-space-md);}
   @media (max-width:1100px){ .arch-detail-cols{grid-template-columns:1fr;} }
@@ -3993,6 +3994,46 @@ artifacts:
     <footer class="pf-v6-c-modal-box__footer">
       <button class="pf-v6-c-button pf-m-primary" type="button" id="usCreateBtn" onclick="usSave()"><span class="pf-v6-c-button__text">Create</span></button>
       <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
+    </footer>
+  </div>
+</div>
+
+<!-- ================= row 132: archetype target profiles (live 8.3.3 /archetypes/{id}/target-profiles) ================= -->
+<div class="pf-v6-c-backdrop" id="modalArchTP" hidden>
+  <div class="pf-v6-c-modal-box pf-m-lg" role="dialog" aria-modal="true" aria-labelledby="mtp-title">
+    <div class="pf-v6-c-modal-box__header">
+      <h2 class="pf-v6-c-modal-box__title" id="mtp-title"><span class="pf-v6-c-modal-box__title-text">Target profiles &mdash; <span id="mtpArch"></span></span></h2>
+      <button class="pf-v6-c-button pf-m-plain pf-v6-c-modal-box__close" type="button" aria-label="Close dialog" onclick="closeModals()"><span class="pf-v6-c-button__icon">&#10005;</span></button>
+    </div>
+    <div class="pf-v6-c-modal-box__body">
+      <p class="u-muted" style="margin-bottom: var(--rh-space-md);">Scope quickstart generators and the analysis profile this archetype runs under &mdash; member applications inherit both <span class=anno-cite>(#36)</span>. Assignment writes through to the analysis-profile registry and the archetype table&rsquo;s Profiles column.</p>
+      <table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr">
+        <th class="pf-v6-c-table__th" scope="col">Name</th>
+        <th class="pf-v6-c-table__th" scope="col">Generators</th>
+        <th class="pf-v6-c-table__th" scope="col">Analysis profile</th>
+        <th class="pf-v6-c-table__th" scope="col"><span class="pf-v6-screen-reader">Row actions</span></th>
+      </tr></thead>
+      <tbody id="mtpBody"></tbody></table>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-lg);"><label class="pf-v6-c-form__label" for="mtpName"><span class="pf-v6-c-form__label-text" id="mtpNameLabel">New target profile &mdash; Name <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
+        <input class="pf-v6-c-form-control" type="text" id="mtpName" oninput="mtpSync()"></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><span class="pf-v6-c-form__label-text">Generators</span>
+        <div style="margin-top: var(--rh-space-xs);" id="mtpGens">
+          <label class="pf-v6-c-check" style="display:block;"><input class="pf-v6-c-check__input" type="checkbox" value="Quickstart-CloudFoundry-Kubernetes" onchange="mtpSync()"><span class="pf-v6-c-check__label">Quickstart-CloudFoundry-Kubernetes</span></label>
+          <label class="pf-v6-c-check" style="display:block;"><input class="pf-v6-c-check__input" type="checkbox" value="Quickstart-Java-Service" onchange="mtpSync()"><span class="pf-v6-c-check__label">Quickstart-Java-Service</span></label>
+          <label class="pf-v6-c-check" style="display:block;"><input class="pf-v6-c-check__input" type="checkbox" value="Quickstart-OpenShift-GitOps" onchange="mtpSync()"><span class="pf-v6-c-check__label">Quickstart-OpenShift-GitOps</span></label>
+          <label class="pf-v6-c-check" style="display:block;"><input class="pf-v6-c-check__input" type="checkbox" value="Quickstart-OpenShift-Pipelines" onchange="mtpSync()"><span class="pf-v6-c-check__label">Quickstart-OpenShift-Pipelines</span></label>
+        </div></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" id="mtpProfileLabel"><span class="pf-v6-c-form__label-text">Analysis profile</span></label>
+        <div class="select-wrap">
+          <button class="pf-v6-c-menu-toggle" type="button" aria-expanded="false" aria-labelledby="mtpProfileLabel" onclick="toggleSelect(this)"><span class="pf-v6-c-menu-toggle__text" id="mtpProfileText">&mdash; none &mdash;</span><span class="pf-v6-c-menu-toggle__toggle-icon" aria-hidden="true">&#9662;</span></button>
+          <div class="pf-v6-c-menu" hidden><ul class="pf-v6-c-menu__list" role="menu" id="mtpProfileMenu"></ul></div>
+        </div></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);" id="mtpMsg" hidden><div class="pf-v6-c-helper-text"><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text pf-m-error" id="mtpMsgText"></span></div></div></div>
+    </div>
+    <footer class="pf-v6-c-modal-box__footer">
+      <button class="pf-v6-c-button pf-m-primary" type="button" id="mtpSaveBtn" onclick="mtpSave()"><span class="pf-v6-c-button__text">Add target profile</span></button>
+      <button class="pf-v6-c-button pf-m-link" type="button" id="mtpCancelEdit" hidden onclick="mtpFormReset()"><span class="pf-v6-c-button__text">Cancel edit</span></button>
+      <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Close</span></button>
     </footer>
   </div>
 </div>
@@ -7820,6 +7861,20 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       '<div class="k">Shared findings</div><div class="v">' + (a.findings || '<span class="u-muted">&mdash;</span>') + '</div>' +
       '</div></div>' +
       '<div id="arch-members-' + archDomId(a.name) + '">' + archMembersHtml(a) + '</div>' +
+      '</div>' +
+      '<div class="arch-tp-block" style="margin-top: var(--rh-space-lg);">' +
+      '<div class="arch-detail-head"><b>Target profiles</b> <span class="anno" data-tip="live 8.3.3 Manage target profiles (/archetypes/{id}/target-profiles): per-archetype scoping of quickstart generators + the analysis profile the archetype runs under \u2014 assignment writes through to the analysis-profile registry (row 130) and the Profiles column">8.3.3</span> ' +
+      '<button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" data-rbac="profiles:edit" onclick="tpOpen(&quot;' + a.name + '&quot;)"><span class="pf-v6-c-button__text">Manage target profiles</span></button></div>' +
+      (function(){
+        const tps = MOCK_TARGET_PROFILES.filter(t => t.arch === a.name);
+        if (!tps.length) return '<span class="u-muted">No target profiles \u2014 the archetype runs under the analysis profile its applications select directly.</span>';
+        return '<div style="overflow-x:auto;"><table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr">' +
+          '<th class="pf-v6-c-table__th" scope="col">Name</th><th class="pf-v6-c-table__th" scope="col">Generators</th><th class="pf-v6-c-table__th" scope="col">Analysis profile</th></tr></thead><tbody>' +
+          tps.map(t => '<tr class="pf-v6-c-table__tr" data-tp="' + t.id + '"><td class="pf-v6-c-table__td">' + t.name + '</td>' +
+            '<td class="pf-v6-c-table__td">' + (t.gens.length ? t.gens.map(g => mockLabel('teal', g)).join(' ') : '<span class="u-muted">None</span>') + '</td>' +
+            '<td class="pf-v6-c-table__td">' + (t.profile || '<span class="u-muted">&mdash;</span>') + '</td></tr>').join('') +
+          '</tbody></table></div>';
+      })() +
       '</div></td></tr>';
   }
   function renderArchetypes(){
@@ -8992,6 +9047,131 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     rbacToast('<b>' + u.login + '</b> deleted from the directory' + (bound ? ' — the stakeholder record stays (one directory, two layers, #36a); its bind row degrades to unlinked.' : '; recorded in the audit trail <span class=anno-cite>(#42)</span>.'));
     renderUsers();
     if (typeof renderUserBindings === 'function') renderUserBindings();
+  }
+
+  /* ---- archetype target profiles (row 132, "implement the remaining gaps"): the live 8.3.3
+     "Manage target profiles" surface (/archetypes/{id}/target-profiles, re-audit 2026-11-17)
+     — per-archetype scoping of quickstart generators + the analysis profile the archetype
+     runs under. Seeded with the live sample row verbatim (JBoss EAP 8 / None / JBoss EAP 7.4 to
+     JBoss EAP 8). Assignment writes through BOTH ways: the profile registry's archs (row 130)
+     and the archetype table's Profiles cell. Mutations audited, profiles:edit RBAC. The live
+     dual-list generator picker is modeled as a checkbox list (recorded deviation). ---- */
+  const TP_GENERATORS = ['Quickstart-CloudFoundry-Kubernetes', 'Quickstart-Java-Service', 'Quickstart-OpenShift-GitOps', 'Quickstart-OpenShift-Pipelines'];
+  const MOCK_TARGET_PROFILES = [
+    { id: 1, arch: 'EAP8-archetype', name: 'JBoss EAP 8', gens: [], profile: 'JBoss EAP 7.4 to JBoss EAP 8' },
+    { id: 2, arch: 'Quarkus', name: 'Quarkus quickstarts', gens: ['Quickstart-OpenShift-GitOps', 'Quickstart-OpenShift-Pipelines'], profile: 'Quarkus baseline' }
+  ];
+  const tp = { arch: null, editId: null };
+  function tpSyncArchProfile(arch, newProfile, oldProfile){
+    const detach = name => { const p = MOCK_APROFILES.find(x => x.name === name); if (p) p.archs = p.archs.filter(x => x !== arch); };
+    if (oldProfile && oldProfile !== newProfile) detach(oldProfile);
+    if (newProfile){
+      const p = MOCK_APROFILES.find(x => x.name === newProfile);
+      if (p && !p.archs.includes(arch)) p.archs.push(arch);
+    }
+    const a = MOCK_ARCHETYPES.find(x => x.name === arch);
+    if (a) a.profiles = newProfile || '&mdash;';   /* the Profiles cell follows the assignment */
+  }
+  function tpOpen(arch){
+    tp.arch = arch; tp.editId = null;
+    document.getElementById('mtpArch').textContent = arch;
+    document.getElementById('mtpProfileMenu').innerHTML =
+      '<li class="pf-v6-c-menu__list-item pf-m-selected" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="mtpProfileSet(\'\', this)"><span class="pf-v6-c-menu__item-text">&mdash; none &mdash;</span></button></li>' +
+      MOCK_APROFILES.map(p => '<li class="pf-v6-c-menu__list-item" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="mtpProfileSet(\'' + p.name.replace(/'/g, "\\'") + '\', this)"><span class="pf-v6-c-menu__item-text">' + p.name + '</span></button></li>').join('');
+    mtpFormReset();
+    openModal('modalArchTP');
+    mtpRenderList();
+  }
+  function mtpRenderList(){
+    const tb = document.getElementById('mtpBody');
+    const rows = MOCK_TARGET_PROFILES.filter(t => t.arch === tp.arch);
+    tb.innerHTML = rows.length ? rows.map(t =>
+      '<tr class="pf-v6-c-table__tr" data-mtp="' + t.id + '">'
+      + '<td class="pf-v6-c-table__td">' + t.name + '</td>'
+      + '<td class="pf-v6-c-table__td">' + (t.gens.length ? t.gens.map(g => mockLabel('teal', g)).join(' ') : '<span class="u-muted">None</span>') + '</td>'
+      + '<td class="pf-v6-c-table__td">' + (t.profile || '<span class="u-muted">&mdash;</span>') + '</td>'
+      + '<td class="pf-v6-c-table__td"><button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" data-rbac="profiles:edit" onclick="mtpEdit(' + t.id + ')"><span class="pf-v6-c-button__text">Edit</span></button> '
+      + '<button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" data-rbac="profiles:edit" data-mtpid="' + t.id + '" onclick="mtpDelete(this)"><span class="pf-v6-c-button__text">Delete</span></button></td></tr>').join('')
+      : '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td" colspan="4"><span class="u-muted">No target profiles yet \u2014 add one below.</span></td></tr>';
+    if (typeof applyRbac === 'function') applyRbac();
+  }
+  function mtpProfileSet(v, opt){
+    document.getElementById('mtpProfileText').textContent = v || '\u2014 none \u2014';
+    const menu = opt.closest('.pf-v6-c-menu');
+    menu.querySelectorAll('.pf-v6-c-menu__list-item').forEach(li => li.classList.toggle('pf-m-selected', li.contains(opt)));
+    menu.hidden = true;   /* pagerPerPage idiom: the item closes its own menu */
+    mtpSync();
+  }
+  function mtpProfileValue(){
+    const t = document.getElementById('mtpProfileText').textContent;
+    return t.includes('none') ? '' : t;
+  }
+  function mtpFormReset(){
+    tp.editId = null;
+    document.getElementById('mtpName').value = '';
+    document.getElementById('mtpProfileText').textContent = '\u2014 none \u2014';
+    document.querySelectorAll('#mtpGens input').forEach(c => { c.checked = false; });
+    document.getElementById('mtpNameLabel').innerHTML = 'New target profile &mdash; Name <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span>';
+    document.getElementById('mtpSaveBtn').querySelector('.pf-v6-c-button__text').textContent = 'Add target profile';
+    document.getElementById('mtpCancelEdit').hidden = true;
+    mtpMsgHide(); mtpSync();
+  }
+  function mtpMsgHide(){ document.getElementById('mtpMsg').hidden = true; }
+  function mtpMsg(msg){ const m = document.getElementById('mtpMsg'); m.hidden = !msg; document.getElementById('mtpMsgText').textContent = msg || ''; }
+  function mtpEdit(id){
+    const t = MOCK_TARGET_PROFILES.find(x => x.id === id); if (!t) return;
+    tp.editId = id;
+    document.getElementById('mtpName').value = t.name;
+    document.getElementById('mtpProfileText').textContent = t.profile || '\u2014 none \u2014';
+    document.querySelectorAll('#mtpGens input').forEach(c => { c.checked = t.gens.includes(c.value); });
+    document.getElementById('mtpNameLabel').innerHTML = 'Edit target profile &mdash; Name <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span>';
+    document.getElementById('mtpSaveBtn').querySelector('.pf-v6-c-button__text').textContent = 'Save';
+    document.getElementById('mtpCancelEdit').hidden = false;
+    mtpMsgHide(); mtpSync();
+  }
+  function mtpSync(){
+    const ok = document.getElementById('mtpName').value.trim().length > 0;
+    document.getElementById('mtpSaveBtn').disabled = !ok;
+    document.getElementById('mtpSaveBtn').title = ok ? '' : 'Name is required';
+  }
+  function mtpSave(){
+    if (document.getElementById('mtpSaveBtn').disabled) return;
+    const name = document.getElementById('mtpName').value.trim();
+    const profile = mtpProfileValue();
+    const dup = MOCK_TARGET_PROFILES.find(t => t.arch === tp.arch && t.name.toLowerCase() === name.toLowerCase() && t.id !== tp.editId);
+    if (dup){ mtpMsg('A target profile named ' + name + ' already exists on this archetype \u2014 pick a different name.'); return; }
+    const gens = [...document.querySelectorAll('#mtpGens input')].filter(c => c.checked).map(c => c.value);
+    if (tp.editId){
+      const t = MOCK_TARGET_PROFILES.find(x => x.id === tp.editId);
+      const oldProfile = t.profile;
+      Object.assign(t, { name, gens, profile });
+      tpSyncArchProfile(tp.arch, profile || null, oldProfile || null);
+      auditAdd('targetprofile:update', tp.arch + ' / ' + name);
+      rbacToast('<b>' + name + '</b> updated \u2014 ' + (profile ? 'the archetype now runs under <b>' + profile + '</b>' : 'no analysis profile assigned') + '; recorded in the audit trail <span class=anno-cite>(#42)</span>.');
+    } else {
+      MOCK_TARGET_PROFILES.push({ id: Math.max(0, ...MOCK_TARGET_PROFILES.map(x => x.id)) + 1, arch: tp.arch, name, gens, profile });
+      tpSyncArchProfile(tp.arch, profile || null, null);
+      auditAdd('targetprofile:create', tp.arch + ' / ' + name);
+      rbacToast('<b>' + name + '</b> added \u2014 member applications inherit the generators' + (profile ? ' and run under <b>' + profile + '</b>' : '') + ' <span class=anno-cite>(#36)</span>.');
+    }
+    mtpFormReset();
+    mtpRenderList();
+    renderAProfiles();
+    renderArchetypes();   /* the detail panel + Profiles column follow the write-through */
+  }
+  function mtpDelete(btn){
+    const id = Number(btn.dataset.mtpid);
+    const t = MOCK_TARGET_PROFILES.find(x => x.id === id);
+    if (!t) return;
+    if (!btn.dataset.armed){ btn.dataset.armed = '1'; armDeleteBtn(btn, true); return; }
+    MOCK_TARGET_PROFILES.splice(MOCK_TARGET_PROFILES.indexOf(t), 1);
+    const still = MOCK_TARGET_PROFILES.some(x => x.arch === t.arch && x.profile === t.profile);
+    if (!still) tpSyncArchProfile(t.arch, null, t.profile || null);   /* last reference detaches */
+    auditAdd('targetprofile:delete', t.arch + ' / ' + t.name);
+    rbacToast('<b>' + t.name + '</b> deleted \u2014 the archetype falls back' + (still ? '' : '; its analysis-profile assignment detached') + ' <span class=anno-cite>(#36)</span>.');
+    mtpRenderList();
+    renderAProfiles();
+    renderArchetypes();
   }
 
   function ubPage(delta){ ub.page += delta; renderUserBindings(); }

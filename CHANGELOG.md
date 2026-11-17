@@ -11,6 +11,13 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Archetype target profiles (defect row 132)** — the profile-assignment depth gap: each
+  archetype's detail row gains a "Target profiles" block (live sample row verbatim) and a
+  Manage-target-profiles modal (Name, the four live quickstart generator checkboxes,
+  Analysis-profile select from the row-130 registry). Assignment writes through **both
+  directions**: the profile registry's archetype list and the archetype table's Profiles cell
+  (reassignment detaches the old profile, delete detaches on last reference only). Audited,
+  `profiles:edit` RBAC, armed delete. `verify/verify-archtp.js` (29 assertions), battery 24/24.
 - **Directory users on the mock's Config → Access tab (defect row 131)** — the Users view, the
   last whole-surface parity gap after row 130: a full-width "Users" card at the live `/users` column set (ID/Login/Name/Email/
   Roles/Tokens) over a new `MOCK_USERS` store of the realm demo identities, with the live
