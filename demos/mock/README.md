@@ -6,7 +6,7 @@ Animated guided tour of the console mock, generated from `deliverables/ui-mockup
 | File | Format | Length | Size |
 |---|---|---|---|
 | `mta-mock-tour.webm` | VP9 video, 1280×720 | ~64 s | ~2.3 MB |
-| `mta-mock-tour.gif`  | GIF, 1280×720, looped | ~61 s | ~1.8 MB |
+| `mta-mock-tour.gif`  | GIF, 1280×720, looped | ~61 s | ~1.9 MB |
 
 ## Tour (Northwind Financial org, English, light scheme — one persona at a time)
 
