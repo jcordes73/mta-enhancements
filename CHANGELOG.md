@@ -11,6 +11,13 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Insights Single-application sub-tab (defect row 135)** — the live two-tab structure:
+  the Insights card gains the All insights / Single application sub-tabs, with the single-app
+  view carrying the live column set (Insight/Category/Source/Target(s)/**Affected files**),
+  an Application + Category filter pair, the verbatim empty state until an app is picked, and
+  per-application file samples (assessment-sourced insights honestly show no files). Rows are
+  the same sampled records, drillable; `&tab=insights&sub=single` deep-links.
+  `verify/verify-inssingle.js` (14 assertions), battery 27/27.
 - **Identities: Created By + per-type credential entry (defect row 134)** — the Add-credential
   button on the Credentials screen was inert; it now opens the live "New credential" modal
   (five live types, each with its own field set — Source Control user-credentials + the

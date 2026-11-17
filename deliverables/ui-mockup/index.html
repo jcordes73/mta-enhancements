@@ -2769,6 +2769,12 @@
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Insights <span class="anno" data-tip="upstream /insights/all: Insight/Category/Source/Target(s)/Affected applications — observations with no effort estimate, kept out of the triage queue so it stays work, not noise">#24</span></div></div>
           <div class="pf-v6-c-card__body">
+          <!-- row 135: the live 8.3.3 sub-tabs (All insights / Single application) -->
+          <div class="pf-v6-c-tabs" id="insSubTabs" role="tablist" aria-label="Insights views">
+            <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ins-all" aria-controls="panel-ins-all" aria-selected="true" onclick="setInsSub(this)"><span class="pf-v6-c-tabs__item-text">All insights</span></button></li>
+            <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ins-single" aria-controls="panel-ins-single" aria-selected="false" tabindex="-1" onclick="setInsSub(this)"><span class="pf-v6-c-tabs__item-text">Single application</span></button></li>
+          </div>
+          <div id="panel-ins-all" role="tabpanel" aria-labelledby="tab-ins-all" tabindex="0" style="margin-top: var(--rh-space-md);">
           <table class="pf-v6-c-table pf-m-compact" role="grid">
             <thead><tr class="pf-v6-c-table__tr">
               <th class="pf-v6-c-table__th" scope="col">Insight</th>
@@ -2802,6 +2808,34 @@
             </tbody>
           </table>
           <div class="u-muted" style="margin-top: var(--rh-space-md);">3 sampled insights. The live 8.3.3 console shows <b>0&ndash;0 of 0</b> until an analysis run produces them &mdash; the Issues/Insights split ships regardless; this mock keeps the two surfaces separate (the merge-into-Issues alternative stays documented as an upstream-action discussion). <span class="anno" data-tip="parity audit 2026-11-12: /insights/all reported &lsquo;0 - 0 of 0&rsquo; on the sampled console">?</span></div>
+          </div>
+          <div id="panel-ins-single" role="tabpanel" aria-labelledby="tab-ins-single" tabindex="0" hidden style="margin-top: var(--rh-space-md);">
+          <div class="pf-v6-c-toolbar" style="margin-bottom: var(--rh-space-md);">
+            <div class="pf-v6-c-toolbar__content"><div class="pf-v6-c-toolbar__content-section">
+              <div class="pf-v6-c-toolbar__item"><div class="select-wrap" id="insAppWrap" data-value="">
+                <button class="pf-v6-c-menu-toggle" type="button" aria-expanded="false" onclick="toggleSelect(this)"><span class="pf-v6-c-menu-toggle__text">Application</span><span class="pf-v6-c-menu-toggle__toggle-icon" aria-hidden="true">&#9662;</span></button>
+                <div class="pf-v6-c-menu" hidden><ul class="pf-v6-c-menu__list" role="menu" id="insAppMenu"></ul></div>
+              </div></div>
+              <div class="pf-v6-c-toolbar__item"><div class="select-wrap" id="insCatWrap" data-value="">
+                <button class="pf-v6-c-menu-toggle" type="button" aria-expanded="false" onclick="toggleSelect(this)"><span class="pf-v6-c-menu-toggle__text">Category</span><span class="pf-v6-c-menu-toggle__toggle-icon" aria-hidden="true">&#9662;</span></button>
+                <div class="pf-v6-c-menu" hidden><ul class="pf-v6-c-menu__list" role="menu" id="insCatMenu"></ul></div>
+              </div></div>
+            </div></div>
+          </div>
+          <table class="pf-v6-c-table pf-m-compact" role="grid" id="insSingleTable" hidden>
+            <thead><tr class="pf-v6-c-table__tr">
+              <th class="pf-v6-c-table__th" scope="col">Insight</th>
+              <th class="pf-v6-c-table__th" scope="col">Category</th>
+              <th class="pf-v6-c-table__th" scope="col">Source</th>
+              <th class="pf-v6-c-table__th" scope="col">Target(s)</th>
+              <th class="pf-v6-c-table__th" scope="col">Affected files</th>
+            </tr></thead>
+            <tbody id="insSingleBody"></tbody>
+          </table>
+          <div id="insSingleEmpty" class="u-muted" style="padding: var(--rh-space-lg) 0; text-align:center;">
+            <div style="font-weight:500;">Select application from filter menu</div>
+            <div>Use the filter menu above to select your application.</div>
+          </div>
           </div>
         </div>
       </div>    </section>
@@ -5152,6 +5186,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     if (state.scr === 'config' && state.cfgSub) p.set('sub', state.cfgSub);
     if (state.scr === 'agentic') p.set('tab', state.agTab || 'wfruns');
     if (state.scr === 'incidents' && state.incTab) p.set('tab', state.incTab);
+    if (state.scr === 'incidents' && state.incTab === 'insights' && state.insSub === 'single') p.set('sub', 'single');
     if (state.anno) p.set('anno', '1');
     if (state.lang && state.lang !== 'en') p.set('lang', state.lang);
     if (state.cur) p.set('cur', state.cur);
@@ -5749,6 +5784,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     if (scr === 'incidents') {
       show('incidents', true);
       if (p.get('tab') === 'insights'){ selectTab(document.getElementById('tab-inc-insights')); state.incTab = 'insights'; }
+      if (p.get('sub') === 'single'){ setInsSub(document.getElementById('tab-ins-single')); }
     }
     if (scr === 'agentic') {   /* WP1: the Agentic section is a first-class screen */
       show('agentic', true); agTabApply(p.get('tab') || 'wfruns');
@@ -11111,6 +11147,79 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     selectTab(btn);
     state.incTab = btn.id === 'tab-inc-insights' ? 'insights' : 'queue';
     if (state.scr === 'incidents') syncHash();
+  }
+
+  /* ---- Insights sub-tabs (row 135, "implement the remaining gaps"): the live 8.3.3
+     /insights view ships TWO tabs — "All insights" (the table the mock already had) and
+     "Single application": an Application + Category filter pair over the live column set
+     Insight/Category/Source/Target(s)/Affected files, with the live empty state until an
+     application is picked. Rows derive from the SAME sampled insight records (identity
+     follows the row-14 lesson: the All-tab row's data attributes are the single source),
+     with per-application affected-file samples carrying the depth the All view lacks. ---- */
+  const INS_SINGLE = [
+    { app: 'payments-api',  ins: 'hardcoded', files: ['src/main/java/com/northwind/payments/PaymentGatewayClient.java', 'src/main/resources/application.properties'] },
+    { app: 'invoicing',     ins: 'hardcoded', files: ['src/main/java/com/northwind/invoicing/InvoiceSyncJob.java'] },
+    { app: 'claims-batch',  ins: 'broker',    files: ['src/main/java/com/northwind/claims/batch/ClaimJmsListener.java'] },
+    { app: 'ledger-sync',   ins: 'broker',    files: ['src/main/java/com/northwind/ledger/LedgerMdb.java'] },
+    { app: 'risk-scoring',  ins: 'ci',        files: [] }   /* assessment-sourced — the answer, not a file */
+  ];
+  function setInsSub(btn){
+    selectTab(btn);
+    state.insSub = btn.id === 'tab-ins-single' ? 'single' : 'all';
+    document.getElementById('panel-ins-all').hidden = state.insSub === 'single';
+    document.getElementById('panel-ins-single').hidden = state.insSub !== 'single';
+    if (state.insSub === 'single') insSingleInit();
+    if (state.scr === 'incidents') syncHash();
+  }
+  function insSingleInit(){
+    /* the app menu lists exactly the applications the sampled insights affect; the category
+       menu mirrors the All-tab categories (data-cat is the canonical value, #68) */
+    const appMenu = document.getElementById('insAppMenu');
+    if (!appMenu.dataset.built){
+      appMenu.innerHTML = INS_SINGLE.map(x => x.app).filter((v, i, a) => a.indexOf(v) === i).map(app =>
+        '<li class="pf-v6-c-menu__list-item" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="insPick(this)"><span class="pf-v6-c-menu__item-text" data-value="' + app + '">' + app + '</span></button></li>').join('');
+      const cats = [];
+      document.querySelectorAll('#panel-ins-all tr[data-insight]').forEach(tr => {
+        if (!cats.some(c => c.v === tr.dataset.cat)) cats.push({ v: tr.dataset.cat, label: tr.querySelector('[data-catcolor]') ? tr.querySelector('.pf-v6-c-label__text').textContent : tr.dataset.cat, color: tr.dataset.catcolor });
+      });
+      document.getElementById('insCatMenu').innerHTML = cats.map(c =>
+        '<li class="pf-v6-c-menu__list-item" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="insPick(this)"><span class="pf-v6-c-menu__item-text" data-value="' + c.v + '" data-color="' + c.color + '">' + c.label + '</span></button></li>').join('');
+      appMenu.dataset.built = '1';
+    }
+    insSingleRender();
+  }
+  function insPick(opt){
+    const menu = opt.closest('.pf-v6-c-menu');
+    menu.querySelectorAll('.pf-v6-c-menu__list-item').forEach(li => li.classList.toggle('pf-m-selected', li.contains(opt)));
+    const wrap = menu.closest('.select-wrap');
+    wrap.dataset.value = opt.querySelector('[data-value]').dataset.value;
+    wrap.querySelector('.pf-v6-c-menu-toggle__text').textContent = opt.querySelector('.pf-v6-c-menu__item-text').textContent;
+    menu.hidden = true;
+    insSingleRender();
+  }
+  function insSingleRender(){
+    const app = document.getElementById('insAppWrap').dataset.value || '';
+    const cat = document.getElementById('insCatWrap').dataset.value || '';
+    const empty = document.getElementById('insSingleEmpty');
+    const table = document.getElementById('insSingleTable');
+    if (!app){
+      table.hidden = true;
+      empty.hidden = false;
+      return;
+    }
+    const rows = INS_SINGLE.filter(x => x.app === app).map(x => ({ x, tr: document.querySelector('#panel-ins-all tr[data-insight="' + x.ins + '"]') })).filter(r => r.tr && (!cat || r.tr.dataset.cat === cat));
+    table.hidden = false;
+    empty.hidden = true;
+    document.getElementById('insSingleBody').innerHTML = rows.map(r => {
+      const tr = r.tr;
+      const files = r.x.files.length ? r.x.files.map(f => '<code style="font-size:var(--rh-font-size-body-text-xs);">' + f + '</code>').join('<br>') : '<span class="u-muted">&mdash; (assessment answer, not a file)</span>';
+      return '<tr class="pf-v6-c-table__tr pf-m-clickable" onclick="openInsightDetail(this)" data-title="' + tr.dataset.title + '" data-cat="' + tr.dataset.cat + '" data-catcolor="' + tr.dataset.catcolor + '" data-src="' + tr.dataset.src + '" data-target="' + (tr.dataset.target || '') + '">'
+        + '<td class="pf-v6-c-table__td"><b>' + tr.querySelector('b').textContent + '</b></td>'
+        + '<td class="pf-v6-c-table__td">' + tr.children[1].innerHTML + '</td>'
+        + '<td class="pf-v6-c-table__td">' + tr.children[2].textContent + '</td>'
+        + '<td class="pf-v6-c-table__td">' + tr.children[3].textContent + '</td>'
+        + '<td class="pf-v6-c-table__td">' + files + '</td></tr>';
+    }).join('') || '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td" colspan="5"><span class="u-muted">No insights for this application under the current category filter.</span></td></tr>';
   }
   /* WP9: parameterized insight record — identity follows the clicked row (defect #14 lesson) */
   function openInsightDetail(tr){
