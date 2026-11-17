@@ -750,7 +750,7 @@ replica — this audit lists what the mock does not model.
 - **Issues/Incidents**: upstream list (Issue/Category/Source/Target(s)/Effort/Affected
   applications); the mock's Incidents screen adds the triage/effort/verification story (#33 et al.).
 - **Home**: upstream has no dashboard; the mock's Home is suggestion #36's persona workspace.
-- **Access management (Users / Tokens / Roles / Scopes)**: the re-audit (2026-11-17) found these views still resolve by URL (`/users`, `/tokens`, `/roles`, `/scopes`) but carry **no navigation entry** in the 8.3.3 console — upstream itself has demoted them below the sidebar. The mock models the *operational* identity side (the Credentials view, #15) and an Access sub-tab with static sample logins; token/role/scope administration stays out of scope.
+- **Access management (Users / Tokens / Roles / Scopes)**: the re-audit (2026-11-17) found these views still resolve by URL (`/users`, `/tokens`, `/roles`, `/scopes`) but carry **no navigation entry** in the 8.3.3 console — upstream itself has demoted them below the sidebar. The mock models the *operational* identity side (the Credentials view, #15) and an Access sub-tab with static sample logins; token/role/scope administration stays out of scope. Refinement (live-data check, 2026-11-17): the live Roles view defines exactly **one role per persona** — `admin` (366 scopes), `architect` (179), `migrator` (82), `project-manager` (56), `addon` (74) — and the Scopes view is only the flattened `resource:verb` catalog, so the mock's five personas with their hard-coded scope sets (`RBAC` const) *are* the role definitions; the unmodeled views are inspectors of that fixed mapping, not a modeling gap.
 
 ### 7.3 Reading the audit
 
