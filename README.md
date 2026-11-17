@@ -43,6 +43,7 @@ mta-improvements/
 ├── upstream/        stage 5 — ready-to-post upstream issue comments and issue texts
 ├── deliverables/    code — ui-mockup/ (PF6 HTML mock) · ui-react/ (Vite port) · hub-backend/ (Quarkus Hub)
 ├── demos/           captured demos (mock tour video/GIF, live-stack demo notes)
+├── .github/         Pages site (landing page + deploy workflow)
 ├── CHANGELOG.md     behavior-change record (one clause per change, dated)
 └── AGENTS.md        working conventions for AI agents editing this workspace
 ```
@@ -133,6 +134,7 @@ each other:
 | ✅ | hub-backend: contract v2.1, Keycloak everywhere, seeded with the mock's dataset; 30 tests green | [hub-backend README](deliverables/hub-backend/README.md) |
 | ✅ | ui-react: every screen live-API-backed with Keycloak auth; row-105/106 propagation complete | [MIGRATION.md](deliverables/ui-react/MIGRATION.md) |
 | ✅ | One-command compose stack (PostgreSQL + Keycloak + hub + console), live-verified 2026-11-17 | [deliverables/README.md](deliverables/README.md) |
+| ✅ | Web publishing — mock + socialization decks deploy to GitHub Pages on every push to `main` | https://jcordes73.github.io/mta-enhancements/ · [.github/workflows/pages.yml](.github/workflows/pages.yml) |
 | ⬜ | Port the remaining mock surfaces to react-i18next and retire the legacy DOM walker | [MIGRATION.md "i18n strategy"](deliverables/ui-react/MIGRATION.md) |
 | ⬜ | hub verbs for run lifecycle (pause/resume/cancel) — currently client-side in the port | [MIGRATION.md](deliverables/ui-react/MIGRATION.md) |
 
