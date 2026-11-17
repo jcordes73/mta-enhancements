@@ -77,6 +77,12 @@ what-changed-when index. Long-form design-system rules:
   Owner is the signed-in user (persona→demo-user mapping) and is locked;
   edit shows the stored owner, equally unchangeable. Table header now
   "Owner"; seeds aligned to single-creator; i18n key synced to React.
+- **Archetype criteria/tags typeahead (mock row 113)** — the archetype form
+  matches upstream tackle2-ui: **Criteria tags** (required — the membership
+  rule) and **Archetype tags** (optional) as typeahead multi-selects over
+  the defined tags with chips; the free-text membership rule is replaced;
+  dropdown z-index raised above PF6's `::before` chrome (z100) which was
+  overpainting open menus.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`
