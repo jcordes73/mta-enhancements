@@ -357,6 +357,7 @@
  "No applications match": "Aucune application ne correspond",
  "Every saved view stays reproducible — share the URL, the filters ride in the hash.": "Chaque vue enregistrée reste reproductible — partagez l'URL, les filtres voyagent dans le hash.",
  "Maintainers": "Responsables",
+ "Owners": "Propriétaires",
  "Membership rule": "Règle d'appartenance",
  "Profiles": "Profils",
  "Migrate JNDI lookups": "Migrer les lookups JNDI",

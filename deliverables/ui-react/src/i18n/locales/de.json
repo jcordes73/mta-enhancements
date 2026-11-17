@@ -394,6 +394,7 @@
  "No applications match": "Keine übereinstimmenden Anwendungen",
  "Every saved view stays reproducible — share the URL, the filters ride in the hash.": "Jede gespeicherte Ansicht bleibt reproduzierbar — URL teilen, die Filter stecken im Hash.",
  "Maintainers": "Maintainer",
+ "Owners": "Eigentümer",
  "Membership rule": "Mitgliedschaftsregel",
  "Profiles": "Profile",
  "Migrate JNDI lookups": "JNDI-Lookups migrieren",

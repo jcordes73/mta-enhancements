@@ -68,6 +68,11 @@ what-changed-when index. Long-form design-system rules:
   tiles are now real bordered PF6 cards (`pf-m-plain` dropped); both
   schemes verified. The org-admin/program-manager landings keep plain
   tiles.
+- **Archetype form dropdowns (mock row 111)** — the archetype create/edit
+  form selects **Tags** from the defined tags and **Owners** from the
+  stakeholder directory (both multi-selects; org-scoped for non-padmin);
+  `eap8`/`jboss` added to the defined-tag store; table header renamed
+  Maintainers → Owners; new i18n key synced to the React dict copy.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`

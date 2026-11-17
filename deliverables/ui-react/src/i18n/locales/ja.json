@@ -391,6 +391,7 @@
  "No applications match": "一致するアプリケーションはありません",
  "Every saved view stays reproducible — share the URL, the filters ride in the hash.": "保存したビューは常に再現可能 — URLを共有すると、フィルターはハッシュに載ります。",
  "Maintainers": "メンテナー",
+ "Owners": "オーナー",
  "Membership rule": "メンバーシップルール",
  "Profiles": "プロファイル",
  "Migrate JNDI lookups": "JNDIルックアップの移行",

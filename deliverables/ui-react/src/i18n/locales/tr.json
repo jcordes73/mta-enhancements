@@ -382,6 +382,7 @@
  "No applications match": "Eşleşen uygulama yok",
  "Every saved view stays reproducible — share the URL, the filters ride in the hash.": "Kaydedilen her görünüm yeniden üretilebilir — URL'yi paylaşın, filtreler hash'te taşınır.",
  "Maintainers": "Sürdürücüler",
+ "Owners": "Sahipler",
  "Membership rule": "Üyelik kuralı",
  "Profiles": "Profiller",
  "Migrate JNDI lookups": "JNDI aramalarını geçir",

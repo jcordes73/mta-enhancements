@@ -390,6 +390,7 @@
  "No applications match": "لا توجد تطبيقات مطابقة",
  "Every saved view stays reproducible — share the URL, the filters ride in the hash.": "كل عرض محفوظ يبقى قابلاً لإعادة الإنتاج — شارك الرابط، الفلاتر محفوظة في الهاش.",
  "Maintainers": "المشرفون",
+ "Owners": "المالكون",
  "Membership rule": "قاعدة العضوية",
  "Profiles": "الملفات التعريفية",
  "Migrate JNDI lookups": "ترحيل استدعاءات JNDI",
