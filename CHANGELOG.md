@@ -173,6 +173,15 @@ what-changed-when index. Long-form design-system rules:
   the checkbox inputs now stop the click at the source (7 static rows + the
   queue-created-row template). Selection and the Cancel-selected counter are
   unchanged; clicking elsewhere on the row still opens the drawer.
+- **Administration sub-tabs (mock row 125)** — Controls consolidates its eight
+  one-card sub-tabs into four grouped ones (People & roles / Landscape /
+  Organization / Audit trail), Registries turns its three side-by-side cards
+  into full-width sub-tabs, and Automation groups its four stacked cards into
+  Gateways / Agent registry / MCP server & Hub API. Sub-tab state is
+  deep-linkable via `&sub=`; the platform-admin landing and Agentic deep links
+  target the right sub-tab; the organizations RBAC guard moved from the tab to
+  the card (greyed with the cause spelled out — Teams/Departments stay
+  usable). New chrome copy is EN-only this row.
 
 ## 2026-11-16
 

@@ -135,7 +135,7 @@ setTimeout(() => {
   ok = 0;
   [...d.querySelectorAll('#scr-agentic > .pf-v6-c-tabs .pf-v6-c-tabs__link')].forEach(b => { b.click(); const p = d.getElementById(b.getAttribute('aria-controls')); if (p && !p.hidden) ok++; });
   t('admin: agentic 6/6', ok === 6);
-  t('admin: all verbs enabled', rbacBtns().filter(e => (e.tagName === 'BUTTON' || e.tagName === 'INPUT') && !e.closest('#panel-ctrl-orgs') && !e.closest('.lp-padmin') && e.id !== 'tab-ctrl-orgs' && !e.hasAttribute('data-gate-disable')).every(b => !b.disabled));   /* tenants:* verbs are platform-admin-only; data-gate-disable buttons carry the STATE-based queue gate (only Not started / Succeeded analyses queue — a Running app is unqueueable for every persona, so scope-enablement doesn't apply) */
+  t('admin: all verbs enabled', rbacBtns().filter(e => (e.tagName === 'BUTTON' || e.tagName === 'INPUT') && !(e.closest('.pf-v6-c-card') && e.closest('.pf-v6-c-card').dataset.rbac === 'tenants:read') && !e.closest('.lp-padmin') && e.id !== 'tab-ctrl-audit' && !e.hasAttribute('data-gate-disable')).every(b => !b.disabled));   /* tenants:* verbs are platform-admin-only (row 125: the guard moved from the orgs TAB to the organizations CARD + the audit sub-tab); data-gate-disable buttons carry the STATE-based queue gate (only Not started / Succeeded analyses queue — a Running app is unqueueable for every persona, so scope-enablement doesn't apply) */
   t('admin: agent registry create enabled', byScope('#scr-agentic', 'agents:create').every(b => !b.disabled));
 
   // ---- regression (as admin for screen walks; rows unchanged) ----
@@ -189,14 +189,14 @@ setTimeout(() => {
   w.setOrg('mrd');
   t('tiers: org admin cannot switch organization', w.eval('state.org') === 'nwf');
   w.show('config', true); w.cfgTabApply('controls');
-  d.getElementById('tab-ctrl-teams').click();
+  d.getElementById('tab-ctrl-org').click();   /* row 125: Teams/Organizations/Departments consolidated into the Organization sub-tab */
   t('tiers: org admin teams table = its org only (4)', d.querySelectorAll('#teamsBody tr').length === 4);
-  t('tiers: organizations tab disabled for org admin', btn('#tab-ctrl-orgs').disabled);
+  t('tiers: organizations card disabled for org admin (row 125: card-level guard)', d.querySelector('#panel-ctrl-org .pf-v6-c-card[data-rbac="tenants:read"]').classList.contains('rbac-disabled'));
   w.setPersona('padmin', true);
   t('tiers: padmin nav matrix', navVisible() === EXPECT_NAV.padmin);
   t('tiers: padmin teams table = all orgs (6)', d.querySelectorAll('#teamsBody tr').length === 6);
-  t('tiers: organizations tab enabled for padmin', !btn('#tab-ctrl-orgs').disabled);
-  btn('#tab-ctrl-orgs').click();
+  t('tiers: organizations card enabled for padmin', !d.querySelector('#panel-ctrl-org .pf-v6-c-card[data-rbac="tenants:read"]').classList.contains('rbac-disabled'));
+  d.getElementById('tab-ctrl-audit').click();   /* row 125: orgs table + audit trail live in the Audit trail sub-tab */
   t('tiers: orgs table lists 2 organizations', d.querySelectorAll('#orgsBody tr').length === 2);
   const auditBefore = d.querySelectorAll('#auditBody tr').length;
   w.setOrg('mrd');

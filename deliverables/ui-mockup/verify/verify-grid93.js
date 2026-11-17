@@ -10,7 +10,7 @@ const assert = (name, ok) => { if (ok) { pass++; } else { fail++; console.log('F
 setTimeout(() => {
   // 1. container census
   const grids = [...document.querySelectorAll('.grid12')];
-  assert('11 grid12 containers (row 115: the cohort dashboard card — one grid12 — moved into the archetype detail rows, which are component-internal)', grids.length === 11);
+  assert('10 grid12 containers (row 115: the cohort dashboard card — one grid12 — moved into the archetype detail rows, which are component-internal; row 125: the Registries grid12 went away — its three cards became full-width sub-tab panels)', grids.length === 10);
   assert('1 five-tile (c5) container (org-admin landing; padmin moved to the row-107 8-tile stat wall)', grids.filter(g => g.classList.contains('c5')).length === 1);
 
   // 2. no legacy inline grid-template-columns left at the content-layout layer

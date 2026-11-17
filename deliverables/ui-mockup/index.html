@@ -341,6 +341,10 @@
   #invClearWrap{display:flex; align-items:center;}
   #invClearWrap[hidden]{display:none;}
   .pf-v6-c-pagination[hidden]{display:none;}   /* row 87: zero-result tables hide their pager */
+  /* row 125: sub-tab panels stack their cards on a grid — an author display:grid would beat
+     the UA [hidden] rule (the row-121 notif-drawer landmine), so hidden is re-asserted here */
+  .cfg-panel-grid{display:grid; gap:var(--rh-space-lg);}
+  .cfg-panel-grid[hidden]{display:none;}
   /* [hidden] must win over PF display rules for everything swapped dynamically in the filter group:
      the per-category filter controls, the typeahead badge/clear buttons, and filtered option rows */
   #invChips [hidden]{display:none !important;}
@@ -728,8 +732,8 @@
       <div class="lp-padmin hidden-persona">
         <div class="persona-blurb"><b>Platform administrator's first question: "Which organizations need attention?"</b></div>
         <div class="grid12">
-          <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Organizations</div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default);"><b id="lpPaOrgs">2</b></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('config');cfgTabApply('controls');selectTab(document.getElementById('tab-ctrl-orgs'));return false">View details &rarr;</a></div></div>
-          <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Teams</div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default);"><b id="lpPaTeams">5</b></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('config');cfgTabApply('controls');selectTab(document.getElementById('tab-ctrl-teams'));return false">View details &rarr;</a></div></div>
+          <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Organizations</div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default);"><b id="lpPaOrgs">2</b></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('config');cfgSubApply('controls','org');return false">View details &rarr;</a></div></div>
+          <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Teams</div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default);"><b id="lpPaTeams">5</b></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('config');cfgSubApply('controls','org');return false">View details &rarr;</a></div></div>
           <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Applications (fleet)</div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default);"><b id="lpPaApps">15</b></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('inventory');return false">View details &rarr;</a></div></div>
           <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Agent spend (fleet) <span class="anno" data-tip="#20: the platform admin is the one persona ABOVE the tenancy clamp — the showback rollup spans every organization's run records; each org's own view stays clamped (UC-X16)">#20</span></div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default);"><b id="lpPaSpend">&mdash;</b></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('agentic');return false">View details &rarr;</a></div></div>
         </div>
@@ -740,7 +744,7 @@
         <!-- row 110 (user request): the stat tiles are real bordered cards — pf-m-plain
              dropped so the default PF6 card chrome (border + surface) applies -->
         <div class="grid12">
-          <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Audit events <span class="anno" data-tip="#42: provisioning and cross-organization reads append here; the full trail lives in Administration → Controls → Organizations">#42</span></div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default);"><b id="lpPaAudit">1</b></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('config');cfgTabApply('controls');selectTab(document.getElementById('tab-ctrl-orgs'));return false">View details &rarr;</a></div></div>
+          <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Audit events <span class="anno" data-tip="#42: provisioning and cross-organization reads append here; the full trail lives in Administration → Controls → Audit trail">#42</span></div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default);"><b id="lpPaAudit">1</b></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('config');cfgSubApply('controls','audit');return false">View details &rarr;</a></div></div>
           <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Queue depth <span class="anno" data-tip="#30: queue depth & wait-time metrics — platform-side, above tenancy">#30</span></div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default); color:var(--pf-t--global--color--status--danger--default);"><b>34</b><div class="u-muted" style="font-size:var(--rh-font-size-body-text-xs); font-weight:400;">oldest waiting 2h 41m</div></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('tasks');return false">View details &rarr;</a></div></div>
           <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Failed tasks <span class="anno" data-tip="#3: diagnostics with cause + action">#3</span></div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default);"><b>3</b><div class="u-muted" style="font-size:var(--rh-font-size-body-text-xs); font-weight:400;">1 quota-blocked <span class="anno" data-tip="#38: quota-blocked with named quota">#38</span></div></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('tasks');return false">View details &rarr;</a></div></div>
           <div class="pf-v6-c-card gc3"><div class="pf-v6-c-card__body"><div class="u-muted">Verification pass rate <span class="anno" data-tip="#47: platform-wide verification signal">#47</span></div><div style="font-size:var(--rh-font-size-body-text-2xl); font-family:var(--pf-t--global--font--family--heading--default); color:var(--pf-t--global--color--status--success--default);"><b>82%</b><div class="u-muted" style="font-size:var(--rh-font-size-body-text-xs); font-weight:400;">last 7 days</div></div></div><div class="pf-v6-c-card__footer"><a href="#" onclick="show('reports');return false">View details &rarr;</a></div></div>
@@ -771,7 +775,7 @@
           </table>
           </div>
         </div>
-        <div class="pf-v6-c-card"><div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Cross-tenant audit trail <span class="anno" data-tip="#42: your own accountability surface, up front — provisioning events and audited cross-organization reads; the full trail is in Administration → Controls → Organizations">#42</span></div><div class="pf-v6-c-card__actions"><a href="#" onclick="show('config');cfgTabApply('controls');return false">Full trail &rarr;</a></div></div>
+        <div class="pf-v6-c-card"><div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Cross-tenant audit trail <span class="anno" data-tip="#42: your own accountability surface, up front — provisioning events and audited cross-organization reads; the full trail is in Administration → Controls → Audit trail">#42</span></div><div class="pf-v6-c-card__actions"><a href="#" onclick="show('config');cfgSubApply('controls','audit');return false">Full trail &rarr;</a></div></div>
           <div class="pf-v6-c-card__body">
           <ul class="pf-v6-c-list" id="lpPaAuditList"></ul>
           </div>
@@ -1476,7 +1480,7 @@
           </tbody>
         </table>
         <div class="pf-v6-c-pagination" style="margin-top: var(--rh-space-md); justify-content:space-between;">
-          <div class="pf-v6-c-pagination__total-items" style="display:block;"><b>1 &ndash; 5</b> of <b>16</b> agents &middot; the other 11 are plan/execute/verify triplets per migration path &middot; registry changes are audited <span class="anno" data-tip="#42: registry approve/reject is a sensitive mutation and lands in the audit log">#42</span> &middot; <a href="#" onclick="show('config');cfgTabApply('automation');return false">curation queue &rarr;</a> <span class="anno" data-tip="#49: the per-path triplets are the built-in workflows — workflow authoring makes the sequence itself a versioned, org-owned artifact composed from these same registered agents">#49</span> <span class="anno" data-tip="mockup-only: the pager is static — the rows above are the full sample, so arrows and page counts are illustrative">?</span></div>
+          <div class="pf-v6-c-pagination__total-items" style="display:block;"><b>1 &ndash; 5</b> of <b>16</b> agents &middot; the other 11 are plan/execute/verify triplets per migration path &middot; registry changes are audited <span class="anno" data-tip="#42: registry approve/reject is a sensitive mutation and lands in the audit log">#42</span> &middot; <a href="#" onclick="show('config');cfgSubApply('automation','agents');return false">curation queue &rarr;</a> <span class="anno" data-tip="#49: the per-path triplets are the built-in workflows — workflow authoring makes the sequence itself a versioned, org-owned artifact composed from these same registered agents">#49</span> <span class="anno" data-tip="mockup-only: the pager is static — the rows above are the full sample, so arrows and page counts are illustrative">?</span></div>
           <div class="select-wrap" style="max-width:none;">
             <button class="pf-v6-c-menu-toggle pf-m-plain" type="button" onclick="toggleSelect(this)" aria-expanded="false"><span class="pf-v6-c-menu-toggle__text">10 per page</span><span class="pf-v6-c-menu-toggle__toggle-icon" aria-hidden="true">▾</span></button>
             <div class="pf-v6-c-menu" hidden>
@@ -1907,7 +1911,7 @@
       <div id="panel-ag-gateways" role="tabpanel" aria-labelledby="tab-ag-gateways" tabindex="0" hidden style="margin-top: var(--pf-t--global--spacer--md);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Gateways <span class="anno" data-tip="upstream /gateways: Name/Provider/Model/Endpoint/Context window/Credential/Ready/Age — the operational showback lives in Administration &rarr; Automation">#20</span></div>
-            <div class="pf-v6-c-card__actions"><a href="#" onclick="show('config');cfgTabApply('automation');return false" style="font-size:var(--rh-font-size-body-text-xs);">30-day usage &amp; health &rarr;</a></div></div>
+            <div class="pf-v6-c-card__actions"><a href="#" onclick="show('config');cfgSubApply('automation','gw');return false" style="font-size:var(--rh-font-size-body-text-xs);">30-day usage &amp; health &rarr;</a></div></div>
           <div class="pf-v6-c-card__body">
             <table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Name</th><th class="pf-v6-c-table__th" scope="col">Provider</th><th class="pf-v6-c-table__th" scope="col">Model</th><th class="pf-v6-c-table__th" scope="col">Endpoint</th><th class="pf-v6-c-table__th" scope="col">Context window</th><th class="pf-v6-c-table__th" scope="col">Credential</th><th class="pf-v6-c-table__th" scope="col">CA trust</th><th class="pf-v6-c-table__th" scope="col">Ready <span class="anno" data-tip="#38-pattern: the CR condition ('endpoint reachable, HTTP 200') is surfaced in the Automation health view, not a bare badge">#38</span></th><th class="pf-v6-c-table__th" scope="col">Age</th></tr></thead>
             <tbody id="agGwBody"></tbody></table>
@@ -2092,23 +2096,23 @@
 
       <div id="panel-cfg-controls" role="tabpanel" aria-labelledby="tab-cfg-controls" tabindex="0" style="margin-top: var(--pf-t--global--spacer--md);">
       <!-- WP5: one Controls tab, five sub-tabs (nested pf-v6-c-tabs), mirroring upstream Administration &rarr; Controls -->
+      <!-- row 125 (user request): the eight one-card sub-tabs consolidate into four grouped
+           sub-tabs (People &amp; roles / Landscape / Organization / Audit trail) — one card per
+           tab wasted the tab row and 8 items overflow the RHDS ≤7 group guideline; sub-tab
+           state is deep-linkable via &sub= -->
       <div class="pf-v6-c-tabs pf-m-fill" role="tablist" aria-label="Controls sections">
         <ul class="pf-v6-c-tabs__list">
-          <li class="pf-v6-c-tabs__item pf-m-current" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-bsvc" aria-controls="panel-ctrl-bsvc" aria-selected="true" onclick="selectTab(this)"><span class="pf-v6-c-tabs__item-text">Business services</span></button></li>
-          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-stake" aria-controls="panel-ctrl-stake" aria-selected="false" onclick="selectTab(this)"><span class="pf-v6-c-tabs__item-text">Stakeholders</span></button></li>
-          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-groups" aria-controls="panel-ctrl-groups" aria-selected="false" tabindex="-1" onclick="selectTab(this)"><span class="pf-v6-c-tabs__item-text">Stakeholder groups</span></button></li>
-          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-func" aria-controls="panel-ctrl-func" aria-selected="false" tabindex="-1" onclick="selectTab(this)"><span class="pf-v6-c-tabs__item-text">Job functions</span></button></li>
-          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-tags" aria-controls="panel-ctrl-tags" aria-selected="false" tabindex="-1" onclick="selectTab(this)"><span class="pf-v6-c-tabs__item-text">Tags</span></button></li>
-          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-teams" aria-controls="panel-ctrl-teams" aria-selected="false" tabindex="-1" onclick="selectTab(this)"><span class="pf-v6-c-tabs__item-text">Teams <span class="anno" data-tip="#41: departments own teams; teams own applications; every application belongs to exactly one team and a team staffs architects, project managers, and migrators">#41</span></span></button></li>
-          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-depts" aria-controls="panel-ctrl-depts" aria-selected="false" tabindex="-1" onclick="selectTab(this)"><span class="pf-v6-c-tabs__item-text">Departments <span class="anno" data-tip="#41: the middle tenancy layer &mdash; organizations contain departments, departments contain teams; teams live in exactly one department">#41</span></span></button></li>
-          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-orgs" aria-controls="panel-ctrl-orgs" aria-selected="false" tabindex="-1" data-rbac="tenants:read" onclick="selectTab(this)"><span class="pf-v6-c-tabs__item-text">Organizations <span class="anno" data-tip="#41 + #42: platform administrators provision organizations and every cross-organization access is audit-logged">#41</span></span></button></li>
+          <li class="pf-v6-c-tabs__item pf-m-current" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-people" data-sub="people" aria-controls="panel-ctrl-people" aria-selected="true" onclick="setCfgSub(this)"><span class="pf-v6-c-tabs__item-text">People &amp; roles</span></button></li>
+          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-landscape" data-sub="landscape" aria-controls="panel-ctrl-landscape" aria-selected="false" tabindex="-1" onclick="setCfgSub(this)"><span class="pf-v6-c-tabs__item-text">Landscape</span></button></li>
+          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-org" data-sub="org" aria-controls="panel-ctrl-org" aria-selected="false" tabindex="-1" onclick="setCfgSub(this)"><span class="pf-v6-c-tabs__item-text">Organization <span class="anno" data-tip="#41: teams own applications; departments own teams; organizations sit above departments — provisioning is a platform-administrator verb">#41</span></span></button></li>
+          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-ctrl-audit" data-sub="audit" aria-controls="panel-ctrl-audit" aria-selected="false" tabindex="-1" data-rbac="tenants:read" onclick="setCfgSub(this)"><span class="pf-v6-c-tabs__item-text">Audit trail <span class="anno" data-tip="#42: provisioning and cross-organization reads append here">#42</span></span></button></li>
         </ul>
       </div>
       <div id="ctrlMsg" class="pf-v6-c-alert pf-m-warning pf-m-inline" hidden style="margin-top: var(--rh-space-md);">
         <div class="pf-v6-c-alert__title">Delete blocked</div>
         <div class="pf-v6-c-alert__description" id="ctrlMsgText"></div>
       </div>
-      <div id="panel-ctrl-stake" role="tabpanel" aria-labelledby="tab-ctrl-stake" hidden style="margin-top: var(--rh-space-lg);">
+      <div id="panel-ctrl-people" role="tabpanel" aria-labelledby="tab-ctrl-people" class="cfg-panel-grid" style="margin-top: var(--rh-space-lg);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Stakeholders <span class="anno" data-tip="#36: assessment and review assignments reference people — upstream they are managed here; #45: review sign-off verbs are role-gated to them">#36</span></div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="stakeModalOpen()"><span class="pf-v6-c-button__text">Add stakeholder</span></button></div></div>
@@ -2118,8 +2122,6 @@
             <div id="stakePagerSlot"></div>
           </div>
         </div>
-      </div>
-      <div id="panel-ctrl-groups" role="tabpanel" aria-labelledby="tab-ctrl-groups" hidden style="margin-top: var(--rh-space-lg);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Stakeholder groups <span class="anno" data-tip="#36: groups scope visibility — assignments, waves and reviews are addressed through them">#36</span></div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="openGroupModal()"><span class="pf-v6-c-button__text">Add stakeholder group</span></button></div></div>
@@ -2128,8 +2130,6 @@
             <tbody id="ctrlGroupsBody"></tbody></table>
           </div>
         </div>
-      </div>
-      <div id="panel-ctrl-func" role="tabpanel" aria-labelledby="tab-ctrl-func" hidden style="margin-top: var(--rh-space-lg);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Job functions <span class="anno" data-tip="#36: the role vocabulary stakeholders carry — referenced by assignment dropdowns">#36</span></div></div>
           <div class="pf-v6-c-card__body">
@@ -2138,7 +2138,7 @@
           </div>
         </div>
       </div>
-      <div id="panel-ctrl-bsvc" role="tabpanel" aria-labelledby="tab-ctrl-bsvc" style="margin-top: var(--rh-space-lg);">
+      <div id="panel-ctrl-landscape" role="tabpanel" aria-labelledby="tab-ctrl-landscape" hidden class="cfg-panel-grid" style="margin-top: var(--rh-space-lg);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Business services <span class="anno" data-tip="#36: the application grouping used by waves, filters and reviews — the same list the Applications BSVC filter and the application form read">#36</span> <span class="u-muted" id="bsvcOwnerGap" style="font-size:var(--rh-font-size-body-text-xs);"></span></div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="openBsvcModal()"><span class="pf-v6-c-button__text">Add business service</span></button></div></div>
@@ -2147,8 +2147,6 @@
             <tbody id="bsvcBody"></tbody></table>
           </div>
         </div>
-      </div>
-      <div id="panel-ctrl-tags" role="tabpanel" aria-labelledby="tab-ctrl-tags" hidden style="margin-top: var(--rh-space-lg);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Tags <span class="anno" data-tip="#36 + #2: the tag taxonomy drives archetype membership (#46 item 6) and the saved views">#36</span></div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" data-rbac="tags:create" onclick="openTagModal()"><span class="pf-v6-c-button__text">Add tag</span></button></div></div>
@@ -2158,7 +2156,7 @@
           </div>
         </div>
       </div>
-      <div id="panel-ctrl-teams" role="tabpanel" aria-labelledby="tab-ctrl-teams" hidden style="margin-top: var(--rh-space-lg);">
+      <div id="panel-ctrl-org" role="tabpanel" aria-labelledby="tab-ctrl-org" hidden class="cfg-panel-grid" style="margin-top: var(--rh-space-lg);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Teams <span class="anno" data-tip="#41: the multi-tenancy hierarchy — organizations are isolated, each has departments, departments have teams; applications are team-owned (exactly one team each) and teams staff the three working roles">#41</span></div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" data-rbac="teams:create" onclick="openTeamModal()"><span class="pf-v6-c-button__text">Add team</span></button></div></div>
@@ -2168,8 +2166,6 @@
             <div class="u-muted" style="margin-top: var(--rh-space-md);">Deletes are guarded: a team with assigned applications cannot be deleted &mdash; reassign them first (each application belongs to exactly one team) <span class="anno" data-tip="#41: team-scoped resources; the block reason names what still points there">#41</span>. Organization admins see their own organization's teams; the Platform administrator sees all.</div>
           </div>
         </div>
-      </div>
-      <div id="panel-ctrl-depts" role="tabpanel" aria-labelledby="tab-ctrl-depts" hidden style="margin-top: var(--rh-space-lg);">
         <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Departments <span class="anno" data-tip="#41: the middle tenancy layer &mdash; a department groups teams inside one organization; renames cascade live (names resolve by id), deletes are guarded while teams remain">#41</span></div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" data-rbac="depts:create" onclick="openDeptModal()"><span class="pf-v6-c-button__text">Add department</span></button></div></div>
@@ -2179,17 +2175,17 @@
             <div class="u-muted" style="margin-top: var(--rh-space-md);">Organization admins manage their own organization's departments; the Platform administrator sees all. Renames cascade live into the Teams tab and the masthead scope switcher (structures resolve by id). Deletes are guarded: a department still containing teams cannot be deleted &mdash; move or delete the teams first.</div>
           </div>
         </div>
-      </div>
-      <div id="panel-ctrl-orgs" role="tabpanel" aria-labelledby="tab-ctrl-orgs" hidden style="margin-top: var(--rh-space-lg);">
-        <div class="pf-v6-c-card">
+        <div class="pf-v6-c-card" data-rbac="tenants:read">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Organizations <span class="anno" data-tip="#41: the platform layer sits above the tenancy model &mdash; provisioning is a platform-administrator verb, never an organization-admin one">#41</span></div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" data-rbac="tenants:create" onclick="openOrgModal()"><span class="pf-v6-c-button__text">Add organization</span></button></div></div>
           <div class="pf-v6-c-card__body">
             <table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Organization</th><th class="pf-v6-c-table__th" scope="col">Departments</th><th class="pf-v6-c-table__th" scope="col">Teams</th><th class="pf-v6-c-table__th" scope="col">Applications</th><th class="pf-v6-c-table__th" scope="col">Status</th></tr></thead>
             <tbody id="orgsBody"></tbody></table>
-            <div class="u-muted" style="margin-top: var(--rh-space-md);">Only the <b>Platform administrator</b> sees this tab and can move between organizations &mdash; every cross-organization access is recorded below. Organization admins (Admin persona) are scoped to their own organization like every other persona.</div>
+            <div class="u-muted" style="margin-top: var(--rh-space-md);">Only the <b>Platform administrator</b> sees this card and can move between organizations &mdash; every cross-organization access is recorded below. Organization admins (Admin persona) are scoped to their own organization like every other persona.</div>
           </div>
         </div>
+      </div>
+      <div id="panel-ctrl-audit" role="tabpanel" aria-labelledby="tab-ctrl-audit" hidden style="margin-top: var(--rh-space-lg);">
         <div class="pf-v6-c-card" style="margin-top: var(--rh-space-lg);">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Cross-tenant audit trail <span class="anno" data-tip="#42: audited administrative access &mdash; who, what, when; the same audit pattern as credential last-used and approve/reject mutations">#42</span></div></div>
           <div class="pf-v6-c-card__body">
@@ -2204,8 +2200,17 @@
 
       <div id="panel-cfg-registries" role="tabpanel" aria-labelledby="tab-cfg-registries" tabindex="0" hidden style="margin-top: var(--pf-t--global--spacer--md);">
       <!-- WP7: one Registries tab, three management cards (upstream: /source-platforms, /migration-targets, /identities) -->
-      <div class="grid12">
-        <div class="pf-v6-c-card gc4">
+      <!-- WP7 (row 125): one Registries tab, three sub-tabs (upstream: /source-platforms, /migration-targets, /identities) -->
+      <!-- row 125 (user request): the three side-by-side registry cards become sub-tabs (same nested-tabs idiom as Controls) — each management table gets the full width -->
+      <div class="pf-v6-c-tabs pf-m-fill" role="tablist" aria-label="Registries sections">
+        <ul class="pf-v6-c-tabs__list">
+          <li class="pf-v6-c-tabs__item pf-m-current" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-reg-plats" data-sub="plats" aria-controls="panel-reg-plats" aria-selected="true" onclick="setCfgSub(this)"><span class="pf-v6-c-tabs__item-text">Source platforms</span></button></li>
+          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-reg-targets" data-sub="targets" aria-controls="panel-reg-targets" aria-selected="false" tabindex="-1" onclick="setCfgSub(this)"><span class="pf-v6-c-tabs__item-text">Custom migration targets</span></button></li>
+          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-reg-idents" data-sub="idents" aria-controls="panel-reg-idents" aria-selected="false" tabindex="-1" onclick="setCfgSub(this)"><span class="pf-v6-c-tabs__item-text">Identities</span></button></li>
+        </ul>
+      </div>
+      <div id="panel-reg-plats" role="tabpanel" aria-labelledby="tab-reg-plats" style="margin-top: var(--rh-space-lg);">
+        <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Source platforms <span class="anno" data-tip="#36: where applications run today — the same list the Applications &ldquo;Source platforms&rdquo; filter reads">#36</span></div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="openModal('regPlatModal')"><span class="pf-v6-c-button__text">Add source platform</span></button></div></div>
           <div class="pf-v6-c-card__body">
@@ -2213,7 +2218,9 @@
             <tbody id="regPlatBody"></tbody></table>
           </div>
         </div>
-        <div class="pf-v6-c-card gc4">
+      </div>
+      <div id="panel-reg-targets" role="tabpanel" aria-labelledby="tab-reg-targets" hidden style="margin-top: var(--rh-space-lg);">
+        <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Custom migration targets <span class="anno" data-tip="#36: the analysis targets offered in the wizard and the Analysis filters — name plus the languages the rule set covers">#36</span></div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="openModal('regTargetModal')"><span class="pf-v6-c-button__text">Add migration target</span></button></div></div>
           <div class="pf-v6-c-card__body">
@@ -2221,7 +2228,9 @@
             <tbody id="regTargetBody"></tbody></table>
           </div>
         </div>
-        <div class="pf-v6-c-card gc4">
+      </div>
+      <div id="panel-reg-idents" role="tabpanel" aria-labelledby="tab-reg-idents" hidden style="margin-top: var(--rh-space-lg);">
+        <div class="pf-v6-c-card">
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Identities <span class="anno" data-tip="#36: the credential identities applications reference — deleting one is guarded while apps point at it">#36</span></div>
             <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary btn-xs" type="button" onclick="openModal('regIdentModal')"><span class="pf-v6-c-button__text">Add identity</span></button></div></div>
           <div class="pf-v6-c-card__body">
@@ -2312,6 +2321,15 @@
         </div>
       </div>
       <div id="panel-cfg-automation" role="tabpanel" aria-labelledby="tab-cfg-automation" tabindex="0" hidden style="margin-top: var(--pf-t--global--spacer--md);">
+      <!-- row 125 (user request): the four stacked cards become three sub-tabs — Gateways / Agent registry / MCP &amp; API -->
+      <div class="pf-v6-c-tabs pf-m-fill" role="tablist" aria-label="Automation sections">
+        <ul class="pf-v6-c-tabs__list">
+          <li class="pf-v6-c-tabs__item pf-m-current" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-aut-gw" data-sub="gw" aria-controls="panel-aut-gw" aria-selected="true" onclick="setCfgSub(this)"><span class="pf-v6-c-tabs__item-text">Gateways</span></button></li>
+          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-aut-agents" data-sub="agents" aria-controls="panel-aut-agents" aria-selected="false" tabindex="-1" onclick="setCfgSub(this)"><span class="pf-v6-c-tabs__item-text">Agent registry</span></button></li>
+          <li class="pf-v6-c-tabs__item" role="presentation"><button class="pf-v6-c-tabs__link" role="tab" type="button" id="tab-aut-api" data-sub="api" aria-controls="panel-aut-api" aria-selected="false" tabindex="-1" onclick="setCfgSub(this)"><span class="pf-v6-c-tabs__item-text">MCP server &amp; Hub API</span></button></li>
+        </ul>
+      </div>
+      <div id="panel-aut-gw" role="tabpanel" aria-labelledby="tab-aut-gw" style="margin-top: var(--rh-space-lg);">
       <div class="pf-v6-c-card">
         <div class="pf-v6-c-card__header">
           <div class="pf-v6-c-card__title">Gateway usage <span class="anno" data-tip="#20: the Gateways view is the natural aggregation point for showback — the shipped one has zero operational data">#20</span></div>
@@ -2336,6 +2354,8 @@
         <div class="u-muted" style="margin-top: var(--rh-space-md);">The rate field is the monetary amount assigned to token usage per gateway &mdash; editing it re-prices that gateway&rsquo;s showback (tokens &times; rate). Amounts display in the currency chosen with the Currency selector &mdash; Auto derives it from the selected language&rsquo;s primary country (USD default) &mdash; the rate is stored in USD and converted at render (demo FX rates). Model tiering in action: the verify stage runs on standard, the execute stage can be pinned to premium per run &mdash; the shipped UI cannot cost-tier stages because agents carry no gateway binding. <span class="anno" data-tip="audit finding: all 15 agents carried gateways: null — the agent&rarr;gateway binding is invisible and undeclared">#20</span></div>
         </div>
       </div>
+      </div>
+      <div id="panel-aut-agents" role="tabpanel" aria-labelledby="tab-aut-agents" hidden style="margin-top: var(--rh-space-lg);">
       <div class="pf-v6-c-card">
         <div class="pf-v6-c-card__header">
           <div class="pf-v6-c-card__title">Agent registry curation <span class="anno" data-tip="#16 item 4: a curated Agent Card registry — organizations register their own or third-party agents into factory pipelines, but approval is a curator decision, not open self-service">#16</span></div>
@@ -2364,6 +2384,8 @@
         <div class="u-muted" style="margin-top: var(--rh-space-md);">Recent decisions: <code>remediation-internal</code> &mdash; approved by admin &middot; 2026-10-12 &middot; audited (now listed on Agent runs) &middot; <code>code-gen-universal</code> &mdash; <span class="pf-v6-c-label pf-m-red"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">rejected</span></span></span> by admin &middot; 2026-09-30 &middot; reason: requested unscoped egress &middot; <a href="#" onclick="return false">audit entries &rarr;</a></div>
         </div>
       </div>
+      </div>
+      <div id="panel-aut-api" role="tabpanel" aria-labelledby="tab-aut-api" hidden class="cfg-panel-grid" style="margin-top: var(--rh-space-lg);">
       <div class="pf-v6-c-card">
         <div class="pf-v6-c-card__header">
           <div class="pf-v6-c-card__title">MCP server <span class="anno" data-tip="#19: first-class, supported MCP server for MTA (current spec 2026-07-28, LF Agentic AI Foundation) — MTA becomes consumable from the AI tools developers already use, not only the Hub UI or the bespoke VS Code extension">#19</span></div>
@@ -2403,6 +2425,7 @@
         </table>
         <div class="u-muted" style="margin-top: var(--rh-space-md);"><b>Automation access:</b> one service account per pipeline, least-privilege scopes (rotate under <a href="#" onclick="return false">Tokens</a>); every mutation attributed in the audit log <span class="anno" data-tip="#48 item 5: the identity story is documented — credential rotation through #15's machinery, attribution through #42's audit record">#15/#42</span>. Generated Go/Python/TypeScript clients and the import &rarr; analyze &rarr; triage &rarr; report walkthrough ship with the spec <span class="anno" data-tip="#48 item 6: clients generated from the parity-gated spec — no more network-tab reverse engineering">#48</span>.</div>
         </div>
+      </div>
       </div>
       <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
       <script>
@@ -3817,7 +3840,7 @@ artifacts:
 <script>
   /* ================= navigation + deep links (#scr=waves&persona=admin&drawer=app) ================= */
   const links = document.querySelectorAll('.pf-v6-c-nav__link[data-screen]');
-  const state = { scr: 'home', persona: 'architect', drawer: null, cfgTab: 'controls', agTab: 'wfruns', anno: false, org: 'nwf', dept: 'retail', team: '', archLevel: 'org', lang: 'en', cur: null };
+  const state = { scr: 'home', persona: 'architect', drawer: null, cfgTab: 'controls', cfgSub: null, agTab: 'wfruns', anno: false, org: 'nwf', dept: 'retail', team: '', archLevel: 'org', lang: 'en', cur: null };
 /* ================= #51: multi-lingual UI (user request: full EN/DE) =================
    Mechanism: a German dictionary + a text-node translator covering static markup AND
    JS-rendered content (MutationObserver). Original English is kept per text node in a
@@ -4803,6 +4826,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     p.set('persona', state.persona);
     if (state.drawer) p.set('drawer', state.drawer);
     if (state.scr === 'config') p.set('tab', state.cfgTab);
+    if (state.scr === 'config' && state.cfgSub) p.set('sub', state.cfgSub);
     if (state.scr === 'agentic') p.set('tab', state.agTab || 'wfruns');
     if (state.scr === 'incidents' && state.incTab) p.set('tab', state.incTab);
     if (state.anno) p.set('anno', '1');
@@ -5283,7 +5307,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     applyTenancy();
     if (scr && document.getElementById('scr-' + scr)) show(scr, true);
     if (scr === 'api') {   /* legacy deep link — the spec now opens as a modal from Administration > Automation */
-      show('config', true); cfgTabApply('automation'); openApiSpec();
+      show('config', true); cfgSubApply('automation', 'api'); openApiSpec();
     }
     if (scr === 'questionnaires') {   /* legacy deep link — authoring now lives in Administration > Analysis */
       show('config', true); cfgTabApply('analysis');
@@ -5318,7 +5342,12 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     if (scr === 'config') {
       const t = p.get('tab');
       if (t === 'credentials'){ show('credentials', true); }   /* legacy hub-tab deep link — credentials are a first-class view now */
-      else cfgTabApply((CFG_TABS.includes(t) || t === 'tasks') ? t : 'controls');
+      else {
+        const ct = (CFG_TABS.includes(t) || t === 'tasks') ? t : 'controls';
+        cfgTabApply(ct);
+        const s = p.get('sub');   /* row 125: sub-tab deep links (&tab=controls&sub=org) */
+        if (s) cfgSubApply(ct, s);
+      }
     }
     if (scr === 'cohorts') {   /* legacy deep link — cohorts now live in Applications > Cohorts */
       show('inventory', true); selectTab(document.getElementById('tab-inv-cohorts'));
@@ -6205,6 +6234,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
   function setCfgTab(btn){
     selectTab(btn);
     state.cfgTab = btn.id.replace('tab-cfg-', '');
+    state.cfgSub = null;   /* row 125: the sub lens belongs to its tab — switching tabs clears it */
     if (state.scr === 'config') syncHash();
   }
   function cfgTabApply(name){
@@ -6213,6 +6243,24 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     if (!btn) return;
     selectTab(btn);
     state.cfgTab = name;
+    state.cfgSub = null;
+    if (state.scr === 'config') syncHash();
+  }
+
+  /* row 125 (user request): grouped sub-tabs — Controls consolidates its eight one-card
+     sub-tabs into four (People & roles / Landscape / Organization / Audit trail), and
+     Registries + Automation gain the same nested-tabs idiom. Sub-tab state rides the
+     hash as &sub= (applied only after &tab= resolves the owning tab). */
+  function setCfgSub(btn){
+    selectTab(btn);
+    state.cfgSub = btn.dataset.sub;
+    if (state.scr === 'config') syncHash();
+  }
+  function cfgSubApply(tab, sub){
+    cfgTabApply(tab);
+    const btn = sub && document.querySelector('#panel-cfg-' + tab + ' [data-sub="' + sub + '"]');
+    state.cfgSub = (btn && !btn.disabled) ? sub : null;   /* disabled sub-tabs (RBAC) never deep-link open */
+    if (btn && !btn.disabled) selectTab(btn);
     if (state.scr === 'config') syncHash();
   }
 

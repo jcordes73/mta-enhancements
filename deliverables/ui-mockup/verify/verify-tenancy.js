@@ -85,7 +85,7 @@ setTimeout(() => {
   // ---- admin: Teams management surface ----
   w.setPersona('admin', true);
   w.show('config', true); w.cfgTabApply('controls');
-  d.getElementById('tab-ctrl-teams').click();
+  d.getElementById('tab-ctrl-org').click();   /* row 125: Teams lives in the Organization sub-tab */
   t('teams tab: org admin sees its org only (4 nwf teams)', d.querySelectorAll('#teamsBody tr').length === 4);
   t('teams tab: nwf membership renders', d.getElementById('teamsBody').textContent.includes('M. Keller'));
   t('teams tab: org admin cannot see Meridian teams', !d.getElementById('teamsBody').textContent.includes('G. Hall'));
