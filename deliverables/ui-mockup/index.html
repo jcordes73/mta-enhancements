@@ -67,11 +67,16 @@
   }
 
   /* masthead on dark: contrast adjustments for widgets inside it */
-  .pf-v6-c-masthead{background:var(--rh-color-gray-80); display:flex; justify-content:space-between;}   /* pinned dark chrome (row 84): the scheme-relative inverse token flips to light under pf-v6-theme-dark; gray-80 (#292929) is byte-identical to the light-scheme inverse value */
-  .pf-v6-c-masthead__main{flex:0 1 auto;}
+  .pf-v6-c-masthead{background:var(--rh-color-gray-80); display:flex;}   /* pinned dark chrome (row 84): the scheme-relative inverse token flips to light under pf-v6-theme-dark; gray-80 (#292929) is byte-identical to the light-scheme inverse value */
+  .pf-v6-c-masthead__main{flex:0 0 auto;}   /* row 140: must NOT shrink — the brand inside is flex-shrink:0 (PF6), so a shrunk __main overflows its own brand box and paints the tagline across the content cluster (username over tagline with annotations ON). PF's grid intent is brand = min-content track, content = 1fr that absorbs the squeeze via the row-98 chain below */
   /* row 98: the content cluster may shrink to the viewport — pre-fix it was flex:0 0 auto and the
      console group overflowed (the language switcher sat beyond the 1600px viewport edge, scrollWidth 1818) */
-  .pf-v6-c-masthead__content{flex:0 1 auto; min-width:0; flex-wrap:nowrap; display:flex; align-items:center; gap: var(--pf-t--global--spacer--md);}   /* nowrap (row 98): PF's wrap default would stack the cluster into a second masthead row; with the console group allowed to shrink (min-width:0 below) the long scope labels ellipsize instead and the masthead stays one row */
+  /* row 140: right-align via margin-inline-start:auto, NOT justify-content:space-between — when the
+     clusters overflow (annotations ON adds the badge width), Chrome resolves space-between's negative
+     free space as an OVERLAPPING gap, pulling the content cluster left across the brand (username
+     painted over the tagline). Auto margins collapse to 0 under negative free space, so the row-98
+     shrink chain ellipsizes the labels instead. RTL-safe (logical property). */
+  .pf-v6-c-masthead__content{flex:0 1 auto; min-width:0; margin-inline-start:auto; flex-wrap:nowrap; display:flex; align-items:center; gap: var(--pf-t--global--spacer--md);}   /* nowrap (row 98): PF's wrap default would stack the cluster into a second masthead row; with the console group allowed to shrink (min-width:0 below) the long scope labels ellipsize instead and the masthead stays one row */
   .mh-console{min-width:0;}
   #tenancyBtn, #archLevelBtn{min-width:0;}
   #langSwitch{flex-shrink:0;}   /* short language names stay; the long scope labels absorb shrinkage */

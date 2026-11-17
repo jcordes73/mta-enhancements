@@ -11,6 +11,13 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Masthead overlap with annotations ON fixed (defect row 140)** — with the annotation badges
+  visible, the two masthead clusters overflowed and Chrome's `space-between` resolved the
+  negative free space as an overlapping gap while the shrinking `__main` wrapper overflowed its
+  unshrinkable brand — the tagline painted across the directory username. The brand track now
+  keeps its width (PF6 grid intent) and the content cluster right-aligns via
+  `margin-inline-start:auto`, handing overflow to the row-98 shrink chain. Found during row-139
+  verification; assertions added to `verify/verify-annomenu.js` (10), battery 31/31.
 - **Annotations toggle into the help menu; masthead divider removed (defect row 139)** — the
   dark-scheme masthead switch moves into a new "Mockup view" group in the help menu as a PF6
   `menuitemcheckbox` (menu stays open on toggle, state synced both ways, `&anno=1` deep link
