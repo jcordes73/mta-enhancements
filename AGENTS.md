@@ -1,6 +1,7 @@
 # AGENTS.md — MTA improvement program workspace
 
-Docs-plus-code workspace (no git repo, no build/CI for the docs; three
+Docs-plus-code workspace (git: `github.com/jcordes73/mta-enhancements`, single
+`main` branch, no build/CI for the docs; three
 deliverables carry their own toolchains: `deliverables/ui-mockup/` (single-file HTML),
 `deliverables/ui-react/` (Vite/React), `deliverables/hub-backend/` (Quarkus/Maven)). Two kinds of "code":
 markdown program documents and the **large single-file HTML mock**
