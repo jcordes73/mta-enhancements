@@ -1903,7 +1903,7 @@
           <div class="pf-v6-c-card__header"><div class="pf-v6-c-card__title">Gateways <span class="anno" data-tip="upstream /gateways: Name/Provider/Model/Endpoint/Context window/Credential/Ready/Age — the operational showback lives in Administration &rarr; Automation">#20</span></div>
             <div class="pf-v6-c-card__actions"><a href="#" onclick="show('config');cfgTabApply('automation');return false" style="font-size:var(--rh-font-size-body-text-xs);">30-day usage &amp; health &rarr;</a></div></div>
           <div class="pf-v6-c-card__body">
-            <table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Name</th><th class="pf-v6-c-table__th" scope="col">Provider</th><th class="pf-v6-c-table__th" scope="col">Model</th><th class="pf-v6-c-table__th" scope="col">Endpoint</th><th class="pf-v6-c-table__th" scope="col">Context window</th><th class="pf-v6-c-table__th" scope="col">Credential</th><th class="pf-v6-c-table__th" scope="col">Ready <span class="anno" data-tip="#38-pattern: the CR condition ('endpoint reachable, HTTP 200') is surfaced in the Automation health view, not a bare badge">#38</span></th><th class="pf-v6-c-table__th" scope="col">Age</th></tr></thead>
+            <table class="pf-v6-c-table pf-m-compact" role="grid"><thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Name</th><th class="pf-v6-c-table__th" scope="col">Provider</th><th class="pf-v6-c-table__th" scope="col">Model</th><th class="pf-v6-c-table__th" scope="col">Endpoint</th><th class="pf-v6-c-table__th" scope="col">Context window</th><th class="pf-v6-c-table__th" scope="col">Credential</th><th class="pf-v6-c-table__th" scope="col">CA trust</th><th class="pf-v6-c-table__th" scope="col">Ready <span class="anno" data-tip="#38-pattern: the CR condition ('endpoint reachable, HTTP 200') is surfaced in the Automation health view, not a bare badge">#38</span></th><th class="pf-v6-c-table__th" scope="col">Age</th></tr></thead>
             <tbody id="agGwBody"></tbody></table>
             <div class="u-muted" style="margin-top: var(--rh-space-md);">Showback (runs, tokens, est. cost per gateway) is the Administration &rarr; Automation card &mdash; the same store renders both. <span class="anno" data-tip="#33 item 9: one registry, two views — neither can drift">#33</span></div>
           </div>
@@ -2319,6 +2319,7 @@
             <th class="pf-v6-c-table__th" scope="col">Gateway / model</th>
             <th class="pf-v6-c-table__th" scope="col">Tier</th>
             <th class="pf-v6-c-table__th" scope="col">Health <span class="anno" data-tip="#38-pattern: the CR carries a timestamped condition ('endpoint reachable, HTTP 200') — surface it, not a bare Ready badge">#38</span></th>
+            <th class="pf-v6-c-table__th" scope="col">CA trust <span class="anno" data-tip="#20: TLS trust is per-connection (tackle2-hub#1015) and CA material rides an identity (tackle2-hub#1141 pattern) — attach a CA bundle identity instead of skipping certificate verification; deliberately NO insecure toggle here (gateway traffic carries bearer tokens and code-derived content)">#20</span></th>
             <th class="pf-v6-c-table__th" scope="col">Runs (30d)</th>
             <th class="pf-v6-c-table__th" scope="col">Tokens (30d)</th>
             <th class="pf-v6-c-table__th" scope="col">Rate &rarr; est. cost (30d) <span class="anno" data-tip="#20 item 6: configurable showback — the rate is the monetary amount assigned to token usage ($ per 1M tokens); editing it re-prices the gateway\'s showback (tokens &times; rate). Run records keep their billed amounts">#20</span></th>
@@ -3488,6 +3489,11 @@ artifacts:
         <input class="pf-v6-c-form-control" type="text" id="regIdentDesc" placeholder="what this identity is for"></div>
       <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="regIdentType"><span class="pf-v6-c-form__label-text">Type <span class="u-muted">(Source, Maven, Source + Maven, &hellip;)</span></span></label>
         <input class="pf-v6-c-form-control" type="text" id="regIdentType" placeholder="Source"></div>
+      <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="regIdentCa"><span class="pf-v6-c-form__label-text">CA bundle (PEM) <span class="u-muted">(optional &mdash; trust material for internal TLS endpoints, e.g. the MaaS gateway)</span></span></label>
+        <input class="pf-v6-c-form-control" type="file" id="regIdentCa" accept=".pem,.crt,.cer" onchange="identCaPick(this)">
+        <div class="pf-v6-c-helper-text pf-m-success" id="regIdentCaOk" hidden><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text"></span></div></div>
+        <div class="pf-v6-c-helper-text pf-m-error" id="regIdentCaError" hidden><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text"></span></div></div>
+      </div>
       <div class="pf-v6-c-helper-text pf-m-error" id="regIdentError" hidden><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text"></span></div></div>
     </div>
     <footer class="pf-v6-c-modal-box__footer">
@@ -3711,6 +3717,25 @@ artifacts:
     <footer class="pf-v6-c-modal-box__footer">
       <button class="pf-v6-c-button pf-m-primary" type="button" onclick="hotApply()"><span class="pf-v6-c-button__text">Apply now</span></button>
       <button class="pf-v6-c-button pf-m-link" type="button" onclick="hotRevert()"><span class="pf-v6-c-button__text">Cancel</span></button>
+    </footer>
+  </div>
+</div>
+
+<!-- ================= row 122: gateway CA-trust confirm (blast radius + re-test-on-apply) ================= -->
+<div class="pf-v6-c-backdrop" id="modalGwTrust" hidden>
+  <div class="pf-v6-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="mgt-title">
+    <div class="pf-v6-c-modal-box__header">
+      <h2 class="pf-v6-c-modal-box__title" id="mgt-title"><span class="pf-v6-c-modal-box__title-text">Change CA trust</span></h2>
+      <button class="pf-v6-c-button pf-m-plain pf-v6-c-modal-box__close" type="button" aria-label="Close dialog" onclick="gwTrustRevert()"><span class="pf-v6-c-button__icon">&#10005;</span></button>
+    </div>
+    <div class="pf-v6-c-modal-box__body">
+      <p id="mgtBlast"></p>
+      <div class="pf-v6-c-form__group" id="mgtOpts" style="margin-top: var(--rh-space-md);"></div>
+      <p class="u-muted" style="margin-top: var(--rh-space-md);">Applying runs a connection test before the change lands &mdash; a failing test keeps the previous trust material. In-flight runs are unaffected: they finish on the gateway configuration they started with. Every change is recorded in the audit log. <span class="anno" data-tip="CA material rides the identity (tackle2-hub#1141 pattern); trust config is per-connection (tackle2-hub#1015); no insecure-skip-TLS option — see the tracker toggle for the legacy-tracker exception">upstream</span></p>
+    </div>
+    <footer class="pf-v6-c-modal-box__footer">
+      <button class="pf-v6-c-button pf-m-primary" type="button" onclick="gwTrustApply()"><span class="pf-v6-c-button__text">Apply &amp; re-test</span></button>
+      <button class="pf-v6-c-button pf-m-link" type="button" onclick="gwTrustRevert()"><span class="pf-v6-c-button__text">Cancel</span></button>
     </footer>
   </div>
 </div>
@@ -8373,7 +8398,8 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
   const MOCK_IDENTITIES = [
     { name:'source maven', desc:'Source control + Maven repository credentials', type:'Source + Maven' },
     { name:'source', desc:'Source control only', type:'Source' },
-    { name:'maven', desc:'Maven repository only', type:'Maven' }
+    { name:'maven', desc:'Maven repository only', type:'Maven' },
+    { name:'llm-ca-internal', desc:'Internal CA for the MaaS gateway (maas.apps.example.com)', type:'CA bundle (PEM)', ca:{ fp:'sha256:7c9d41e6a20b', exp:'2028-03-14' } }
   ];
   function platApps(name){ return scopedApps().filter(a => a.platform === name).length; }
   function identApps(name){ return scopedApps().filter(a => a.creds === name).length; }
@@ -8406,7 +8432,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       '<tr class="pf-v6-c-table__tr" data-identity="' + x.name + '">' +
       '<td class="pf-v6-c-table__td"><b>' + x.name + '</b></td>' +
       '<td class="pf-v6-c-table__td">' + x.desc + '</td>' +
-      '<td class="pf-v6-c-table__td">' + x.type + '</td>' +
+      '<td class="pf-v6-c-table__td">' + x.type + (x.ca ? ' <span class="u-muted u-meta" title="fingerprint ' + x.ca.fp + ' · expires ' + x.ca.exp + '">' + x.ca.fp + ' · exp ' + x.ca.exp + '</span>' : '') + '</td>' +
       '<td class="pf-v6-c-table__td"><b>' + identApps(x.name) + '</b></td>' +
       '<td class="pf-v6-c-table__td">' + deleteIconBtn('identDeleteArm(this, \'' + x.name + '\')') + '</td>' +
       '</tr>').join('');
@@ -8473,12 +8499,16 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
   function identCreate(){
     const name = document.getElementById('regIdentName').value.trim();
     const desc = document.getElementById('regIdentDesc').value.trim() || '&mdash;';
-    const type = document.getElementById('regIdentType').value.trim() || 'Source';
+    const typeRaw = document.getElementById('regIdentType').value.trim();
+    const caFp = document.getElementById('regIdentCa').dataset.fingerprint || '';
+    const type = caFp ? (typeRaw || 'CA bundle (PEM)') : (typeRaw || 'Source');
     const err = regErr('regIdentError');
     if (!name){ err.textContent = 'Name is required.'; document.getElementById('regIdentError').hidden = false; return; }
     if (MOCK_IDENTITIES.some(x => x.name === name)){ err.textContent = 'This identity already exists.'; document.getElementById('regIdentError').hidden = false; return; }
-    MOCK_IDENTITIES.push({ name: name, desc: desc, type: type });
+    MOCK_IDENTITIES.push({ name: name, desc: desc, type: type, ca: caFp ? { fp: caFp, exp: '2028-03-14' } : null });
     document.getElementById('regIdentName').value = ''; document.getElementById('regIdentDesc').value = ''; document.getElementById('regIdentType').value = '';
+    const caIn = document.getElementById('regIdentCa'); caIn.value = ''; delete caIn.dataset.fingerprint;
+    document.getElementById('regIdentCaOk').hidden = true; document.getElementById('regIdentCaError').hidden = true;
     document.getElementById('regIdentError').hidden = true;
     renderRegistries();
     document.getElementById('regIdentModal').hidden = true;
@@ -8508,8 +8538,8 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
      Reports agent-runs rollup and the Config gateway-usage card render from the same stores,
      so all three surfaces cannot disagree (the #33 pattern). */
   const MOCK_GATEWAYS = [
-    { name:'llm-gateway-1', model:'granite-3.3-70b', endpoint:'https://maas.apps.example.com/v1', ctx:'128k', cred:'Hub token exchange', ready:true, tier:'standard', health:'reachable (HTTP 200)', healthAge:'2h ago', runs30d:'14', tokens30d:'41.2M', rate:'2.0971', consumers:'12 agents · 14 runs' },
-    { name:'llm-gateway-2', model:'frontier-70b', endpoint:'https://maas.apps.example.com/v2', ctx:'200k', cred:'Hub token exchange', ready:true, tier:'premium', health:'reachable (HTTP 200)', healthAge:'2h ago', runs30d:'2', tokens30d:'9.8M', rate:'5.5204', consumers:'3 agents · 2 runs' }
+    { name:'llm-gateway-1', model:'granite-3.3-70b', endpoint:'https://maas.apps.example.com/v1', ctx:'128k', cred:'Hub token exchange', ready:true, tier:'standard', health:'reachable (HTTP 200)', healthAge:'2h ago', runs30d:'14', tokens30d:'41.2M', rate:'2.0971', consumers:'12 agents · 14 runs', ca:'llm-ca-internal', tls:'verified', tlsNote:'' },
+    { name:'llm-gateway-2', model:'frontier-70b', endpoint:'https://maas.apps.example.com/v2', ctx:'200k', cred:'Hub token exchange', ready:true, tier:'premium', health:'reachable (HTTP 200)', healthAge:'2h ago', runs30d:'2', tokens30d:'9.8M', rate:'5.5204', consumers:'3 agents · 2 runs', ca:null, tls:'unverified', tlsNote:'unknown CA — attach a CA bundle identity' }
   ];
   const MOCK_AGENTS = [
     { name:'analyzer-jboss-eap-7-to-8', image:'quay.io/mta/analyzer@sha256:8a1f…', gateways:'llm-gateway-1', skills:'mig-plan, migiq', params:4, ready:true, age:'3d' },
@@ -8676,13 +8706,82 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     }
     renderGateways();
   }
+  /* ============== row 122: gateway TLS trust — CA material rides identities
+     (tackle2-hub#1141 pattern), trust config is per-connection (tackle2-hub#1015);
+     no skip-verification escape hatch (the tracker insecure toggle stays legacy-only). */
+  function identCaDigest(s){
+    let h1 = 0x811c9dc5, h2 = 0x01000193;
+    for (let i = 0; i < s.length; i++){ h1 = ((h1 ^ s.charCodeAt(i)) * 16777619) >>> 0; h2 = (h2 + s.charCodeAt(i) * (i + 1)) >>> 0; }
+    return ('00000000' + h1.toString(16)).slice(-8) + ('00000000' + h2.toString(16)).slice(-8);
+  }
+  function identCaShow(id, on){ const el = document.getElementById(id); el.hidden = !on; return el.querySelector('.pf-v6-c-helper-text__item-text'); }
+  function identCaPick(input){
+    const f = input.files && input.files[0];
+    const okEl = identCaShow('regIdentCaOk', false), errEl = identCaShow('regIdentCaError', false);
+    if (!f) return;
+    if (!/\.(pem|crt|cer)$/i.test(f.name)){ errEl.textContent = 'Not a PEM certificate — upload a .pem/.crt CA bundle.'; identCaShow('regIdentCaError', true); return; }
+    const rd = new FileReader();
+    rd.onload = () => {
+      const t = String(rd.result || '');
+      if (t.indexOf('-----BEGIN CERTIFICATE-----') < 0){ errEl.textContent = 'No PEM certificate found — the file must contain a -----BEGIN CERTIFICATE----- block.'; identCaShow('regIdentCaError', true); return; }
+      const fp = 'sha256:' + identCaDigest(t).slice(0, 12);
+      input.dataset.fingerprint = fp;
+      okEl.innerHTML = 'PEM certificate parsed — fingerprint <code>' + fp + '</code> · validity window parsed (demo: expires 2028-03-14) · recorded in the audit log on save.';
+      identCaShow('regIdentCaOk', true);
+    };
+    rd.readAsText(f);
+  }
+  var gwTrustTarget = null;
+  function gwTest(btn, name){
+    const g = MOCK_GATEWAYS.find(x => x.name === name);
+    if (!g || btn.dataset.busy) return;
+    btn.dataset.busy = '1';
+    btn.textContent = 'Testing…';
+    setTimeout(() => {
+      g.tls = g.ca ? 'verified' : 'unverified';
+      g.tlsNote = g.ca ? '' : 'unknown CA — attach a CA bundle identity';
+      g.health = 'reachable (HTTP 200) · CA ' + (g.ca ? 'verified' : 'unverified');
+      g.healthAge = 'just now';
+      renderGateways();
+    }, 600);
+  }
+  function gwTrustEdit(btn, name){
+    const g = MOCK_GATEWAYS.find(x => x.name === name);
+    if (!g) return;
+    gwTrustTarget = name;
+    document.getElementById('mgtBlast').innerHTML = 'Gateway <b>' + name + '</b> currently trusts ' +
+      (g.ca ? 'CA bundle identity <b>' + g.ca + '</b>' : 'the <b>system trust store</b>') +
+      ' — <b>' + g.consumers + '</b> ride this trust decision. Replacing it re-tests the connection before the change lands; revoking the CA stops model access for those consumers.';
+    const cas = MOCK_IDENTITIES.filter(x => x.ca);
+    document.getElementById('mgtOpts').innerHTML =
+      '<div class="pf-v6-c-radio"><input class="pf-v6-c-radio__input" type="radio" id="mgtSys" name="mgtca" value=""' + (g.ca ? '' : ' checked') + '><label class="pf-v6-c-radio__label" for="mgtSys">System trust store (public CAs)</label></div>' +
+      cas.map(x => '<div class="pf-v6-c-radio"><input class="pf-v6-c-radio__input" type="radio" id="mgtId-' + x.name + '" name="mgtca" value="' + x.name + '"' + (g.ca === x.name ? ' checked' : '') + '><label class="pf-v6-c-radio__label" for="mgtId-' + x.name + '">CA bundle identity: ' + x.name + ' <span class="u-muted">(' + x.ca.fp + ' · expires ' + x.ca.exp + ')</span></label></div>').join('');
+    openModal('modalGwTrust');
+  }
+  function gwTrustApply(){
+    const g = MOCK_GATEWAYS.find(x => x.name === gwTrustTarget);
+    if (g){
+      const pick = document.querySelector('#mgtOpts input[name="mgtca"]:checked');
+      const useIdent = pick && pick.value;
+      g.ca = useIdent || null;
+      g.tls = useIdent ? 'verified' : 'unverified';
+      g.tlsNote = useIdent ? '' : 'unknown CA — attach a CA bundle identity';
+      g.health = 'reachable (HTTP 200) · CA ' + (useIdent ? 'verified' : 'unverified');
+      g.healthAge = 'just now';
+      renderGateways();
+    }
+    gwTrustTarget = null;
+    closeModals();
+  }
+  function gwTrustRevert(){ gwTrustTarget = null; closeModals(); }
   function renderGateways(){
     /* Config → Automation gateway-usage card (showback columns) */
     const ub = document.getElementById('gwUseBody');
     if (ub) ub.innerHTML = MOCK_GATEWAYS.map(g =>
       '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td"><b>' + g.name + '</b><br><span class="u-muted">' + g.model + ' &middot; ctx ' + g.ctx + '</span></td>' +
       '<td class="pf-v6-c-table__td"><span class="pf-v6-c-label ' + (g.tier === 'premium' ? 'pf-m-purple' : 'pf-m-teal') + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + g.tier + '</span></span></span></td>' +
-      '<td class="pf-v6-c-table__td"><span class="pf-v6-c-label pf-m-green"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + g.health + '</span></span></span> <span class="u-muted u-meta">' + g.healthAge + '</span></td>' +
+      '<td class="pf-v6-c-table__td"><span class="pf-v6-c-label ' + (g.tls === 'unverified' ? 'pf-m-orange' : 'pf-m-green') + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + g.health + '</span></span></span>' + (g.tlsNote ? '<br><span class="u-muted u-meta">' + g.tlsNote + '</span>' : '') + ' <span class="u-muted u-meta">' + g.healthAge + '</span> <a href="#" onclick="gwTest(this, \'' + g.name + '\');return false" style="font-size:var(--rh-font-size-body-text-xs);">Test connection</a></td>' +
+      '<td class="pf-v6-c-table__td">' + (g.ca ? '<span class="pf-v6-c-label pf-m-green"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + g.ca + '</span></span></span>' : '<span class="pf-v6-c-label pf-m-grey"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">System store</span></span></span>') + ' <button class="pf-v6-c-button pf-m-plain" type="button" data-rbac="identities:edit" aria-label="Change CA trust for ' + g.name + '" title="Change CA trust" onclick="gwTrustEdit(this, \'' + g.name + '\')"><span class="pf-v6-c-button__icon">' + rhSvg('edit') + '</span></button></td>' +
       '<td class="pf-v6-c-table__td">' + g.runs30d + '</td><td class="pf-v6-c-table__td">' + g.tokens30d + '</td>' +
       '<td class="pf-v6-c-table__td"><span style="white-space:nowrap;"><b>' + gwCost(g) + '</b> <span class="u-muted">=</span> ' +
       '<input type="number" min="0" step="0.0001" value="' + (parseFloat(g.rate) * i18nCur().fx).toFixed(4).replace(/\.?0+$/, '') + '" aria-label="Rate per 1M tokens for ' + g.name + ' (' + i18nCur().curName + ')" style="width:78px; padding: var(--rh-space-xs) var(--rh-space-md);" onchange="gwRateApply(this, \'' + g.name + '\')">' +
@@ -8695,6 +8794,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       '<td class="pf-v6-c-table__td">MaaS</td><td class="pf-v6-c-table__td">' + g.model + '</td>' +
       '<td class="pf-v6-c-table__td"><code>' + g.endpoint + '</code></td><td class="pf-v6-c-table__td">' + g.ctx + '</td>' +
       '<td class="pf-v6-c-table__td">' + g.cred + '</td>' +
+      '<td class="pf-v6-c-table__td">' + (g.ca ? '<span class="pf-v6-c-label pf-m-green"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + g.ca + '</span></span></span>' : '<span class="pf-v6-c-label pf-m-grey"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">System store</span></span></span>') + '</td>' +
       '<td class="pf-v6-c-table__td"><span class="pf-v6-c-label pf-m-green"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">Ready</span></span></span></td>' +
       '<td class="pf-v6-c-table__td">' + g.healthAge + '</td></tr>').join('');
   }

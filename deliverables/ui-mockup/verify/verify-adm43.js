@@ -43,7 +43,7 @@ setTimeout(async () => {
   w.eval('MOCK_APPS.find(a => a.name === "billing-worker").wave = "";');
 
   // #60: per-gateway token rate — the monetary amount assigned to token usage, editable on the Automation card
-  const gwCell = (i) => [...d.getElementById('gwUseBody').querySelectorAll('tr')][i].cells[5].textContent.replace(/\s+/g, ' ').trim();
+  const gwCell = (i) => [...d.getElementById('gwUseBody').querySelectorAll('tr')][i].cells[6].textContent.replace(/\s+/g, ' ').trim();   /* row 122: CA trust column shifted the rate cell 5→6 */
   const gwInput = (i) => [...d.getElementById('gwUseBody').querySelectorAll('tr')][i].querySelector('input[type=number]');
   OK('token rate: derived default costs (tokens × rate)', gwCell(0).startsWith('$86.40') && gwCell(1).startsWith('$54.10'));
   OK('token rate: per-gateway inputs with aria labels', !!gwInput(0) && !!gwInput(1)
@@ -63,7 +63,7 @@ setTimeout(async () => {
 
   // #62: currency override — Auto (country-derived, USD default) or a fixed currency; persisted + &cur= deep link
   const sel62 = d.getElementById('curOverride');
-  const cost62 = () => [...d.getElementById('gwUseBody').querySelectorAll('tr')][0].cells[5].textContent.trim().slice(0, 12);
+  const cost62 = () => [...d.getElementById('gwUseBody').querySelectorAll('tr')][0].cells[6].textContent.trim().slice(0, 12);   /* row 122: CA trust column shifted the rate cell 5→6 */
   OK('currency override: select present with Auto + 7 currencies', !!sel62 && [...sel62.options].length === 8
     && sel62.options[0].textContent === 'Auto (USD)' && sel62.value === 'auto');
   sel62.value = 'GBP';

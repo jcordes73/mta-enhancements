@@ -145,6 +145,18 @@ what-changed-when index. Long-form design-system rules:
   locales. Seed data, incident text, identifiers, and annotation content
   stay English by design.
 
+- **Custom root CAs for LLM gateways, on the UI (mock row 122)** — TLS trust
+  becomes first-class on two surfaces: the Add-identity modal gains an
+  optional `CA bundle (PEM)` upload with real parsing (fingerprint +
+  validity feedback, named errors), and the gateway registry (Agentic →
+  Gateways and Administration → Automation, one store) gains a `CA trust`
+  column, a data-driven Health state with the cause spelled out, a real
+  `Test connection` action, and a blast-radius confirm (`modalGwTrust`)
+  for applying/revoking trust with re-test-on-apply. Follows upstream
+  tackle2-hub#1141 (CA rides the identity) and #1015 (per-connection
+  trust); deliberately no skip-verification option — the tracker insecure
+  toggle stays legacy-only. New chrome copy is EN-only this row.
+
 ## 2026-11-16
 
 - **hub-backend created** — Quarkus 3.40 + PostgreSQL implementation of

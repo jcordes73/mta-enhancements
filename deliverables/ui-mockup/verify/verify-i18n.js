@@ -81,7 +81,7 @@ setTimeout(async () => {
   OK('DE: EUR edit stores USD in the gateway (2 / 0.92 = 2.173913)', w.eval("MOCK_GATEWAYS[0].rate") === '2.173913');
   w.setLang('en');
   await sleep61(100);
-  OK('EN round-trip: edited gateway re-priced ($89.57) and KPI back in $', [...d.getElementById('gwUseBody').querySelectorAll('tr')][0].cells[5].textContent.includes('$89.57')
+  OK('EN round-trip: edited gateway re-priced ($89.57) and KPI back in $', [...d.getElementById('gwUseBody').querySelectorAll('tr')][0].cells[6].textContent.includes('$89.57')   /* row 122: CA trust column shifted the rate cell 5→6 */
     && d.getElementById('rptKpiCost')?.textContent.startsWith('$'));
   w.eval("MOCK_GATEWAYS[0].rate = '2.0971'; renderGateways();");   /* restore the shipped rate */
   w.setLang('de');   /* downstream checks expect DE */
