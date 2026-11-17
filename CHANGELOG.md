@@ -194,6 +194,13 @@ what-changed-when index. Long-form design-system rules:
   last). The lens survives re-renders; tfoot totals keep spanning the whole
   wave (and the totals row gained its missing 6th cell). New chrome copy is
   EN-only this row.
+- **Dead-link audit, all personas (mock row 128)** — a scripted sweep of all
+  10 screens × 6 personas (link classification, anchor resolution, inline
+  handler checks, click pass): one true dead group — the Custom rulesets
+  row's `Edit · Download` links — now carries the recorded deliberately-inert
+  idiom (`onclick="return false"`) with hover tooltips explaining why; the
+  wizard's step links proved wired (naive-pass false positive). Zero
+  undefined handlers, unresolved anchors, or click errors anywhere else.
 
 ## 2026-11-16
 
