@@ -240,6 +240,10 @@
   .arch-detail-grid{display:grid; grid-template-columns:150px 1fr; gap:var(--rh-space-sm) var(--rh-space-lg);}
   .arch-detail-grid .k{color:var(--pf-t--global--text--color--subtle); font-size:var(--rh-font-size-body-text-sm);}
   .arch-detail-grid .v{font-size:var(--rh-font-size-body-text-sm);}
+  /* row 115: the cohort dashboard lives in the detail row — head line + member table */
+  .arch-detail-head{display:flex; align-items:center; gap:var(--rh-space-md); margin-bottom:var(--rh-space-md);}
+  .arch-detail-head .pf-v6-c-button{margin-inline-start:auto;}
+  .arch-member-table{margin-top:var(--rh-space-md); max-width:480px;}
   .gantt .month-labels{display:flex; justify-content:space-around; font-size:var(--rh-font-size-body-text-xs); color:var(--pf-t--global--text--color--subtle);}
 
   /* queue-health banner (mockup composite) */
@@ -1062,29 +1066,10 @@
         </table>
         </div>
       </div>
-      <div class="pf-v6-c-card">
-        <div class="pf-v6-c-card__header">
-          <div class="pf-v6-c-card__title"><span id="archCohortTitle">EAP8-archetype</span> <span class="anno" data-tip="#23: the dependency graph defines the cohort, not manual lists">#23</span></div>
-          <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-secondary" type="button"><span class="pf-v6-c-button__text">Propagate assessment changes</span></button></div>
-        </div>
-        <div class="pf-v6-c-card__body">
-          <div class="pf-v6-l-grid grid12">
-            <div class="gc6">
-              <div class="u-muted" style="margin-bottom: var(--rh-space-xs);" id="archCohortAssessed"></div>
-              <ul class="pf-v6-c-list" id="archCohortFacts"></ul>
-              <div style="margin-top: var(--rh-space-md);" class="u-muted">loading older revisions&hellip;</div>
-              <div class="pf-v6-c-skeleton" style="height:14px; margin-top: var(--rh-space-md);"></div>
-              <div class="pf-v6-c-skeleton" style="height:14px; width:70%; margin-top: var(--rh-space-md);"></div>
-            </div>
-            <div class="gc6">
-              <table class="pf-v6-c-table pf-m-compact" role="grid">
-                <thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Member</th><th class="pf-v6-c-table__th" scope="col">Risk</th></tr></thead>
-                <tbody id="archCohortMembers"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- row 115 (user request): the cohort dashboard card that sat below the table (mirroring
+           only the first archetype) is REMOVED — its content moved into each archetype's
+           expandable detail row (see mockArchDetailHtml), so every archetype presents its own
+           group assessment, risk rollup, shared findings and member table when uncollapsed -->
       </div>
 
       <!-- hover/context card (#36 item 7): rendered by the JS singleton #hoverCard — hover any inventory row -->
@@ -4713,6 +4698,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     renderIncQueue();           /* the incidents queue is store-scoped too (#41/#42) */
     renderAgentRuns(); renderWfRuns();   /* run records follow their application's scope (#41) */
     renderProvenance();         /* the risk provenance table re-scopes (#41) — was a static subset (defect #44) */
+    renderArchetypes();         /* row 115: the archetype table + in-row cohort detail re-scope (#41) — member counts/rows are tenancy-scoped */
     rptTrendRender();           /* Reports trends: one renderer, options from the toolbar chips */
     if (typeof taskApplyFilters === 'function') taskApplyFilters();   /* task rows follow their app's org (#41) */
   }
@@ -6584,38 +6570,6 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
      "High for 11, Medium for 7", a charter rollup with no store, and a members table listing an
      app that is not a member while "…14 more members" covered the gap. Everything renders from
      the archetype membership over scopedApps() — the mock store IS the portfolio. ---- */
-  function renderArchCohort(){
-    const arch = MOCK_ARCHETYPES[0];   /* the cohort card mirrors the first archetype's group assessment */
-    const members = scopedApps().filter(a => a.archetype === arch.name);
-    const title = document.getElementById('archCohortTitle');
-    if (title) title.textContent = arch.name + ' \u2014 ' + members.length + ' member application' + (members.length === 1 ? '' : 's');
-    const assessed = document.getElementById('archCohortAssessed');
-    if (assessed) assessed.innerHTML = 'Group assessment: ' + mockLabel(arch.assessment.color, arch.assessment.label);
-    const facts = document.getElementById('archCohortFacts');
-    if (facts){
-      if (!members.length){
-        facts.innerHTML = '<li><span class="u-muted">No member applications in this scope <span class=anno-cite>(#41)</span> &mdash; membership follows the archetype rule: ' + arch.rule + '.</span></li>';
-      } else {
-        const counts = {};
-        members.forEach(a => { const k = a.risk || 'unassessed'; (counts[k] = counts[k] || []).push(a.name); });
-        const order = ['High', 'Medium', 'Low', 'unassessed'];
-        const cls = { High: 'red', Medium: 'yellow', Low: 'green', unassessed: 'outline' };
-        const riskHtml = order.filter(k => counts[k]).map(k =>
-          '<span class="pf-v6-c-label pf-m-' + cls[k] + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + (k === 'unassessed' ? '\u2014' : k) + '</span></span></span> for ' + counts[k].length + ' member' + (counts[k].length === 1 ? '' : 's')).join(', ');
-        facts.innerHTML = '<li>Risk: ' + riskHtml + '</li>' +
-          '<li>Shared findings: JNDI lookups, proprietary ORM, log4j 1.x</li>';
-      }
-    }
-    const body = document.getElementById('archCohortMembers');
-    if (body){
-      body.innerHTML = members.map(a => {
-        const risk = a.risk
-          ? '<span class="pf-v6-c-label pf-m-' + a.riskColor + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + a.risk + '</span></span></span>'
-          : '<span class="pf-v6-c-label pf-m-outline"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">\u2014</span></span></span>';
-        return '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td"><a href="#" onclick="openApp(\'' + a.name + '\');return false">' + a.name + '</a></td><td class="pf-v6-c-table__td">' + risk + '</td></tr>';
-      }).join('') || '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td" colspan="2"><span class="u-muted">No members in this scope.</span></td></tr>';
-    }
-  }
   /* ---- risk provenance table (defect #44: was a static 3-row subset of derivable data —
      MOCK_APPS carries risk + riskKind for every assessed app; the table now moves with the
      store and re-scopes on tenancy). ---- */
@@ -7156,7 +7110,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
      same by-construction consistency as the application store. The cohort dashboard below the
      table stays the detail view (upstream: /archetypes table vs the group dashboard). */
   const MOCK_ARCHETYPES = [
-    { name:'EAP8-archetype', description:'EAP 7 &rarr; 8 migration assessment', criteria:['eap7'], tags:['eap8','jboss'], maintainers:'M. Keller',
+    { name:'EAP8-archetype', description:'EAP 7 &rarr; 8 migration assessment', criteria:['eap7'], tags:['eap8','jboss'], maintainers:'M. Keller', findings:'JNDI lookups, proprietary ORM, log4j 1.x',
       profiles:'EAP8 analysis profile', assessment:{label:'v3 · activated 2026-10-02', color:'green'} },
     { name:'Spring', description:'Spring Boot &rarr; Quarkus path', criteria:['spring'], tags:[], maintainers:'P. Schmidt',
       profiles:'Spring &rarr; Quarkus profile', assessment:{label:'not started', color:'outline'}, review:'&mdash;' },
@@ -7191,29 +7145,48 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       '</tr>';
   }
   /* row 114 (user request): each archetype row is collapsible — a pf-v6-c-table__toggle cell
-     (the tglRow idiom) reveals a detail row presenting the archetype's information below it:
-     description, criteria tags, archetype tags, owner, target profile, assessment/review, and
-     the live member applications (upstream's detail-drawer "Details" content, in-row) */
+     (the tglRow idiom) reveals a detail row presenting the archetype's information below it.
+     row 115 (user request): the cohort dashboard that sat BELOW the table (a card mirroring
+     only the first archetype) moved INTO this expandable section, so every archetype presents
+     its own group assessment, risk rollup, shared findings, member table (links open the app
+     drawer) and the propagate action — the head line carries the live member count (#23) */
   function mockArchDetailHtml(a){
     const members = scopedApps().filter(x => x.archetype === a.name);
     const nRev = members.filter(x => x.review === 'approved').length;
     const review = a.assessment.label.indexOf('not started') === 0 ? '&mdash;' : nRev + ' of ' + members.length + ' reviewed';
     const chips = arr => arr && arr.length ? arr.map(t => mockLabel('teal', t)).join(' ') : '<span class="u-muted">&mdash;</span>';
+    const counts = {};
+    members.forEach(x => { const k = x.risk || 'unassessed'; (counts[k] = counts[k] || []).push(x.name); });
+    const order = ['High', 'Medium', 'Low', 'unassessed'];
+    const cls = { High: 'red', Medium: 'yellow', Low: 'green', unassessed: 'outline' };
+    const riskFacts = members.length ? order.filter(k => counts[k]).map(k =>
+      '<span class="pf-v6-c-label pf-m-' + cls[k] + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + (k === 'unassessed' ? '\u2014' : k) + '</span></span></span> for ' + counts[k].length + ' member' + (counts[k].length === 1 ? '' : 's')).join(', ') : '<span class="u-muted">No member applications in this scope <span class=anno-cite>(#41)</span>.</span>';
+    const memberRows = members.map(x =>
+      '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td"><a href="#" onclick="openApp(\'' + x.name + '\');return false">' + x.name + '</a></td><td class="pf-v6-c-table__td">' + (x.risk
+        ? '<span class="pf-v6-c-label pf-m-' + x.riskColor + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + x.risk + '</span></span></span>'
+        : '<span class="pf-v6-c-label pf-m-outline"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">\u2014</span></span></span>') + '</td></tr>').join('')
+      || '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td" colspan="2"><span class="u-muted">No members in this scope.</span></td></tr>';
     return '<tr class="pf-v6-c-table__tr pf-v6-c-table__expandable-row arch-detail" id="arch-detail-' + a.name + '" hidden>' +
-      '<td class="pf-v6-c-table__td" colspan="11"><div class="arch-detail-panel"><div class="arch-detail-grid">' +
+      '<td class="pf-v6-c-table__td" colspan="11"><div class="arch-detail-panel">' +
+      '<div class="arch-detail-head"><b>' + a.name + ' &mdash; ' + members.length + ' member application' + (members.length === 1 ? '' : 's') + '</b> <span class="anno" data-tip="#23: the dependency graph defines the cohort, not manual lists">#23</span><button class="pf-v6-c-button pf-m-secondary btn-xs" type="button"><span class="pf-v6-c-button__text">Propagate assessment changes</span></button></div>' +
+      '<div class="arch-detail-grid">' +
       '<div class="k">Description</div><div class="v">' + (a.description || '&mdash;') + '</div>' +
       '<div class="k">Criteria tags <span class="anno" data-tip="#46 item 6: applications matching any criteria tag belong to the archetype — re-validate after editing to recompute membership from the application store">#46</span></div><div class="v">' + chips(a.criteria) + '</div>' +
       '<div class="k">Archetype tags</div><div class="v">' + chips(a.tags) + '</div>' +
       '<div class="k">Owner</div><div class="v">' + (a.maintainers || '&mdash;') + '</div>' +
       '<div class="k">Profiles</div><div class="v">' + (a.profiles || '&mdash;') + '</div>' +
-      '<div class="k">Assessment</div><div class="v">' + mockLabel(a.assessment.color, a.assessment.label) + '</div>' +
       '<div class="k">Review</div><div class="v">' + review + '</div>' +
-      '<div class="k">Members <span class="anno" data-tip="#44: the member list derives live from the application store — single source of truth, so renames and re-assignments stay consistent">#44</span></div><div class="v">' + (members.length ? members.map(x => mockLabel('grey', x.name)).join(' ') : '<span class="u-muted">&mdash;</span>') + '</div>' +
-      '</div></div></td></tr>';
+      '<div class="k">Group assessment</div><div class="v">' + mockLabel(a.assessment.color, a.assessment.label) + '</div>' +
+      '<div class="k">Risk</div><div class="v">' + riskFacts + '</div>' +
+      '<div class="k">Shared findings</div><div class="v">' + (a.findings || '<span class="u-muted">&mdash;</span>') + '</div>' +
+      '</div>' +
+      '<table class="pf-v6-c-table pf-m-compact arch-member-table" role="grid" aria-label="' + a.name + ' member applications">' +
+      '<thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Member</th><th class="pf-v6-c-table__th" scope="col">Risk</th></tr></thead>' +
+      '<tbody>' + memberRows + '</tbody></table>' +
+      '</div></td></tr>';
   }
   function renderArchetypes(){
     document.getElementById('archBody').innerHTML = MOCK_ARCHETYPES.map(a => mockArchRowHtml(a) + mockArchDetailHtml(a)).join('');
-    renderArchCohort();   /* the cohort card derives from the same membership (defect #44) */
     /* cascade: the inventory's archetype filter menu reads the same store */
     const ul = document.getElementById('invArchMenuList');
     if (ul){

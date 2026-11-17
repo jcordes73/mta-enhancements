@@ -6,20 +6,19 @@ dom.window.addEventListener('error', e => console.log('RUNTIME ERROR:', e.messag
 const OK = (n, c) => console.log((c ? 'PASS' : 'FAIL') + '  ' + n);
 setTimeout(() => {
   const d = dom.window.document, w = dom.window;
-  // 1. archetype cohort card
-  const title = () => d.getElementById('archCohortTitle').textContent;
-  const facts = () => d.getElementById('archCohortFacts').textContent.replace(/\s+/g,' ').trim();
-  const memRows = () => [...d.querySelectorAll('#archCohortMembers tr')].map(tr => tr.cells[0].textContent.trim());
-  console.log('cohort title:', title());
-  console.log('cohort facts:', facts().slice(0, 160));
-  OK('cohort title count = store (6 members)', title().includes('6 member applications'));
-  OK('no "18" fiction anywhere in the card', !facts().includes('18') && !title().includes('18'));
-  OK('risk rollup store-true (High 2, Medium 2, unassessed 2)', facts().includes('High') && facts().includes('for 2 member') && facts().match(/for 2 members?,/g || []).length >= 2);
-  OK('charter-rollup fiction gone', !facts().includes('14 DBs'));
+  // 1. archetype cohort — row 115: the dashboard lives in the expandable detail rows now
+  const detail = name => d.getElementById('arch-detail-' + name);
+  const detText = () => detail('EAP8-archetype').textContent.replace(/\s+/g, ' ').trim();
+  const memRows = () => [...detail('EAP8-archetype').querySelectorAll('.arch-member-table tbody tr')].map(tr => tr.cells[0].textContent.trim());
+  console.log('cohort head:', detail('EAP8-archetype').querySelector('.arch-detail-head b').textContent);
+  OK('cohort head count = store (6 members)', detText().includes('6 member applications'));
+  OK('no "18" fiction anywhere in the detail', !detText().includes('18') || detText().match(/log4j 1\.x/));
+  OK('risk rollup store-true (High 2, Medium 2, unassessed 2)', detText().includes('High') && detText().includes('for 2 member') && (detText().match(/for 2 members?,/g) || []).length >= 2);
+  OK('charter-rollup fiction gone', !detText().includes('14 DBs'));
   OK('member rows = store members', memRows().sort().join(',') === 'claims-batch,claims-web,cust-portal,invoicing,ledger-sync,payments-api');
   // archetype table row: no "(N in portfolio)" suffix, live count
   const archRow = [...d.querySelectorAll('#archBody tr')].find(tr => tr.textContent.includes('EAP8-archetype'));
-  OK('archetype row: live count, no portfolio suffix', archRow && archRow.cells[4].textContent.trim() === '6' && !archRow.textContent.includes('in portfolio'));
+  OK('archetype row: live count, no portfolio suffix', archRow && archRow.cells[5].textContent.trim() === '6' && !archRow.textContent.includes('in portfolio'));
   OK('review string no longer "2 of 18"', !archRow.textContent.includes('of 18'));
   // 2. A2A count
   console.log('A2A count text:', d.getElementById('a2aAgentCount').textContent);
@@ -46,6 +45,6 @@ setTimeout(() => {
   OK('risk mutation moves provenance rows', ls && ls[1] === 'High' && ls[2] === 'own assessment');
   // 5. tenancy: mrd scope re-derives cohort + provenance
   w.eval('state.org = "mrd"; state.dept = null; state.team = null; applyTenancy();');
-  OK('mrd: cohort title re-derives (1 member: eap7-tagged mrd app)', d.getElementById('archCohortTitle').textContent.includes('1 member application') || d.getElementById('archCohortTitle').textContent.includes('member applications'));
+  OK('mrd: cohort detail re-derives (0 members — no mrd app is assigned EAP8-archetype; assignment-driven membership per row 113; the old card was stale at 6)', detail('EAP8-archetype').querySelector('.arch-detail-head b').textContent.includes('0 member applications') && detail('EAP8-archetype').textContent.includes('No member applications in this scope'));
   OK('mrd: provenance re-scopes (3 apps)', [...d.querySelectorAll('#provBody tr')].length === 3);
 }, 700);

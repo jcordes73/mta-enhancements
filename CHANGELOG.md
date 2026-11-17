@@ -87,6 +87,13 @@ what-changed-when index. Long-form design-system rules:
   Archetypes & cohorts table expands to an in-row detail panel
   (description, criteria/archetype tags, owner, profiles,
   assessment/review, live member list) via the PF6 toggle-cell idiom.
+- **Archetype cohort dashboard merged into rows (mock row 115)** —
+  the below-table card (first archetype only) is gone; each
+  archetype's expanded row now carries its own group assessment,
+  risk rollup, shared findings, member table (openApp links) and the
+  propagate action. `applyTenancy()` now re-renders the archetype
+  table, fixing a latent stale-membership staleness on tenancy
+  switches.
 - **Docs** — `design/design.md` §19 queue-gating rule marked
   implemented; hub-backend README contract bullets updated.
 - **Repo** — workspace published to `github.com/jcordes73/mta-enhancements`
