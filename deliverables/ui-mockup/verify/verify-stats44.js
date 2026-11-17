@@ -9,12 +9,14 @@ setTimeout(() => {
   // 1. archetype cohort — row 115: the dashboard lives in the expandable detail rows now
   const detail = name => d.getElementById('arch-detail-' + name);
   const detText = () => detail('EAP8-archetype').textContent.replace(/\s+/g, ' ').trim();
-  const memRows = () => [...detail('EAP8-archetype').querySelectorAll('.arch-member-table tbody tr')].map(tr => tr.cells[0].textContent.trim());
+  const memTable = () => detail('EAP8-archetype').querySelector('.arch-member-table');
+  const memRows = () => [...memTable().tBodies[0].rows].map(tr => tr.cells[0].textContent.trim());   /* row 123: DOM properties — nwsapi false-matches 'tbody tr' against the outer #archBody */
   console.log('cohort head:', detail('EAP8-archetype').querySelector('.arch-detail-head b').textContent);
   OK('cohort head count = store (6 members)', detText().includes('6 member applications'));
   OK('no "18" fiction anywhere in the detail', !detText().includes('18') || detText().match(/log4j 1\.x/));
   OK('risk rollup store-true (High 2, Medium 2, unassessed 2)', detText().includes('High') && detText().includes('for 2 member') && (detText().match(/for 2 members?,/g) || []).length >= 2);
   OK('charter-rollup fiction gone', !detText().includes('14 DBs'));
+  w.eval("archPer('EAP8-archetype', 10)");   /* row 123: default 3/page paginates — show all 6 before the membership check */
   OK('member rows = store members', memRows().sort().join(',') === 'claims-batch,claims-web,cust-portal,invoicing,ledger-sync,payments-api');
   // archetype table row: no "(N in portfolio)" suffix, live count
   const archRow = [...d.querySelectorAll('#archBody tr')].find(tr => tr.textContent.includes('EAP8-archetype'));

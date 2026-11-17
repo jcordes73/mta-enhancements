@@ -156,6 +156,17 @@ what-changed-when index. Long-form design-system rules:
   tackle2-hub#1141 (CA rides the identity) and #1015 (per-connection
   trust); deliberately no skip-verification option — the tracker insecure
   toggle stays legacy-only. New chrome copy is EN-only this row.
+- **Archetype cohort detail: description left, sortable + pageable member
+  table right (mock row 123)** — expanding a cohort row in Applications →
+  Archetypes & cohorts now splits into a two-column layout (`.arch-detail-cols`,
+  stacks below 1100px): the archetype facts stay left, the member table moves
+  right with RHDS sortable headers (default Risk descending — High → Medium →
+  Low, unassessed last, name tiebreak; same-key clicks toggle, switching keys
+  re-applies that key's default) and a full pager (totals, per-page 3/5/10,
+  first/prev/page-input/next/last). Sort/page state rides the archetype record
+  so the lens survives re-renders; the pager hides when a cohort fits on one
+  page (recorded deviation beyond the row-87 zero-results rule). New chrome
+  copy is EN-only this row.
 
 ## 2026-11-16
 

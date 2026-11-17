@@ -243,7 +243,13 @@
   /* row 115: the cohort dashboard lives in the detail row — head line + member table */
   .arch-detail-head{display:flex; align-items:center; gap:var(--rh-space-md); margin-bottom:var(--rh-space-md);}
   .arch-detail-head .pf-v6-c-button{margin-inline-start:auto;}
-  .arch-member-table{margin-top:var(--rh-space-md); max-width:480px;}
+  /* row 123 (user request): the expanded cohort row splits into the description facts
+     (left) and the member table (right) — component-internal grid (PF6 scope), stacks
+     below 1100px; the member table is sortable (default Risk high → low) and pageable */
+  .arch-detail-cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--rh-space-lg) var(--rh-space-2xl); align-items:start;}
+  .arch-member-table{margin-top:0;}
+  .arch-member-pager{margin-top:var(--rh-space-md);}
+  @media (max-width:1100px){ .arch-detail-cols{grid-template-columns:1fr;} }
   .gantt .month-labels{display:flex; justify-content:space-around; font-size:var(--rh-font-size-body-text-xs); color:var(--pf-t--global--text--color--subtle);}
 
   /* queue-health banner (mockup composite) */
@@ -7403,6 +7409,95 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
      only the first archetype) moved INTO this expandable section, so every archetype presents
      its own group assessment, risk rollup, shared findings, member table (links open the app
      drawer) and the propagate action — the head line carries the live member count (#23) */
+  /* row 123 (user request): the member table in the expanded cohort row is sortable
+     (RHDS sortable headers — stacked glyph unsorted, aria-sort synced) and pageable
+     (PF6 pager, invPag anatomy). Default sort: Risk HIGH → MEDIUM → LOW, unassessed
+     last, ties by name. State rides the archetype record so toolbar re-renders keep
+     the lens; re-renders are container-scoped so the expansion state survives. */
+  const ARCH_RISK_RANK = { High: 3, Medium: 2, Low: 1 };
+  function archDomId(name){ return name.replace(/[^A-Za-z0-9_-]/g, '-'); }
+  function archMembersHtml(a){
+    const members = scopedApps().filter(x => x.archetype === a.name);
+    const s = a.mSort || (a.mSort = { key:'risk', dir:-1 });
+    const per = a.mPer || (a.mPer = 3);
+    const pages = Math.max(1, Math.ceil(members.length / per));
+    const page = Math.min(a.mPage || 0, pages - 1);
+    a.mPage = page;
+    const sorted = members.slice().sort((x, y) => {
+      if (s.key === 'risk'){
+        const d = ((ARCH_RISK_RANK[x.risk] || 0) - (ARCH_RISK_RANK[y.risk] || 0)) * s.dir;
+        return d !== 0 ? d : x.name.localeCompare(y.name);
+      }
+      return x.name.localeCompare(y.name) * s.dir;
+    });
+    const memberRows = sorted.slice(page * per, page * per + per).map(x =>
+      '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td"><a href="#" onclick="openApp(\'' + x.name + '\');return false">' + x.name + '</a></td><td class="pf-v6-c-table__td">' + (x.risk
+        ? '<span class="pf-v6-c-label pf-m-' + x.riskColor + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + x.risk + '</span></span></span>'
+        : '<span class="pf-v6-c-label pf-m-outline"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">\u2014</span></span></span>') + '</td></tr>').join('')
+      || '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td" colspan="2"><span class="u-muted">No members in this scope.</span></td></tr>';
+    const th = (key, label) => {
+      const sel = s.key === key;
+      const dir = sel ? s.dir : 1;
+      const icon = !sel ? rhSvg('sort-unsorted') : rhSvg(dir === 1 ? 'sort-asc' : 'sort-desc');
+      return '<th class="pf-v6-c-table__sort' + (sel ? ' pf-m-selected' : '') + '" data-sort="' + key + '" aria-sort="' + (!sel ? 'none' : (dir === 1 ? 'ascending' : 'descending')) + '" scope="col">' +
+        '<button class="pf-v6-c-table__button" type="button" onclick="archSort(\'' + a.name + '\', \'' + key + '\')">' +
+        '<span class="pf-v6-c-table__button-content"><span class="pf-v6-c-table__text">' + label + '</span>' +
+        '<span class="pf-v6-c-table__sort-indicator" aria-hidden="true">' + icon + '</span></span></button></th>';
+    };
+    const lo = members.length ? page * per + 1 : 0;
+    const hi = Math.min(members.length, page * per + per);
+    const dis = p => p ? '' : 'disabled ';
+    const perOpts = [3, 5, 10].map(n =>
+      '<li class="pf-v6-c-menu__list-item' + (per === n ? ' pf-m-selected' : '') + '" role="none"><button class="pf-v6-c-menu__item" type="button" role="menuitem" onclick="archPer(\'' + a.name + '\', ' + n + ')"><span class="pf-v6-c-menu__item-text">' + n + ' per page</span></button></li>').join('');
+    const pager = members.length <= per ? '' :
+      '<div class="pf-v6-c-pagination pf-m-bottom arch-member-pager" style="justify-content:space-between;">' +
+      '<div class="pf-v6-c-pagination__total-items"><b>' + lo + '</b>&ndash;<b>' + hi + '</b> of <b>' + members.length + '</b> members</div>' +
+      '<div class="select-wrap" style="max-width:none;">' +
+      '<button class="pf-v6-c-menu-toggle pf-m-plain" type="button" onclick="toggleSelect(this)" aria-expanded="false"><span class="pf-v6-c-menu-toggle__text">' + per + ' per page</span><span class="pf-v6-c-menu-toggle__toggle-icon" aria-hidden="true">▾</span></button>' +
+      '<div class="pf-v6-c-menu" hidden><ul class="pf-v6-c-menu__list" role="menu">' + perOpts + '</ul></div></div>' +
+      '<nav class="pf-v6-c-pagination__nav" aria-label="Member pagination">' +
+      '<div class="pf-v6-c-pagination__nav-control pf-m-first"><button class="pf-v6-c-button pf-m-plain" type="button" ' + dis(page > 0) + 'aria-label="Go to first page" onclick="archPage(\'' + a.name + '\', 0)"><span class="pf-v6-c-button__icon">&laquo;</span></button></div>' +
+      '<div class="pf-v6-c-pagination__nav-control pf-m-prev"><button class="pf-v6-c-button pf-m-plain" type="button" ' + dis(page > 0) + 'aria-label="Go to previous page" onclick="archPage(\'' + a.name + '\', ' + (page - 1) + ')"><span class="pf-v6-c-button__icon">&lsaquo;</span></button></div>' +
+      '<div class="pf-v6-c-pagination__nav-page-select"><input class="pf-v6-c-form-control" type="number" value="' + (page + 1) + '" min="1" max="' + pages + '" aria-label="Current page" onchange="archPageInput(\'' + a.name + '\', this.value)"><span>of ' + pages + '</span></div>' +
+      '<div class="pf-v6-c-pagination__nav-control pf-m-next"><button class="pf-v6-c-button pf-m-plain" type="button" ' + dis(page < pages - 1) + 'aria-label="Go to next page" onclick="archPage(\'' + a.name + '\', ' + (page + 1) + ')"><span class="pf-v6-c-button__icon">&rsaquo;</span></button></div>' +
+      '<div class="pf-v6-c-pagination__nav-control pf-m-last"><button class="pf-v6-c-button pf-m-plain" type="button" ' + dis(page < pages - 1) + 'aria-label="Go to last page" onclick="archPage(\'' + a.name + '\', ' + (pages - 1) + ')"><span class="pf-v6-c-button__icon">&raquo;</span></button></div>' +
+      '</nav></div>';
+    return '<table class="pf-v6-c-table pf-m-compact arch-member-table" role="grid" aria-label="' + a.name + ' member applications">' +
+      '<thead><tr class="pf-v6-c-table__tr">' + th('member', 'Member') + th('risk', 'Risk') + '</tr></thead>' +
+      '<tbody>' + memberRows + '</tbody></table>' + pager;
+  }
+  function archSort(name, key){
+    const a = MOCK_ARCHETYPES.find(x => x.name === name);
+    if (!a) return;
+    const s = a.mSort || (a.mSort = { key:'risk', dir:-1 });
+    if (s.key === key){ s.dir *= -1; } else if (key === 'risk'){ s.key = 'risk'; s.dir = -1; } else { s.key = 'member'; s.dir = 1; }
+    a.mPage = 0;
+    archMembersRender(name);
+  }
+  function archPage(name, p){
+    const a = MOCK_ARCHETYPES.find(x => x.name === name);
+    if (!a) return;
+    const members = scopedApps().filter(x => x.archetype === name);
+    const pages = Math.max(1, Math.ceil(members.length / (a.mPer || 3)));
+    a.mPage = Math.max(0, Math.min(p, pages - 1));
+    archMembersRender(name);
+  }
+  function archPageInput(name, v){
+    archPage(name, (parseInt(v, 10) || 1) - 1);
+  }
+  function archPer(name, n){
+    const a = MOCK_ARCHETYPES.find(x => x.name === name);
+    if (!a) return;
+    a.mPer = n;
+    a.mPage = 0;
+    archMembersRender(name);
+  }
+  function archMembersRender(name){
+    const a = MOCK_ARCHETYPES.find(x => x.name === name);
+    if (!a) return;
+    const el = document.getElementById('arch-members-' + archDomId(name));
+    if (el) el.innerHTML = archMembersHtml(a);
+  }
   function mockArchDetailHtml(a){
     const members = scopedApps().filter(x => x.archetype === a.name);
     const nRev = members.filter(x => x.review === 'approved').length;
@@ -7414,14 +7509,10 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     const cls = { High: 'red', Medium: 'yellow', Low: 'green', unassessed: 'outline' };
     const riskFacts = members.length ? order.filter(k => counts[k]).map(k =>
       '<span class="pf-v6-c-label pf-m-' + cls[k] + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + (k === 'unassessed' ? '\u2014' : k) + '</span></span></span> for ' + counts[k].length + ' member' + (counts[k].length === 1 ? '' : 's')).join(', ') : '<span class="u-muted">No member applications in this scope <span class=anno-cite>(#41)</span>.</span>';
-    const memberRows = members.map(x =>
-      '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td"><a href="#" onclick="openApp(\'' + x.name + '\');return false">' + x.name + '</a></td><td class="pf-v6-c-table__td">' + (x.risk
-        ? '<span class="pf-v6-c-label pf-m-' + x.riskColor + '"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + x.risk + '</span></span></span>'
-        : '<span class="pf-v6-c-label pf-m-outline"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">\u2014</span></span></span>') + '</td></tr>').join('')
-      || '<tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td" colspan="2"><span class="u-muted">No members in this scope.</span></td></tr>';
     return '<tr class="pf-v6-c-table__tr pf-v6-c-table__expandable-row arch-detail" id="arch-detail-' + a.name + '" hidden>' +
       '<td class="pf-v6-c-table__td" colspan="11"><div class="arch-detail-panel">' +
       '<div class="arch-detail-head"><b>' + a.name + ' &mdash; ' + members.length + ' member application' + (members.length === 1 ? '' : 's') + '</b> <span class="anno" data-tip="#23: the dependency graph defines the cohort, not manual lists">#23</span><button class="pf-v6-c-button pf-m-secondary btn-xs" type="button"><span class="pf-v6-c-button__text">Propagate assessment changes</span></button></div>' +
+      '<div class="arch-detail-cols"><div>' +
       '<div class="arch-detail-grid">' +
       '<div class="k">Description</div><div class="v">' + (a.description || '&mdash;') + '</div>' +
       '<div class="k">Criteria tags <span class="anno" data-tip="#46 item 6: applications matching any criteria tag belong to the archetype — re-validate after editing to recompute membership from the application store">#46</span></div><div class="v">' + chips(a.criteria) + '</div>' +
@@ -7432,10 +7523,8 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       '<div class="k">Group assessment</div><div class="v">' + mockLabel(a.assessment.color, a.assessment.label) + '</div>' +
       '<div class="k">Risk</div><div class="v">' + riskFacts + '</div>' +
       '<div class="k">Shared findings</div><div class="v">' + (a.findings || '<span class="u-muted">&mdash;</span>') + '</div>' +
-      '</div>' +
-      '<table class="pf-v6-c-table pf-m-compact arch-member-table" role="grid" aria-label="' + a.name + ' member applications">' +
-      '<thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Member</th><th class="pf-v6-c-table__th" scope="col">Risk</th></tr></thead>' +
-      '<tbody>' + memberRows + '</tbody></table>' +
+      '</div></div>' +
+      '<div id="arch-members-' + archDomId(a.name) + '">' + archMembersHtml(a) + '</div>' +
       '</div></td></tr>';
   }
   function renderArchetypes(){
