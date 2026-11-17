@@ -50,6 +50,7 @@ non-zero on failure (silence + exit 0 = pass).
 | `verify-tokengate.js` | DE renders: admin wave-gate summary composition, reports/credentials copy |
 | `verify-tokens.js` | Row 129 token administration: boot render + live column set, kind filter, search, show-expired toggle, sortable headers + `aria-sort`, shared pager, single/bulk revoke (modal → audit + toast), cross-page select-all, empty state + row-87 pager hiding, RBAC gating, wired Tokens link |
 | `verify-aprofiles.js` | Row 130 analysis profiles (Config → Analysis): boot render + verbatim live sample row, wizard walk over the live step set (required-Name gate, source select, targets + skip-warning, scope, rules-required-when-no-targets gate, review, Finish), save/edit/delete with audit + archetype write-through, RBAC both personas, empty state |
+| `verify-users.js` | Row 131 directory users (Config → Access): boot render + live column set, realm demo identities, token counts, search filter + zero-result pager hiding, create modal validation gates (required set, password mismatch, case-insensitive duplicate login), edit with rename cascading token ownership + stakeholder bind email, token-guarded delete + armed two-step delete, RBAC both personas, summary line |
 | `verify-tenancy.js` | Tenancy invariants: org scoping at boot, exactly-one-team data, org isolation / platform-admin pivot, inventory rows vs fixture |
 | `verify-rbac.js` | Persona nav matrix, flat nav (no Administration header), masthead task shortcut, inventory rows vs fixture |
 | `verify-migr.js` | My-work reactivity: ticket cleared → row drops out; incident assigned → becomes my work; empty state |
@@ -61,7 +62,7 @@ non-zero on failure (silence + exit 0 = pass).
 | `verify-welcome.js` | Welcome flow: first-visit boot, start → flag set + tour opens, unseen persona triggers welcome |
 | `verify-dequeue.js` | Row 118 dequeue: bulk queue → queued state + waiting task row, dequeue via row link and via the application modal, pre-queue state restored (Not started *and* Succeeded), task row removed, RBAC no-op for pm |
 | `verify-adm43.js` | Admin workflow gating: no waves → no gate clause, task-count scoping, Wave-3 pass after credential rotate |
-| `verify-grid93.js` | Row 93 RHDS 12-column grid: container census, no legacy inline `grid-template-columns` at the content layer |
+| `verify-grid93.js` | Row 93 RHDS 12-column grid: container census (11 since row 131's Access split), whole-track span sum per container incl. `gc12` full-width cards, no legacy inline `grid-template-columns` at the content layer |
 | `verify-r87.js` | Row 87 RHDS per-element guidelines: code-block drawer templates, menu grouping ≤7, icon-only toggle `aria-label`s |
 
 ## Shared fixture

@@ -11,6 +11,16 @@ what-changed-when index. Long-form design-system rules:
 
 ## 2026-11-17
 
+- **Directory users on the mock's Config → Access tab (defect row 131)** — the Users view, the
+  last whole-surface parity gap after row 130: a full-width "Users" card at the live `/users` column set (ID/Login/Name/Email/
+  Roles/Tokens) over a new `MOCK_USERS` store of the realm demo identities, with the live
+  Create-user modal (required-set / password-mismatch / duplicate-login gates, credential never
+  stored), pre-filled edit whose **rename cascades token ownership and the stakeholder bind
+  email** (#36a — no row-34 ghost binds), and token-guarded armed deletion (revoke first;
+  bound stakeholder records stay). Audited, `users:edit` RBAC, shared pager. Grid: the
+  full-width card sits in its own `grid12` container (Access panel split in two); added the
+  missing `.grid12>.gc12` span class and extended the row-93 grid audit (`gc12: 12`,
+  11 containers). `verify/verify-users.js` (27 assertions), battery 23/23.
 - **Analysis Profiles — the last whole-surface parity gap closed (defect row 130)** — the live
   8.3.3 `/analysis-profiles` surface (recorded as a gap in the re-audit) now has a mock
   counterpart on Config → Analysis: a management table over a new `MOCK_APROFILES` store

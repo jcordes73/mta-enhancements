@@ -51,6 +51,7 @@
   .grid12>.gc3{grid-column:span 3;}
   .grid12>.gc4{grid-column:span 4;}
   .grid12>.gc6{grid-column:span 6;}
+  .grid12>.gc12{grid-column:span 12; min-width:0;}   /* row 131: full-width card (Users inspector) */
   .grid12.c5>*:nth-child(1){grid-column:2/span 2;}
   .grid12.c5>*:nth-child(2){grid-column:4/span 2;}
   .grid12.c5>*:nth-child(3){grid-column:6/span 2;}
@@ -60,6 +61,7 @@
     .grid12{grid-template-columns:repeat(2,1fr); gap:var(--rh-space-lg);}
     .lp-architect,.lp-pm,.lp-pgm,.lp-migrator,.lp-admin,.lp-padmin{gap:var(--rh-space-lg);}
     .grid12>.gc6{grid-column:span 2;}
+    .grid12>.gc12{grid-column:span 2;}
     .grid12>.gc2,.grid12>.gc3,.grid12>.gc4{grid-column:span 1;}
     .grid12.c5>*:nth-child(n){grid-column:span 1;}
   }
@@ -2033,6 +2035,37 @@
           <div id="tokPagerSlot"></div>
           </div>
         </div>
+              </div>
+
+      <div class="grid12">
+        <div class="pf-v6-c-card gc12" id="cfg-users">
+          <div class="pf-v6-c-card__header">
+            <div class="pf-v6-c-card__title">Users <span class="anno" data-tip="live 8.3.3 /users inspector (re-audit 2026-11-17): ID/Login/Name/Email/Roles/Tokens + create, edit, delete. Roles are the realm's one-per-persona bundles (see the Access record in section 7.2) — the mock's pgm persona rides the realm's project-manager role; directory deletion is guarded while the login holds tokens, and the governance layer (the stakeholder record) deliberately stays — one directory, two layers (#36a)">8.3.3</span></div>
+            <div class="pf-v6-c-card__actions"><button class="pf-v6-c-button pf-m-primary" type="button" data-rbac="users:edit" onclick="usOpen()"><span class="pf-v6-c-button__text">Create user</span></button></div>
+          </div>
+          <div class="pf-v6-c-card__body">
+          <div class="pf-v6-c-toolbar" style="margin-bottom: var(--rh-space-md);">
+            <div class="pf-v6-c-toolbar__content">
+              <div class="pf-v6-c-toolbar__content-section">
+                <div class="pf-v6-c-toolbar__item"><input class="pf-v6-c-form-control" type="search" id="usSearch" placeholder="Filter by name, login, email or role&hellip;" aria-label="Filter users" style="min-width: 280px;" oninput="usApply()"></div>
+                <div class="pf-v6-c-toolbar__item"><span class="u-muted" id="usSummary" style="font-size: var(--rh-font-size-body-text-xs);"></span></div>
+              </div>
+            </div>
+          </div>
+          <div style="overflow-x:auto;"><table class="pf-v6-c-table pf-m-compact" role="grid" id="usTable"><thead><tr class="pf-v6-c-table__tr">
+            <th class="pf-v6-c-table__th" scope="col">ID</th>
+            <th class="pf-v6-c-table__th" scope="col">Login</th>
+            <th class="pf-v6-c-table__th" scope="col">Name</th>
+            <th class="pf-v6-c-table__th" scope="col">Email</th>
+            <th class="pf-v6-c-table__th" scope="col">Roles</th>
+            <th class="pf-v6-c-table__th" scope="col">Tokens <span class="anno" data-tip="live column: how many API tokens the login holds — the count feeds the revocation guard below (a login's tokens must be revoked before the directory record can be deleted)">8.3.3</span></th>
+            <th class="pf-v6-c-table__th" scope="col"><span class="pf-v6-screen-reader">Row actions</span></th>
+          </tr></thead>
+          <tbody id="usBody"></tbody></table></div>
+          <div id="usEmpty" hidden class="u-muted" style="padding: var(--rh-space-md) 0;">No users match the current filter &mdash; adjust the search.</div>
+          <div id="usPagerSlot"></div>
+          </div>
+        </div>
       </div>
       </div>
 
@@ -3928,6 +3961,42 @@ artifacts:
     </footer>
   </div>
 </div>
+<!-- ================= row 131: create/edit directory user (live 8.3.3 /users Create modal) ================= -->
+<div class="pf-v6-c-backdrop" id="modalUser" hidden>
+  <div class="pf-v6-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="mu-title">
+    <div class="pf-v6-c-modal-box__header">
+      <h2 class="pf-v6-c-modal-box__title" id="mu-title"><span class="pf-v6-c-modal-box__title-text" id="muTitle">Create user</span></h2>
+      <button class="pf-v6-c-button pf-m-plain pf-v6-c-modal-box__close" type="button" aria-label="Close dialog" onclick="closeModals()"><span class="pf-v6-c-button__icon">&#10005;</span></button>
+    </div>
+    <div class="pf-v6-c-modal-box__body">
+      <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="muLogin"><span class="pf-v6-c-form__label-text">Login <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
+        <input class="pf-v6-c-form-control" type="text" id="muLogin" oninput="usSyncCreate()"></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="muName"><span class="pf-v6-c-form__label-text">Name <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
+        <input class="pf-v6-c-form-control" type="text" id="muName" oninput="usSyncCreate()"></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="muEmail"><span class="pf-v6-c-form__label-text">Email <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
+        <input class="pf-v6-c-form-control" type="text" id="muEmail" oninput="usSyncCreate()"></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="muPw"><span class="pf-v6-c-form__label-text" id="muPwLabel">Password <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
+        <input class="pf-v6-c-form-control" type="password" id="muPw" autocomplete="new-password" oninput="usSyncCreate()">
+        <div class="u-muted" style="font-size: var(--rh-font-size-body-text-xs); margin-top: var(--rh-space-xs);">The IdP credential &mdash; the mock never stores or renders the value. Leave blank on edit to keep the current credential.</div></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="muPw2"><span class="pf-v6-c-form__label-text" id="muPw2Label">Confirm password <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span></span></label>
+        <input class="pf-v6-c-form-control" type="password" id="muPw2" autocomplete="new-password" oninput="usSyncCreate()"></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><span class="pf-v6-c-form__label-text">Roles <span class="anno" data-tip="the realm's role bundles, one per persona (section 7.2 refinement): admin / architect / migrator / project-manager / addon">8.3.3</span></span>
+        <div style="margin-top: var(--rh-space-xs);" id="muRoles">
+          <label class="pf-v6-c-check" style="display:block;"><input class="pf-v6-c-check__input" type="checkbox" value="admin" onchange="usSyncCreate()"><span class="pf-v6-c-check__label">admin</span></label>
+          <label class="pf-v6-c-check" style="display:block;"><input class="pf-v6-c-check__input" type="checkbox" value="architect" onchange="usSyncCreate()"><span class="pf-v6-c-check__label">architect</span></label>
+          <label class="pf-v6-c-check" style="display:block;"><input class="pf-v6-c-check__input" type="checkbox" value="migrator" onchange="usSyncCreate()"><span class="pf-v6-c-check__label">migrator</span></label>
+          <label class="pf-v6-c-check" style="display:block;"><input class="pf-v6-c-check__input" type="checkbox" value="project-manager" onchange="usSyncCreate()"><span class="pf-v6-c-check__label">project-manager</span></label>
+          <label class="pf-v6-c-check" style="display:block;"><input class="pf-v6-c-check__input" type="checkbox" value="addon" onchange="usSyncCreate()"><span class="pf-v6-c-check__label">addon</span></label>
+        </div></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);" id="usFormMsg" hidden><div class="pf-v6-c-helper-text"><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text pf-m-error" id="usFormMsgText"></span></div></div></div>
+    </div>
+    <footer class="pf-v6-c-modal-box__footer">
+      <button class="pf-v6-c-button pf-m-primary" type="button" id="usCreateBtn" onclick="usSave()"><span class="pf-v6-c-button__text">Create</span></button>
+      <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
+    </footer>
+  </div>
+</div>
+
 <!-- ================= row 122: gateway CA-trust confirm (blast radius + re-test-on-apply) ================= -->
 <div class="pf-v6-c-backdrop" id="modalGwTrust" hidden>
   <div class="pf-v6-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="mgt-title">
@@ -8780,6 +8849,151 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     renderAProfiles();
     if (typeof renderArchetypes === 'function') renderArchetypes();
   }
+
+  /* ---- directory users (row 131, "implement the remaining gaps"): the live 8.3.3 /users
+     inspector (re-audit 2026-11-17) modeled on Config -> Access, next to the row-34 bind table.
+     Columns are the live set (ID/Login/Name/Email/Roles/Tokens) plus create (live modal fields:
+     Login/Name/Email/Password/Confirm password/Roles) and guarded edit/delete. Roles are the
+     realm's one-per-persona bundles (section 7.2); the Tokens column counts MOCK_TOKENS per
+     login and guards deletion (revoke first). Directory deletion deliberately leaves the
+     stakeholder record: one directory, two layers (#36a) — the bind table degrades to
+     "unlinked" on its next render. Mutations are session-scoped and audited (#42). ---- */
+  const MOCK_USERS = [
+    { id: 1, login: 'a.weber@northwind-financial.com',  name: 'A. Weber',    email: 'a.weber@northwind-financial.com',  roles: ['admin'] },
+    { id: 2, login: 'm.keller@northwind-financial.com', name: 'M. Keller',   email: 'm.keller@northwind-financial.com', roles: ['architect'] },
+    { id: 3, login: 'j.cordes@northwind-financial.com', name: 'J. Cordes',   email: 'j.cordes@northwind-financial.com', roles: ['migrator'] },
+    { id: 4, login: 'p.schmidt@northwind-financial.com', name: 'P. Schmidt', email: 'p.schmidt@northwind-financial.com', roles: ['project-manager'] },
+    { id: 5, login: 'k.vogel@northwind-financial.com',  name: 'K. Vogel',    email: 'k.vogel@northwind-financial.com',  roles: ['project-manager'] },
+    { id: 6, login: 'r.olson@northwind-financial.com',  name: 'R. Olson',    email: 'r.olson@northwind-financial.com',  roles: ['architect'] },
+    { id: 7, login: 'root@example.com',                 name: 'root',        email: 'root@example.com',                 roles: ['admin'] },
+    { id: 8, login: 'd.hoffmann@northwind-financial.com', name: 'D. Hoffmann', email: 'd.hoffmann@northwind-financial.com', roles: ['migrator'] }
+  ];
+  const us = { editId: null };
+  function usFiltered(){
+    const q = document.getElementById('usSearch').value.trim().toLowerCase();
+    return MOCK_USERS.filter(u => !q || u.login.toLowerCase().includes(q) || u.name.toLowerCase().includes(q)
+      || u.email.toLowerCase().includes(q) || u.roles.some(r => r.includes(q)));
+  }
+  function renderUsers(){
+    const tb = document.getElementById('usBody'); if (!tb) return;
+    const rows = usFiltered();
+    document.getElementById('usEmpty').hidden = rows.length > 0;
+    document.getElementById('usTable').hidden = rows.length === 0;
+    const tokCount = login => MOCK_TOKENS.filter(t => t.login === login).length;
+    tb.innerHTML = rows.map(u => {
+      const nTok = tokCount(u.login);
+      return '<tr class="pf-v6-c-table__tr" data-user="' + u.id + '">'
+        + '<td class="pf-v6-c-table__td">' + u.id + '</td>'
+        + '<td class="pf-v6-c-table__td"><b>' + u.login + '</b></td>'
+        + '<td class="pf-v6-c-table__td">' + u.name + '</td>'
+        + '<td class="pf-v6-c-table__td">' + u.email + '</td>'
+        + '<td class="pf-v6-c-table__td">' + (u.roles.length
+            ? u.roles.map(r => '<span class="pf-v6-c-label pf-m-blue"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">' + r + '</span></span></span>').join(' ')
+            : '<span class="u-muted">&mdash;</span>') + '</td>'
+        + '<td class="pf-v6-c-table__td">' + (nTok || '<span class="u-muted">&mdash;</span>') + '</td>'
+        + '<td class="pf-v6-c-table__td"><button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" data-rbac="users:edit" onclick="usOpen(' + u.id + ')"><span class="pf-v6-c-button__text">Edit</span></button> '
+        + '<button class="pf-v6-c-button pf-m-secondary btn-xs" type="button" data-rbac="users:edit" data-usid="' + u.id + '" onclick="usDelete(this)" title="' + (nTok ? 'Cannot delete: this login holds ' + nTok + ' token' + (nTok === 1 ? '' : 's') + ' — revoke them on the Tokens card first' : 'Delete directory user') + '"><span class="pf-v6-c-button__text">Delete</span></button></td></tr>';
+    }).join('');
+    pagerState('us').rerender = renderUsers; pagerShow('us', tb, rows.length);   /* shared pager */
+    document.getElementById('usSummary').innerHTML = '<b>' + MOCK_USERS.length + '</b> directory users &middot; ' + MOCK_USERS.filter(u => !u.roles.length).length + ' without a role bundle';
+    if (typeof applyRbac === 'function') applyRbac();   /* verb gating follows the re-render */
+  }
+  function usApply(){ pagerState('us').page = 1; renderUsers(); }
+  function usRolesChecked(){ return [...document.querySelectorAll('#muRoles input')].filter(c => c.checked).map(c => c.value); }
+  function usOpen(id){
+    us.editId = id || null;
+    const u = id ? MOCK_USERS.find(x => x.id === id) : null;
+    document.getElementById('muTitle').textContent = u ? 'Edit user' : 'Create user';
+    document.getElementById('usCreateBtn').querySelector('.pf-v6-c-button__text').textContent = u ? 'Save' : 'Create';
+    document.getElementById('muLogin').value = u ? u.login : '';
+    document.getElementById('muName').value = u ? u.name : '';
+    document.getElementById('muEmail').value = u ? u.email : '';
+    document.getElementById('muPw').value = '';
+    document.getElementById('muPw2').value = '';
+    const pwReq = !u;   /* on edit the credential is optional: blank keeps the current one */
+    document.getElementById('muPwLabel').innerHTML = 'Password' + (pwReq ? ' <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span>' : '');
+    document.getElementById('muPw2Label').innerHTML = 'Confirm password' + (pwReq ? ' <span class="pf-v6-c-form__label-required" aria-hidden="true">*</span>' : '');
+    document.querySelectorAll('#muRoles input').forEach(c => { c.checked = !!(u && u.roles.includes(c.value)); });
+    document.getElementById('usFormMsg').hidden = true;
+    openModal('modalUser');
+    usSyncCreate();
+  }
+  function usFormError(msg){
+    const m = document.getElementById('usFormMsg');
+    m.hidden = !msg;
+    document.getElementById('usFormMsgText').textContent = msg || '';
+  }
+  function usSyncCreate(){
+    const u = us.editId ? MOCK_USERS.find(x => x.id === us.editId) : null;
+    const login = document.getElementById('muLogin').value.trim();
+    const name = document.getElementById('muName').value.trim();
+    const email = document.getElementById('muEmail').value.trim();
+    const pw = document.getElementById('muPw').value, pw2 = document.getElementById('muPw2').value;
+    let err = '';
+    if (!login || !name || !email) err = 'Login, Name and Email are required.';
+    else if (!u && (!pw || !pw2)) err = 'Password and Confirm password are required.';
+    else if ((pw || pw2) && pw !== pw2) err = 'Password and Confirm password do not match — retype both.';
+    else if (MOCK_USERS.some(x => x.login.toLowerCase() === login.toLowerCase() && x.id !== (u ? u.id : -1)))
+      err = 'Login already exists — the directory is keyed by login; pick a different one.';
+    else if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) err = 'Email is not a valid address — use name@host.';
+    usFormError(err);
+    document.getElementById('usCreateBtn').disabled = !!err;
+  }
+  function usSave(){
+    const u = us.editId ? MOCK_USERS.find(x => x.id === us.editId) : null;
+    if (document.getElementById('usCreateBtn').disabled) return;
+    const fields = {
+      login: document.getElementById('muLogin').value.trim(),
+      name: document.getElementById('muName').value.trim(),
+      email: document.getElementById('muEmail').value.trim(),
+      roles: usRolesChecked()
+    };
+    if (u){
+      const oldLogin = u.login;
+      const rename = oldLogin !== fields.login;
+      Object.assign(u, fields);
+      if (rename){
+        /* one directory, two layers: the token ownership AND the stakeholder bind email
+           follow the rename (same person, same identity) — a stale bind would be the
+           row-34 ghost all over again */
+        MOCK_TOKENS.forEach(t => { if (t.login === oldLogin) t.login = fields.login; });
+        MOCK_STAKEHOLDERS.forEach(p => { if (p.email === oldLogin) p.email = fields.login; });
+      }
+      auditAdd('user:update', fields.login);
+      rbacToast('<b>' + fields.login + '</b> updated' + (rename ? ' — its token ownership followed the rename' : '') + '; recorded in the audit trail <span class=anno-cite>(#42)</span>.');
+    } else {
+      MOCK_USERS.push(Object.assign({ id: Math.max(0, ...MOCK_USERS.map(x => x.id)) + 1 }, fields));
+      auditAdd('user:create', fields.login);
+      rbacToast('<b>' + fields.login + '</b> created &mdash; directory only: bind it to a stakeholder below to give it a governance identity <span class=anno-cite>(#36a)</span>.');
+    }
+    us.editId = null;
+    closeModals();
+    renderUsers();
+    if (typeof renderUserBindings === 'function') renderUserBindings();   /* the bind table follows renames */
+  }
+  function usDelete(btn){
+    const id = Number(btn.dataset.usid);
+    const u = MOCK_USERS.find(x => x.id === id);
+    if (!u) return;
+    const nTok = MOCK_TOKENS.filter(t => t.login === u.login).length;
+    if (nTok){   /* guarded: the live Tokens column makes the blast radius visible before the click */
+      armDeleteBtn(btn, false);
+      rbacToast('<b>' + u.login + '</b> holds ' + nTok + ' token' + (nTok === 1 ? '' : 's') + ' — revoke them on the Tokens card first; deleting the login would orphan them.');
+      return;
+    }
+    if (!btn.dataset.armed){
+      btn.dataset.armed = '1';
+      armDeleteBtn(btn, true);
+      return;
+    }
+    MOCK_USERS.splice(MOCK_USERS.indexOf(u), 1);
+    auditAdd('user:delete', u.login);
+    const bound = MOCK_STAKEHOLDERS.some(p => p.email === u.login);
+    rbacToast('<b>' + u.login + '</b> deleted from the directory' + (bound ? ' — the stakeholder record stays (one directory, two layers, #36a); its bind row degrades to unlinked.' : '; recorded in the audit trail <span class=anno-cite>(#42)</span>.'));
+    renderUsers();
+    if (typeof renderUserBindings === 'function') renderUserBindings();
+  }
+
   function ubPage(delta){ ub.page += delta; renderUserBindings(); }
   function ubGoto(p){ ub.page = p; renderUserBindings(); }   /* render clamps into range, so 'last' can pass a big number */
   function ubPageInput(v){
@@ -8836,7 +9050,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
      ['agwf', 'Workflows', 'agwfPagerSlot'], ['agagent', 'Agents', 'agagentPagerSlot'],
      ['agskill', 'Skills', 'agskillPagerSlot'], ['cred', 'Credentials', 'credPagerSlot'],
      ['prov', 'Risk provenance', 'provPagerSlot'],
-     ['tok', 'Tokens', 'tokPagerSlot']].forEach(x => {
+     ['tok', 'Tokens', 'tokPagerSlot'], ['us', 'Users', 'usPagerSlot']].forEach(x => {
       const el = document.getElementById(x[2]);
       if (el) el.innerHTML = pagerHtml(x[0], x[1]);
     });
@@ -10868,6 +11082,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
   renderProvenance();         /* the reports provenance table renders from MOCK_APPS (boot; tenancy re-runs it) */
   renderTokens();             /* row 129: token administration table (own toolbar/pager re-render) */
   renderAProfiles();          /* row 130: analysis profiles (Config -> Analysis; own wizard re-renders) */
+  renderUsers();              /* row 131: directory users (Config -> Access; own re-render + shared pager) */
   applyHash();
 </script>
 </body>

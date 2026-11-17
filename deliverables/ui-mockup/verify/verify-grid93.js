@@ -10,7 +10,7 @@ const assert = (name, ok) => { if (ok) { pass++; } else { fail++; console.log('F
 setTimeout(() => {
   // 1. container census
   const grids = [...document.querySelectorAll('.grid12')];
-  assert('10 grid12 containers (row 115: the cohort dashboard card — one grid12 — moved into the archetype detail rows, which are component-internal; row 125: the Registries grid12 went away — its three cards became full-width sub-tab panels)', grids.length === 10);
+  assert('11 grid12 containers (row 115: the cohort dashboard card — one grid12 — moved into the archetype detail rows, which are component-internal; row 125: the Registries grid12 went away — its three cards became full-width sub-tab panels; row 131: the Access panel split into two containers — bind+tokens row and the full-width Users card)', grids.length === 11);
   assert('1 five-tile (c5) container (org-admin landing; padmin moved to the row-107 8-tile stat wall)', grids.filter(g => g.classList.contains('c5')).length === 1);
 
   // 2. no legacy inline grid-template-columns left at the content-layout layer
@@ -29,7 +29,7 @@ setTimeout(() => {
   assert('mobile stat-tile half span', /\.grid12>\.gc2,\.grid12>\.gc3,\.grid12>\.gc4\{grid-column:span 1;\}/.test(html));
 
   // 4. per-container child spans sum to 12 (or c5 placement)
-  const SPAN = { gc2: 2, gc3: 3, gc4: 4, gc6: 6 };
+  const SPAN = { gc2: 2, gc3: 3, gc4: 4, gc6: 6, gc12: 12 };   /* gc12 = row 131 full-width card (Users), own container */
   for (const g of grids) {
     const kids = [...g.children];
     if (g.classList.contains('c5')) {
