@@ -22,14 +22,14 @@ setTimeout(() => {
   console.log('=== mine OFF -> pool ==='); summary().slice(9).forEach(r => console.log('  ', r));
   OK('pool apps join when mine OFF (claims-batch, notification-router)', appsOff === 'payments-api,invoicing,claims-web,claims-batch,notification-router');
   // #65: the pool view is paginated — 10 per page, total carries the full count
-  OK('pool paginated: 10 on page 1 of 11 total', visible().length === 10
-    && d.getElementById('incPgFrom').textContent === '1 \u2013 10' && d.getElementById('incPgTotal').textContent === '11');
+  OK('pool paginated: 10 on page 1 of 12 total (row 198: claims-batch blocker row joined)', visible().length === 10
+    && d.getElementById('incPgFrom').textContent === '1 \u2013 10' && d.getElementById('incPgTotal').textContent === '12');
   OK('pagination nav state on page 1', d.getElementById('incFirst').disabled && d.getElementById('incPrev').disabled
     && !d.getElementById('incNext').disabled && !d.getElementById('incLast').disabled);
   d.getElementById('incNext').click();
-  OK('page 2 shows the tail row (notification-router) with an honest range', visible().length === 1
-    && visible()[0].dataset.app === 'notification-router'
-    && d.getElementById('incPgFrom').textContent === '11 \u2013 11'
+  OK('page 2 shows the 2 tail rows (claims-batch blocker + notification-router) with an honest range', visible().length === 2
+    && visible()[0].dataset.app === 'claims-batch' && visible()[1].dataset.app === 'notification-router'
+    && d.getElementById('incPgFrom').textContent === '11 \u2013 12'
     && d.getElementById('incNext').disabled && d.getElementById('incLast').disabled);
   d.getElementById('incFirst').click();
   OK('back to page 1 (10 visible, first/prev disabled again)', visible().length === 10
@@ -37,11 +37,11 @@ setTimeout(() => {
   OK('claims-batch incident now visible (was invisible before)', summary().some(r => r.startsWith('claims-batch')));
   // wave chip filter
   d.querySelectorAll('#incWaveChips .pf-v6-c-label')[0].click();   // Wave 3 on
-  OK('Wave 3 chip filters to wave-3 rows', visible().length === 8 && visible().every(tr => tr.dataset.wave === '3'));
+  OK('Wave 3 chip filters to wave-3 rows (9 with the blocker row)', visible().length === 9 && visible().every(tr => tr.dataset.wave === '3'));
   d.querySelectorAll('#incWaveChips .pf-v6-c-label')[0].click();   // off again
   // state menu filter (existing DOM path, now on store rows)
   w.eval('pickOption(document.querySelector("#scr-incidents .pf-v6-c-menu"), document.querySelector("#scr-incidents .pf-v6-c-menu-toggle__text"), [...document.querySelectorAll("#scr-incidents .pf-v6-c-menu__item")][2]); incApplyFilters();');
-  OK('State: In progress filters rows', visible().length === 1 && visible()[0].dataset.state === 'In progress');
+  OK('State: In progress filters rows (2 with the blocker row)', visible().length === 2 && visible().every(tr => tr.dataset.state === 'In progress'));
   w.eval('pickOption(document.querySelector("#scr-incidents .pf-v6-c-menu"), document.querySelector("#scr-incidents .pf-v6-c-menu-toggle__text"), [...document.querySelectorAll("#scr-incidents .pf-v6-c-menu__item")][0]); incApplyFilters();');
   // impossible combo -> guided empty state
   d.getElementById('incMineChip').click();  // mine ON
@@ -51,10 +51,11 @@ setTimeout(() => {
   d.querySelectorAll('#incWaveChips .pf-v6-c-label')[1].click();  // Wave 4 -> claims-web Triage? claims-web rows: Assigned/Triage/Triage -> non-empty...
   // force empty: app chip for an app with no matching state
   w.eval('showIncidentsForApp("ledger-sync")');
+  OK('deep link into an un-ticketed app relaxes the mine chip (row 141)', !d.getElementById('incMineChip').classList.contains('on'));
   OK('guided empty state (#43) on no match', d.getElementById('incEmpty').style.display !== 'none');
   w.eval('const c = document.getElementById("incAppChip"); if (c) c.remove(); incApplyFilters();');
-  // reset filters: mine OFF (it is ON here), clear wave chips + state back to All
-  d.getElementById('incMineChip').click();
+  // reset filters: mine OFF (row 141 relaxed it above), clear wave chips + state back to All
+  d.getElementById('incMineChip').classList.remove('on'); w.eval('incApplyFilters()');
   d.querySelectorAll('#incWaveChips .pf-v6-c-label.on').forEach(ch => ch.click());
   w.eval('pickOption(document.querySelector("#scr-incidents .pf-v6-c-menu"), document.querySelector("#scr-incidents .pf-v6-c-menu-toggle__text"), [...document.querySelectorAll("#scr-incidents .pf-v6-c-menu__item")][0]); incApplyFilters();');
   // drawer wiring: click a pool row (claims-batch) opens that incident
@@ -89,8 +90,9 @@ setTimeout(() => {
     && q('app').getAttribute('aria-sort') === 'ascending' && q('effort').getAttribute('aria-sort') === 'none');
   const inp = d.getElementById('inc-search');
   inp.value = 'kafka'; w.eval('incSearchApply()');
-  OK('search "kafka" -> 1 row, page 1 of 1', visible().length === 1 && visible()[0].cells[1].textContent.includes('Kafka')
-    && d.getElementById('incPgTotal').textContent === '1');
+  OK('search "kafka" -> 2 rows (producer API + the row-198 contract mismatch), page 1 of 1', visible().length === 2
+    && visible().every(tr => tr.cells[1].textContent.includes('Kafka'))
+    && d.getElementById('incPgTotal').textContent === '2');
   inp.value = ''; w.eval('incSearchApply()');
   OK('clearing search restores the queue (sort retained)', visible().length >= 9
     && d.getElementById('inc-search').value === '');
@@ -99,7 +101,7 @@ setTimeout(() => {
   // #68: canonical data-value filter reads (display text is translated — text comparison zeroed the queue in non-EN locales)
   OK('State menu carries canonical data-value', [...d.querySelectorAll('#incStateWrap [data-value]')].map(x => x.dataset.value).join(',') === 'All,Triage,In progress,Assigned');
   w.eval('pickOption(document.querySelector("#incStateWrap .pf-v6-c-menu"), document.querySelector("#incStateWrap .pf-v6-c-menu-toggle__text"), [...document.querySelectorAll("#incStateWrap .pf-v6-c-menu__item")][2]); incApplyFilters();');
-  OK('State=In progress via canonical value -> 1 row', visible().length === 1 && visible()[0].dataset.state === 'In progress');
+  OK('State=In progress via canonical value -> 2 rows (row 198 blocker row matches too)', visible().length === 2 && visible().every(tr => tr.dataset.state === 'In progress'));
   w.eval('pickOption(document.querySelector("#incStateWrap .pf-v6-c-menu"), document.querySelector("#incStateWrap .pf-v6-c-menu-toggle__text"), [...document.querySelectorAll("#incStateWrap .pf-v6-c-menu__item")][0]); incApplyFilters();');
   // scope: fresh padmin (12 apps) sees more
 }, 500);

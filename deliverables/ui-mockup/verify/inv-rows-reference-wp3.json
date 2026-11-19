@@ -1,1 +1,218 @@
-[{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>billing-worker</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">spring</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","—","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">—</span></span></span>","—","Billing","—"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>claims-batch</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">eap7</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Succeeded</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('claims-batch'); return false\">88 incidents</a>","412<div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:35%\"></i></div>","<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Medium</span></span></span> inherited ← <a href=\"#\" onclick=\"event.stopPropagation();showCohorts();return false\">EAP8-archetype</a>","Wave 3","Claims","5d ago <span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">stale</span></span></span>"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>claims-web</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">ant</span></span></span>","<a href=\"#\" onclick=\"event.stopPropagation(); openAssessment('claims-web'); return false\">Completed · v3</a>","<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Pending</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openReview('claims-web'); return false\">review</a>","<span class=\"pf-v6-c-label pf-m-red\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">QuotaBlocked</span></span></span> <span class=\"anno\" data-tip=\"#38: names the quota and the raise path. The quota gates the re-analysis — the last run's results (41d old) stay visible and actionable\">#38</span> · <a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('claims-web'); return false\">31 incidents</a>","610 <span class=\"u-muted\" style=\"font-size:var(--rh-font-size-body-text-xs)\">last run</span><div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:52%\"></i></div>","<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Medium</span></span></span> own assessment","Wave 4","Claims","41d ago"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>cust-portal</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">eap7</span></span></span>","<a href=\"#\" onclick=\"event.stopPropagation(); openAssessment('cust-portal'); return false\">Completed · v3</a>","<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Pending</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openReview('cust-portal'); return false\">review</a>","<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Succeeded</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('cust-portal'); return false\">137 incidents</a>","890<div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:75%\"></i></div>","<span class=\"pf-v6-c-label pf-m-red\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">High</span></span></span> own assessment","Wave 4","Customer","9d ago <span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">stale</span></span></span>"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>customer-api</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">spring</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","—","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">—</span></span></span>","—","Customer","—"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>docs-portal</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">ant</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","—","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">—</span></span></span>","—","Customer","—"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>invoicing</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">eap7</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Running</span></span></span> 61% · <a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('invoicing'); return false\">23 incidents</a>","190 <span class=\"u-muted\" style=\"font-size:var(--rh-font-size-body-text-xs)\">so far</span><div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:16%\"></i></div>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">—</span></span></span> unassessed","Wave 3","Claims","—"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>ledger-sync</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">eap7</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Running</span></span></span> 24%","—","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">—</span></span></span> unassessed","Wave 3","Claims","—"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>notification-router</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">quarkus</span></span></span>","<a href=\"#\" onclick=\"event.stopPropagation(); openAssessment('notification-router'); return false\">Completed · v1</a>","<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Approved</span></span></span>","<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Succeeded</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('notification-router'); return false\">7 incidents</a>","21<div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:6%\"></i></div>","<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Low</span></span></span> own assessment","Wave 3","Claims","3d ago"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>payments-api</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">quarkus</span></span></span>","<a href=\"#\" onclick=\"event.stopPropagation(); openAssessment('payments-api'); return false\">Completed · v3</a>","<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Pending</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openReview('payments-api'); return false\">review</a>","<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Succeeded</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('payments-api'); return false\">214 incidents</a>","1,180<div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:100%\"></i></div>","<span class=\"pf-v6-c-label pf-m-red\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">High</span></span></span> <span class=\"u-muted\" style=\"font-size:var(--rh-font-size-body-text-xs)\">inherited ← <a href=\"#\" onclick=\"event.stopPropagation();showCohorts();return false\">EAP8-archetype</a></span>","Wave 3","Claims","2d ago <span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">stale</span></span></span>"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>policy-engine</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">quarkus</span></span></span>","<a href=\"#\" onclick=\"event.stopPropagation(); openAssessment('policy-engine'); return false\">Completed · v1</a>","<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Approved</span></span></span>","<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Succeeded</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('policy-engine'); return false\">12 incidents</a>","34<div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:6%\"></i></div>","<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Low</span></span></span> own assessment","Wave 4","Pricing","1d ago"]},{"cells":["<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>","<b>risk-scoring</b> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">spring</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>","<span class=\"pf-v6-c-label pf-m-red\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">QuotaBlocked</span></span></span> <span class=\"anno\" data-tip=\"#38: quota concurrent-analyses (8/8) — raise path in the CR\">#38</span> · <a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('risk-scoring'); return false\">9 incidents</a>","45 <span class=\"u-muted\" style=\"font-size:var(--rh-font-size-body-text-xs)\">last run</span><div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:6%\"></i></div>","<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Medium</span></span></span> inherited ← <a href=\"#\" onclick=\"event.stopPropagation();showCohorts();return false\">EAP8-archetype</a>","Wave 4","Pricing","12d ago"]}]
+[
+ {
+  "name": "billing-worker",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>billing-worker</b>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Unassessed</span></span></span>",
+   "—",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "—",
+   "—",
+   "—",
+   "—",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">spring</span></span></span>",
+   "Billing"
+  ]
+ },
+ {
+  "name": "claims-batch",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>claims-batch</b>",
+   "<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Medium</span></span></span>",
+   "Wave 3",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Succeeded</span></span></span>",
+   "<span style=\"font-weight:600\">100%</span><div class=\"miniBar miniBarDone\" aria-hidden=\"true\"><i style=\"width:100%\"></i></div>",
+   "5d ago <span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">stale</span></span></span>",
+   "<a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('claims-batch'); return false\">88 incidents</a>",
+   "412<div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:35%\"></i></div>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">eap7</span></span></span>",
+   "Claims"
+  ]
+ },
+ {
+  "name": "claims-web",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>claims-web</b>",
+   "<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Medium</span></span></span>",
+   "Wave 4",
+   "<span class=\"pf-v6-c-label pf-m-red\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">QuotaBlocked</span></span></span> <span class=\"anno\" data-tip=\"#38: names the quota and the raise path. The quota gates the re-analysis — the last run's results (41d old) stay visible and actionable\">#38</span>",
+   "—",
+   "41d ago",
+   "<a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('claims-web'); return false\">31 incidents</a>",
+   "610 <span class=\"u-muted\" style=\"font-size:var(--rh-font-size-body-text-xs)\">last run</span><div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:52%\"></i></div>",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Completed</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openAssessment('claims-web'); return false\" style=\"font-size:var(--rh-font-size-body-text-xs)\" title=\"Assessment v3 — open the questionnaire\">v3</a>",
+   "<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Pending</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openReview('claims-web'); return false\">review</a>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">ant</span></span></span> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">needs-review</span></span></span>",
+   "Claims"
+  ]
+ },
+ {
+  "name": "cust-portal",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>cust-portal</b>",
+   "<span class=\"pf-v6-c-label pf-m-red\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">High</span></span></span>",
+   "Wave 4",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Succeeded</span></span></span>",
+   "<span style=\"font-weight:600\">100%</span><div class=\"miniBar miniBarDone\" aria-hidden=\"true\"><i style=\"width:100%\"></i></div>",
+   "9d ago <span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">stale</span></span></span>",
+   "<a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('cust-portal'); return false\">137 incidents</a>",
+   "890<div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:75%\"></i></div>",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Completed</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openAssessment('cust-portal'); return false\" style=\"font-size:var(--rh-font-size-body-text-xs)\" title=\"Assessment v3 — open the questionnaire\">v3</a>",
+   "<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Pending</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openReview('cust-portal'); return false\">review</a>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">eap7</span></span></span>",
+   "Customer"
+  ]
+ },
+ {
+  "name": "customer-api",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>customer-api</b>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Unassessed</span></span></span>",
+   "—",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "—",
+   "—",
+   "—",
+   "—",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">spring</span></span></span>",
+   "Customer"
+  ]
+ },
+ {
+  "name": "docs-portal",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>docs-portal</b>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Unassessed</span></span></span>",
+   "—",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "—",
+   "—",
+   "—",
+   "—",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">ant</span></span></span>",
+   "Customer"
+  ]
+ },
+ {
+  "name": "invoicing",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>invoicing</b>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Unassessed</span></span></span>",
+   "Wave 3",
+   "<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Running</span></span></span>",
+   "<span style=\"font-weight:600\">61%</span><div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:61%\"></i></div>",
+   "—",
+   "<a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('invoicing'); return false\">23 incidents</a>",
+   "190 <span class=\"u-muted\" style=\"font-size:var(--rh-font-size-body-text-xs)\">so far</span><div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:16%\"></i></div>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">eap7</span></span></span>",
+   "Claims"
+  ]
+ },
+ {
+  "name": "ledger-sync",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>ledger-sync</b>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Unassessed</span></span></span>",
+   "Wave 3",
+   "<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Running</span></span></span>",
+   "<span style=\"font-weight:600\">24%</span><div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:24%\"></i></div>",
+   "—",
+   "—",
+   "—",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">eap7</span></span></span>",
+   "Claims"
+  ]
+ },
+ {
+  "name": "notification-router",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>notification-router</b>",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Low</span></span></span>",
+   "Wave 3",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Succeeded</span></span></span>",
+   "<span style=\"font-weight:600\">100%</span><div class=\"miniBar miniBarDone\" aria-hidden=\"true\"><i style=\"width:100%\"></i></div>",
+   "3d ago",
+   "<a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('notification-router'); return false\">7 incidents</a>",
+   "21<div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:6%\"></i></div>",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Completed</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openAssessment('notification-router'); return false\" style=\"font-size:var(--rh-font-size-body-text-xs)\" title=\"Assessment v1 — open the questionnaire\">v1</a>",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Approved</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">quarkus</span></span></span> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">cloud-ready</span></span></span>",
+   "Claims"
+  ]
+ },
+ {
+  "name": "payments-api",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>payments-api</b>",
+   "<span class=\"pf-v6-c-label pf-m-red\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">High</span></span></span>",
+   "Wave 3",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Succeeded</span></span></span>",
+   "<span style=\"font-weight:600\">100%</span><div class=\"miniBar miniBarDone\" aria-hidden=\"true\"><i style=\"width:100%\"></i></div>",
+   "2d ago <span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">stale</span></span></span>",
+   "<a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('payments-api'); return false\">214 incidents</a>",
+   "1,180<div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:100%\"></i></div>",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Completed</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openAssessment('payments-api'); return false\" style=\"font-size:var(--rh-font-size-body-text-xs)\" title=\"Assessment v3 — open the questionnaire\">v3</a>",
+   "<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Pending</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openReview('payments-api'); return false\">review</a>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">quarkus</span></span></span> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">cloud-ready</span></span></span>",
+   "Claims"
+  ]
+ },
+ {
+  "name": "policy-engine",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>policy-engine</b>",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Low</span></span></span>",
+   "Wave 4",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Succeeded</span></span></span>",
+   "<span style=\"font-weight:600\">100%</span><div class=\"miniBar miniBarDone\" aria-hidden=\"true\"><i style=\"width:100%\"></i></div>",
+   "1d ago",
+   "<a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('policy-engine'); return false\">12 incidents</a>",
+   "34<div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:6%\"></i></div>",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Completed</span></span></span> <a href=\"#\" onclick=\"event.stopPropagation(); openAssessment('policy-engine'); return false\" style=\"font-size:var(--rh-font-size-body-text-xs)\" title=\"Assessment v1 — open the questionnaire\">v1</a>",
+   "<span class=\"pf-v6-c-label pf-m-green\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Approved</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">quarkus</span></span></span> <span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">cloud-ready</span></span></span>",
+   "Pricing"
+  ]
+ },
+ {
+  "name": "risk-scoring",
+  "cells": [
+   "<label class=\"pf-v6-c-check pf-m-standalone\"><input class=\"pf-v6-c-check__input\" type=\"checkbox\" onclick=\"event.stopPropagation()\" onchange=\"updateBulk()\"><span class=\"pf-v6-c-check__label pf-m-hidden\"></span></label>",
+   "<b>risk-scoring</b>",
+   "<span class=\"pf-v6-c-label pf-m-yellow\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Medium</span></span></span>",
+   "Wave 4",
+   "<span class=\"pf-v6-c-label pf-m-red\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">QuotaBlocked</span></span></span> <span class=\"anno\" data-tip=\"#38: quota concurrent-analyses (8/8) — raise path in the CR\">#38</span>",
+   "—",
+   "12d ago",
+   "<a href=\"#\" onclick=\"event.stopPropagation(); showIncidentsForApp('risk-scoring'); return false\">9 incidents</a>",
+   "45 <span class=\"u-muted\" style=\"font-size:var(--rh-font-size-body-text-xs)\">last run</span><div class=\"miniBar\" aria-hidden=\"true\"><i style=\"width:6%\"></i></div>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-outline\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">Not started</span></span></span>",
+   "<span class=\"pf-v6-c-label pf-m-teal\"><span class=\"pf-v6-c-label__content\"><span class=\"pf-v6-c-label__text\">spring</span></span></span>",
+   "Pricing"
+  ]
+ }
+]

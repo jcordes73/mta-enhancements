@@ -9,6 +9,395 @@ line per row) remains the detailed evidence record; this file is the
 what-changed-when index. Long-form design-system rules:
 [`deliverables/ui-mockup/design-system-rules.md`](deliverables/ui-mockup/design-system-rules.md).
 
+- **Wave-gate chips: failing only (row 215, user request)** — the gate strips above the wave
+  tabs (and the home card's port of them) now hide every green ✓ chip and list only failing
+  (✕) and warning (⚠) conditions; an all-green wave shows a single "All gates green" chip so
+  the strip never goes silently empty. Tooltips/aria-labels keep the full condition names,
+  the Gates tab keeps the full picture, and the burndown hue marker (blocking-dependency
+  state) is unaffected. verify-visuals45 re-pointed.
+
+- **Greek locale (row 214)** — `el` added as the 12th language with full dict parity (1128 keys
+  assembled index-checked from the nl key list, so EN keys stay byte-exact), 65 composition rules,
+  Ελληνικά in the switcher, Greek month names, day-first dates ("3 Νοε"), EUR currency, and the
+  gate-fact text block. Burndown charts, risk rollups, trends captions, and tour/dock composition
+  all verified under Greek (row-212 fix holds for the new locale); verify-i18n now asserts 12
+  languages and boots Greek via `&lang=el` (103/103).
+
+- **Home Wave-gates card uses the Waves screen's gate chips (row 213, user request)** — the architect
+  landing's stacked bar diagram (rows 160→169) is replaced by the exact gate-chip strip rendered above
+  the wave tabs: one row per active wave (name link + lane-status pill, translating like the lane
+  header) with the per-condition chips, which now also navigate from the landing
+  (`show('waves')` + evidence tab). `waveGateStripHtml` gained optional member-list/navigation params;
+  the Waves screen's own strip is unchanged. Follow-on: the burndown legend's "Ideal" (identity DE
+  loanword) whitelisted in verify-wavesi18n — it only surfaced once row 212 made the chart mount
+  under non-EN locales. Second follow-on: `invRowRisk` now lowercases the pre-set `data-risk`
+  attribute (store values are capitalized) — the Risk filter would otherwise have matched nothing.
+
+- **Burndown charts EN-only fixed (row 212, user report)** — under every non-EN locale the
+  per-wave and aggregate burndown charts silently failed to mount: the wave-lane lookup matched
+  the rendered "Wave N" title, which translates. Lanes now anchor on the stable
+  `data-expand="wave-members-N"` button; the wave risk rollup reads a new `data-risk` attribute
+  instead of the translated label (counts were zeroed in all non-EN locales); the Reports trends
+  caption gained exact node keys ×10 (5- and 3-run variants) — its nl value de-chained
+  ("Openstaande incidenten …") because exact-key values must not contain words that shorter dict
+  keys re-hit on the observer re-walk (row-99 lesson extended). Guards added to verify-wavesi18n.
+
+- **New Suggestion 59: Wave staffing availability** (evidence §2/§3.44) — absence-aware
+  capacity for wave planning: per-stakeholder allocation (default: the org's 60% factor)
+  and absence entries replace row-202's uniform constant; capacity sums
+  (working days − absence days) × per-person allocation over the wave's members;
+  cross-wave double-booking splits the capacity math (equal division by default)
+  and is flagged by name on the composition card — flag-only (paper capacity) and
+  silent split (unexplained drop) both rejected; the
+  over-commitment tail states its causes and the #47 wave gate gains an availability
+  evidence item; rides #25 (planner sizing), #41/#42 (tenancy, audit), #5 (HR/SCIM
+  absence sync), #48 (API). Suggestion-stage — no mock/backend change yet.
+- **New Suggestion 58: Per-agent MCP server configuration** (evidence §2/§3.43) — governed
+  tool bindings as first-class, versioned registry artifacts: each agent binds specific MCP
+  servers (Apicurio `MCP_SERVER` refs, #27/#57) with tool filters and declared scopes;
+  credentials arrive by token exchange at run start (#5/#56, #20), never as env vars; the
+  sandbox network policy (#16) and #29's execution rails are both generated from the one
+  binding; run records state the binding version (#50/#49), and binding changes are audited
+  (#42). Bindings render into the agent framework's native configuration (verified against
+  the Goose extension docs 2026-11-19: `extensions:` in `config.yaml`, `streamable_http`
+  with `client_id`/`scopes`, permission mode pinned instead of the autonomous default;
+  LangGraph/CrewAI/SK renderers follow) — injected read-only, never hand-edited. Closes the
+  gap left by #19 (which says agents consume tools but never models which ones per agent);
+  mirrors #34's plugin permission-scoping pattern. Scope boundary added: renderers exist
+  for factory-agent frameworks only — BYOA consumers (OpenClaw via Red Hat's MCP Gateway,
+  token-claims tool filtering; verified 2026-11-19) get governed gateway access instead;
+  Hermes Agent's per-server tool filters map onto the binding almost 1:1 (on-demand
+  renderer). #19's MCP Gateway item gained the same upstream reference. Classified Tier 1
+  (Hub only) — vendor-neutral counts updated to 45 of 58; summary table, §5.1 sequence
+  (Wave 4) and README counts synced.
+
+- **New Suggestion 57: Integration with Apicurio Registry A2A** (evidence §2/§3.42) — the
+  migration factory's agents publish A2A Agent Cards to Apicurio Registry's agent registry
+  and consume external A2A agents via registry search (the protocol wiring for #16's A2A
+  adoption and #27 item 5): card versions pinned per workflow (#49), compatibility rules as
+  the agent-evolution gate, tenancy-filtered discovery (#41/#42), #29 guardrail attestation
+  recorded on the card. Upstream status verified inline 2026-11-19: `AGENT_CARD` is native
+  in Apicurio Registry 3.2–3.4 (discovery, search, compatibility rules) but A2A support is
+  experimental/disabled-by-default (`APICURIO_A2A_ENABLED`) — recorded as a supportability
+  gate. Classified Tier 2 (abstraction point: A2A protocol open, registry discovery is the
+  premium) — vendor-neutral counts updated to 44 of 57, 13 abstraction points; summary
+  table, §5.1 sequence (Wave 4) and README counts synced.
+
+## 2026-11-19
+
+- **New Suggestion 56: MCP server for the Tackle Hub** (evidence §2/§3.41) — the #48 Hub API
+  contract exposed as governed MCP tools: read-only default toolset, #33 verbs as explicitly
+  enabled mutations, server-side RBAC/tenancy enforced per call through the documented
+  IdP→Hub token exchange (the 2026-11 field observation: the Hub is its own OIDC provider
+  and rejects Keycloak JWTs), every call in #42's audit record. Positioned as the Hub-side
+  half of #19's MTA-wide MCP surface; #55's migration assistant is its first-party client.
+  Substrate demonstrated by the workspace's hub-backend reference implementation (Quarkus
+  MCP server extension over the existing resources); the server itself is proposed, not yet
+  built. Classified Tier 1 (Hub only) — vendor-neutral counts updated to 44 of 56;
+  summary-table, §5.1 sequence (Wave 4) and README counts synced.
+
+## 2026-11-18
+
+- **Review.md [CHANGE] batch implemented (defect rows 145–151)** — the eleven actionable change
+  requests from the stakeholder review (`demos/mock/Review.md`, triage in
+  `demos/mock/Review-triage.md`):
+  - **Applications table columns split (row 145)** — Tags, Progress %, and incident counts are
+    first-class columns (13 total); the Analysis-state cell carries the state only; unassessed
+    risk renders an `Unassessed` label instead of the bare `—`; Incidents is sortable
+    (`data-incidents`) and keeps its deep link; every positional reader re-pointed, the wave
+    member table gained a matching Incidents column, and `inv-rows-reference-wp3.json` was
+    regenerated (12×13).
+  - **Home coverage card (row 146)** — 64px donut with a per-status legend, the
+    assessed / not-yet-assessed split in the meta line, and the Combined-risk card footer
+    deep-links to Reports → Combined risks.
+  - **Incident comment composer (row 147)** — writable triage comment (#33 item 1) inside the
+    triage-state card: attributed via the persona's directory login, appended to the history,
+    gated by `incidents:triage`.
+  - **External ticket keys link (row 148)** — MIG-412/418/425 are tracker links (Jira Cloud
+    title, stopPropagation-guarded).
+  - **Combined risks (row 149)** — "Distribution" renamed "Relative share" (explained via
+    annotation); mitigations render as compact tables (2 for State mgmt, 1 for Cloud readiness).
+  - **Archetype Actions icons tightened (row 150)** — mock-layer gap/padding on
+    `#archBody .pf-v6-c-action-list`.
+  - **Effort header relabeled "Effort (pts)" (row 151)** — closes the incidents-vs-pts
+    ambiguity; exact dict keys added in 9 locales (plus the missing `Incidents` fr key,
+    `Relative share`, `Comment`, `Add a triage comment`).
+  - **"Assign to agent group" → "Assign group to agents" (row 152, follow-up)** — the old
+    label parsed backwards (recipient read as a group of agents); the #49 model hands the
+    incident *group* to registered *agents* via a workflow definition, and the renamed button
+    now agrees with its annotation. Exact dict keys in 9 locales.
+- **Home Combined-risk card renders as a bar chart (defect row 153, user request)** — the
+  stacked segment strip became one labeled bar per category (High / Medium / Low / Unassessed)
+  in the Trends chart idiom: counts above, category row below, same status colors, summarized
+  `role="img"` aria-label; headline KPI, count meta, and the Reports → Combined-risks deep link
+  unchanged. `verify-visuals45.js` re-anchored + new assertion in `verify-reviewchanges.js`;
+  battery 33/33.
+- **Analysis-coverage legend: "not started" grey was invisible (defect row 154, user report)** —
+  the not-started segment shared its color token with the donut's track ring
+  (`--pf-t--global--color--border--default`), so the legend swatch resolved to the track's
+  near-white grey (reading as a missing color) and the arc blended into the empty track. Both
+  now use `--rh-color-gray-40` (#a3a3a3): the swatch is clearly visible and the donut's
+  not-started portion renders as a distinct arc. Battery 33/33.
+- **Home Analysis-coverage card renders as a bar chart with percentages (defect row 155,
+  user request)** — the donut + legend became the row-153 bar-chart idiom: one bar per
+  analysis state, each carrying **count · percentage share** above it and the category label
+  below; tooltip + `role="img"` aria-label carry the full breakdown; the assessed-split meta
+  and footer link unchanged. Percentages show the actual share of the total at one decimal
+  ("2 · 13.3%") and the headline KPI uses the same format so it matches the current bar;
+  with this seed the labels sum to exactly 100%. Battery 33/33.
+- **Analysis-coverage card honors the tenancy clamp (defect row 156, user request)** — the
+  card read the raw 15-app seed (defect-#45/#59-era base) while the Effort-rollup card used
+  `scopedApps()` (12 under #41); the whole card now derives from `scopedApps()`: headline
+  16.7%, meta "assessed 7 · not yet assessed 5" (Meridian's 3 out-of-scope apps no longer
+  counted), bar percentages rescaled and still summing to 100%. All four home KPI cards now
+  share one denominator. Battery 33/33.
+- **Home Trends: pass-rate mini bars + delta badge (defect row 157, user request)** — the
+  Trends card's two-line prose caption became graphical: the verification pass rate renders
+  as a row of mini bars on the shared date axis (latest run emphasized, % above each bar,
+  #47-annotated label), and the −41% incidents delta renders as a colored badge (green when
+  incidents fall, red when they rise) followed by a one-line summary. The "Verification pass
+  rate" dict key already existed in 9 locales; the JA→EN i18n assertion was re-anchored to
+  the new fragment order. Battery 33/33.
+- **Analysis-coverage bar label "current" → "up to date" (defect row 158, user choice)** —
+  the word read as "currently being analyzed" (the in-flight slice) and needed explaining;
+  "up to date" names the results' freshness and pairs with "stale". Label/aria/tooltips
+  renamed, exact dict keys in 9 locales (de "aktuell", …); predicate and KPI unchanged.
+- **Trends pass bars are now 100% stacked passed/not-passed (defect row 159, user request,
+  extends row 157)** — each per-run pass bar is a fixed-height green-over-red stack sized by
+  flex-grow (tooltips and an aria-label per stack), so the failing share is visible instead
+  of implied by bar height. En passant: the TR i18n assertion was re-anchored — "3 Kas,
+  tarihinde" was a comma artifact of the old caption's node split; the row-157 caption
+  renders correct Turkish.
+- **"Waves on track" card: per-wave gate scorecard (defect row 160, user choice)** — the
+  architect home's bare "W3 failing / W4 failing" labels became clickable per-wave rows
+  carrying the failing gate conditions as counts (open tickets, suites red, quota-blocked,
+  expiring/unverified credentials) from the same `waveGateFacts` the Waves screen uses —
+  the card now answers "which waves" and "why" without leaving Home.
+- **Trends bars grouped side by side per run (defect row 161, user request)** — the Trends
+  card's two series (open incidents, verification pass rate) now share one column per run:
+  incidents bar left, 100% passed/not-passed stack right, one date label under each pair;
+  a one-line legend ("Open incidents · Verification pass rate", both existing dict keys,
+  DE "Offene Vorfälle · Verifizierungsquote") sits above the chart; tooltips and
+  stack aria-labels carry the numbers. The delta-badge caption is unchanged.
+- **Trends burn-down gauge for the delta (defect row 162, user choice)** — the −41% decrease
+  is now drawn, not just written: a full-width track = the Sep 8 baseline (142), green fill =
+  the latest 84 (59%), so the unfilled remainder IS the decrease; the badge moved from the
+  caption to the gauge's right end, the gauge carries role="img" + an aria-label, and the
+  caption keeps its prose.
+- **Card title "Waves on track" → "Wave gates" (defect row 163, user challenge)** — the card
+  was titled by the persona's question while the headline is the answer, so the title read
+  ironically exactly when gates fail ("Waves on track / 2 at risk"). Now titled by its
+  subject, matching the scorecard's verdict language; dict keys swapped in 9 locales
+  (de "Wellen-Gates"), the 9 orphaned keys removed.
+- **"Wave gates" card: Overall roll-up row (defect row 164, user request)** — an
+  "Overall · gate failing" row with aggregated fact counts (4 open tickets · 2 of 9 suites
+  red · 2 quota-blocked · 1 credential expiring) sits above the per-wave breakdown,
+  separated by a subtle border; both row shapes share one `gateRow`/`factBits` helper pair.
+  "Overall" dict key added in 9 locales.
+- **"Wave gates" per-wave rows show execution statuses (defect row 165, user clarification)**
+  — the per-wave labels now use the Waves overview's own status vocabulary (W3 · blocked,
+  W4 · planned, colors as on the gantt lanes) instead of the gate verdict; the failing gate
+  facts stay beside each row as the "why". "planned" dict key added in 9 locales.
+- **Migration waves: Wave 4 flagged "planned" (defect row 166, user request)** — the Wave 4
+  gantt lane now carries the teal "planned" label like Waves 1–3 carry done/blocked, so all
+  four lanes show a status chip and the Waves screen matches the home card's vocabulary.
+- **"Wave gates": Overall row removed, one line per wave (defect row 167, user decision)** —
+  the row-164 Overall roll-up is gone; each wave reports on one line (status label + gate
+  facts beside it, long fact lists ellipsize with the full detail in the row tooltip).
+- **"Wave gates": 4-segment condition bars (defect row 168, user choice)** — all four waves
+  render as columns, each bar split into the 4 gate conditions (tickets, quota, verification,
+  credentials; green met / red unmet, #46's definition-of-done order), "N of 4" above, the
+  wave's execution status below, per-segment tooltips + aria-labels carrying the failing
+  detail, and a legend naming the conditions.
+- **"Wave gates": done waves removed (defect row 169, user request)** — the diagram shows
+  the scope's active waves only (W3/W4 for the architect); a done wave's 4-of-4 was a
+  vacuous pass over zero sampled members.
+- **"Wave gates": condition legend moved left of the bars (defect row 170, user request)** —
+  the four condition names stack vertically left of the chart, one line per bar layer in
+  segment order; bars grew to 56px so each 14px segment matches a legend line.
+- **Analysis coverage: "2 of 12" beside the percentage (defect row 171, user request)** —
+  the headline KPI now shows the fraction behind it (up-to-date of scoped total) as a muted
+  inline count right of the percentage, store-derived with the rest of the card.
+- **Analysis coverage: meta line unmixed (defect row 172, user audit)** — the meta mixed two
+  partitions (risk-assessment "assessed 7 · not yet assessed 5" + analysis-state fragments
+  "stale: 3 · 4 in flight", summing to 19 of 12 and half-duplicating the bars); it now
+  carries only the assessment split — the dimension the chart does not show.
+- **Analysis coverage: assessment split removed (defect row 173, user decision)** — the
+  assessment split left the card entirely: assessment and analysis are different lifecycle
+  stages, and the meta kept inviting "why 7?" on a card that is entirely about analysis
+  runs. The card now reads purely analysis ("16.7% 2 of 12" + the five state bars); the
+  assessed/unassessed story stays on Combined risk and the Applications table.
+- **Analysis coverage: "2 of 12 apps" (defect row 174, user request)** — the fraction
+  names its unit; the " of " is emitted as its own text node so the whole-node rules
+  translate it (DE "von") while "12 apps" localizes via the existing dict key in all
+  9 locales.
+- **Effort-rollup KPI: "points · 12 apps" (defect row 175, user choice)** — the only
+  spelled-out "story points" in visible UI becomes bare "points" (the "pts" abbreviation
+  carries every dense use); a "points" dict key was added in all 9 locales after a
+  row-99 substitution audit.
+- **Effort rollup: top-3 apps by effort (defect row 176, user choice)** — mini horizontal
+  bars under the KPI show the concentration story (payments-api/cust-portal/claims-web =
+  ~79% of points), each row deep-linking into the app drawer; in-flight totals flagged
+  provisional in the tooltip.
+- **Combined risk: clickable risk bars (defect row 177, user request)** — each chart
+  column filters Applications to that risk via the toolbar's Risk menu (the same
+  chip-seeding idiom as the hurts table); the container's role="img" aggregate was
+  dropped so the four links stay in the accessibility tree.
+- **Analysis coverage: clickable bars + "Up to date" toolbar chip (defect row 178, user
+  request/choice)** — each coverage bar filters Applications to exactly its segment; the
+  up-to-date bar needed a new mirror of the stale chip (succeeded within the freshness
+  window), and the Analysis menu gained the missing Failed and Queued values.
+- **Trends: clickable bars (defect row 179, user choice)** — each run's incidents bar
+  opens the Incidents screen and its pass/fail stack the Waves screen's gate verification;
+  older bars note in their tooltips that they are historical snapshots while the target
+  screens show the current state.
+- **Assessment: "Completed" tag + version/link split (defect row 180, user request)** —
+  the fused "Completed · v3" link becomes a green Completed pill with the version muted
+  beside it and an "assessment" link; keyed in all 9 locales, fixing the v1 variant that
+  never translated.
+- **Assessment: the version is the link (defect row 181, user request)** — the separate
+  "assessment" text link is dropped; the version number ("v1"/"v3") opens the assessment
+  drawer as a PF6 inline link, and the row-180 "assessment" keys are removed.
+- **Risk column: pill only (defect row 182, user request)** — the provenance text
+  ("own assessment" / "inherited ← EAP8-archetype") left the table cell; it renders in
+  the row drill-down (from data-riskkind), the wave-member modal, and Reports →
+  Provenance. The byte-equality fixture was regenerated for the new cell HTML.
+- **Applications: decision column order (defect row 183, user choice)** — ☑ · Application ·
+  Risk · Wave · Analysis state · Progress · Last analysis · Incidents · Effort ·
+  Assessment · Review · Tags · Business service; all positional readers, two suites and
+  the byte-equality fixture re-pointed.
+- **Progress header annotated (defect row 184, user question)** — the only unexplained
+  column gained a #33 tooltip: the in-flight analysis run's completion %, dash when no
+  run is executing.
+- **Progress: grey 100% bar for succeeded runs (defect row 185, user request)** — finished
+  runs render the mini bar full in grey (muted "done" beside the blue in-flight fill);
+  quota-blocked and not-started stay a dash. The tooltip became the three-state legend.
+- **Archetypes: decision column order (defect row 186, user choice)** — ☑ · Name ·
+  Applications · Assessment · Review · Criteria · Profiles · Description · Tags · Owner ·
+  Actions; size, group risk and sign-off progress lead, prose context last.
+- **Archetypes: "Not started" wording (defect row 187, user request)** — the cohort
+  Assessment pills use the Applications table's capitalized "Not started" (9-locale keyed);
+  review-rollup predicates went case-insensitive.
+- **Re-validate: real action with a diff (defect row 188, user choice)** — the cosmetic
+  inline link becomes a refresh-icon action in the Actions column (RBAC-gated) that
+  recomputes archetype membership from the criteria tags in the store and toasts the actual
+  diff; the byte-equality fixture caught up with row 185's Progress bars.
+- **In-application online help (defect row 189, Suggestion 54 demo)** — a Help drawer with
+  six embedded, version-matched task topics: context-aware opening from the help menu,
+  full-text search, `&help=<topic>` deep links, and a per-topic feedback stub.
+- **Migration assistant (defect row 190, Suggestion 55 demo)** — a masthead sparkle button
+  opens a governed assistant panel: answers computed live from the tenant's records with
+  citations, the AI attribution footer per answer, a session meter (#20), accept/reject
+  action cards (#16), and live #41 scoping (a tenancy pivot turns answers into refusals).
+- **Wave re-validate wired (defect row 191, Suggestion 46 item 6)** — the dead waves-screen
+  stub becomes the real "composition changed underneath me" verb: confirms the rule R-12
+  propagation, recomputes effort, reports the #25 dependency check, clears the flag, toasts
+  the diff.
+- **Wave member table: gate-blocking order + tfoot fix (defect row 192, user choice)** —
+  Application · Risk · Analysis · Incidents · Effort · Agent spend · Business service; the
+  footer was also one column short (effort sum under Incidents) and now spans all 7.
+- **Gate status above the wave tabs (defect row 193, user choice)** — the progress stepper
+  becomes a verdict + chip strip on every wave: BLOCKED/ON TRACK/NOT EVALUABLE plus one
+  clickable ✓/✕/⚠ chip per gate condition (live from `waveGateFacts`); a chip opens the
+  Gates tab, and member-less waves report "not evaluable" instead of silence. Refined in
+  row 194: the verdict label is gone (the wave lane header already reports blocked/done) —
+  chips only. Rows 195/196: the "Tickets closed" chip opens the Tickets tab while tickets
+  are open, and the "Verification green" chip opens the Verification-evidence tab while
+  red or unevaluable — each chip jumps to the tab carrying its evidence.
+- **Seed alignment (defect row 197)** — claims-batch's citrus suite (the failed WR-12 run
+  on the Agentic screen) now appears in its wave Verification evidence: 1 suite, 1 red;
+  the wave-3 gate rollup reads "3 of 10 suites red" everywhere (dict fragments updated in
+  all 9 locales).
+- **Blocking incidents data-backed (defect row 198, user refinement)** — the "Zero blocking
+  incidents" gate condition gets a referent: claims-batch's kafka-contract blocker (from
+  WR-12) turns the strip chip red — clicking opens the Incidents screen scoped to that
+  app — fails the gate, and names the incident in the Gates tab and the admin wave-gate
+  summary (9-locale rules); the strip is skip-pinned as English-only chrome pending the
+  i18n pass. Row 199: the wave tab bar gains a fifth lens — **Blocking incidents** (count
+  badge, blocker rows with finding, source and an "Incidents →" deep link, honest empty
+  state) — and the strip chip now opens that tab, keeping the chip-per-tab evidence rule
+  uniform. Row 200: the sixth lens — **Quota blocks** (badge, the #38-parked members with
+  a "Tasks →" deep link, honest empty state); the quota chip joins the same rule. The
+  row-198 seed also re-pointed inc42's incidents-pool counts (11 → 12 rows). Row 201: the
+  green "No quota blocks" chip opens the Quota-blocks tab too — every chip now opens its
+  own tab in both states. Row 202: wave capacity is derived from staffing (#46 item 4) —
+  stakeholders × working days × 60% allocation, the plan's load from a seeded map,
+  "over-committed" when load exceeds it, "capacity unknown — staffing pending" on unstaffed
+  waves; the old decorative 18/22 is gone (9-locale rules extended for the new tail).
+  Row 203: capacity becomes first-class on Migration Waves — a Capacity stat tile on every
+  wave header (visible even collapsed, member-less waves included), a Capacity column in
+  the #43 cross-team coordination table, and a 4th "Wave capacity" KPI tile
+  ("9/29 team-days · 3 of 4 waves staffed") on the program landing. Row 204: the
+  "Credentials ready" chip opens a new seventh wave tab, "Credentials verified" (count
+  badge, panel mirroring the gate list's credential condition) — every strip chip now
+  opens its own tab in both states. Row 205: with every condition covered by its own tab,
+  the "Gate status" tab is retired — six lenses remain; the verdict stays on the lane
+  header and strip, capacity on the stat tile; a structural incident during the panel
+  removal (over-broad span cut + HEAD-based restoration over-grab) was fully recovered
+  and is recorded in the defect log. Row 206: each wave's timeline bar now carries the
+  same status hue as its lane pill (wave 2's yellow slippage-era bar turned green under
+  its "done" pill; the +2d slip chip keeps yellow) — refined to the exact pill tints via
+  PF6's nonstatus token pairs after pixel comparison. Row 207: a Wave burndown chart
+  (suggestion #14) renders per wave in the wave detail and as an all-waves card on
+  Reports → Trends — in a dedicated Burndown tab (7th lens) in the
+  wave-detail tab bar, one per analysis-run point, derived live from the member rows
+  (first point = live total, last = live remaining), rendered by the real PatternFly
+  react-charts ChartLine with per-point dots (self-hosted esbuild bundle — PF charts
+  are React-only per the v6 docs), dashed ideal, nice-scale gridlines, hover tooltips,
+  light WHITE surface over the gray detail well (tab parity), scheme-aware via re-resolved
+  token colors, compact 720×210
+  aspect, single clamped hover tooltip per point; hand-rolled SVG fallback for offline/jsdom;
+  honest empty/unsampled states, slippage
+  drawn past the window, state carried in text. Row 208: wave 3's gantt bar gains a
+  hatched overrun continuation segment from the planned end (Oct 24) to the snapshot
+  date (Nov 18) with a "+25d overdue" badge in the wave's pill hue — token-pair only,
+  dark-scheme verified, dict key ×9. Row 209: wave 4's pill renders a distinct yellow
+  "blocked by dependency" state (tooltip names the Wave 3 → Wave 4 edge; the aggregate
+  chart hue follows the pill live), replacing the understating plain "planned".
+  Row 210 supersedes its shape: wave 4 carries the red "blocked" pill PLUS a yellow
+  "blocked by dependency" chip that routes to a new Dependencies tab (8th lens) whose
+  table derives the blocking provider wave and its CURRENT status live from the
+  dependency graph (WAVE_DEPS) — i18n ×9 incl. per-language "consumed by" rules.
+  Same-session strip move (user): the chip now lives in the wave-gate strip named
+  "No blocking dependencies" in the strip's healthy-form convention — yellow ⚠ while
+  a provider is not done (held, not failing), green ✓ when clear — and still routes
+  to the Dependencies tab; the lane header keeps the single red "blocked" pill.
+  The Dependencies tab's edge cell now links both applications (openApp), the verb
+  riding a per-locale positional mid-node dict key (" consumed by " ×9).
+- Row 211 — Dutch as the 11th locale (user request): full dict parity (1116 keys),
+  65 word-order rules, EUR currency, Dutch month names and day-first dates; switcher
+  shows "Nederlands"; verify-i18n extended with an NL block + deep link.
+  Same-session fix (user report): the JS-composed trends caption ("open incidents per
+  analysis run, last five runs — latest N on …") had no dict key in any locale —
+  added ×10; de/ja/es/… had rendered that caption EN all along.
+  Applications-view pass (user report): "Up to date", "Approved", "Changes requested"
+  and the review-modal fragments added ×10; nl "Assessment"/"Review" loanwords made
+  real Dutch (Beoordeling / Toetsing, compounds aligned).
+  Dutch-demo frame review: the "Stale > 30d" inventory filter chip had no key
+  in any locale — added ×10 (locale's stale term + day abbreviation).
+  New suite `verify/verify-reviewchanges.js` (21 assertions); battery 33/33; visual checks via
+  headless Chrome at 1600px.
+- **Insights "Single application" → "By application" (defect row 144)** — the second insights
+  sub-tab now covers all tenancy-visible applications with both filters (Application, Category)
+  defaulting to unfiltered — no more pick-first empty state; the app menu derives from
+  `scopedApps()` (#41) instead of the sampled-insight set, and both menus gained All options.
+  Rows carry a leading Application column; latent drawer gap fixed (dynamic rows now carry the
+  full insight record). Tab label renamed, ids/`&sub=single` deep link unchanged; exact dict
+  keys in 9 locales. Supersedes the row-135 pick-one semantics by user decision.
+- **Incidents deep link into an un-ticketed app no longer renders an empty queue (defect row 141)** —
+  clicking an application's incidents link (claims-batch "88 incidents") left the default
+  "Assigned to me" chip on, and since un-ticketed apps stay pool triage (`WAVE_TICKETS`), the mine
+  filter zeroed the very queue the link promised. `showIncidentsForApp` now relaxes the chip when
+  the target app is un-ticketed; ticketed apps keep it. Found via the Review.md triage
+  (`demos/mock/Review-triage.md`); the reviewer's "separate Architect view" alternative was declined
+  (contradicts #41/#2's one-shared-queue design). `verify/verify-reviewfixes.js` (11 assertions),
+  battery 32/32.
+- **Insights category filter gains an "All categories" option (defect row 142)** — the
+  Single-application menu had no way back to the unfiltered view once a category was picked.
+  Exact dict keys added in all 9 non-EN locales (phrase-pass partials avoided).
+- **All-insights row links every application (defect row 143)** — claims-batch was plain text in
+  the hard-coded-hostnames row while its sibling apps were links; now consistent.
+
 ## 2026-11-17
 
 - **Masthead overlap with annotations ON fixed (defect row 140)** — with the annotation badges

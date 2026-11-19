@@ -40,8 +40,8 @@ setTimeout(() => {
 
   // ---- all six Help items wired (user report: "About" did nothing) — row 139 adds the
   // separate "Mockup view" group with the Annotations menuitemcheckbox (verify-annomenu.js) ----
-  OK('help menu still has all six Help items plus the row-139 Mockup view item', items.length === 7
-    && items.filter(b => b.closest('.pf-v6-c-menu__group') === menu.querySelector('.pf-v6-c-menu__group')).length === 6
+  OK('help menu still has all six Help items plus the row-139 Mockup view item', items.length === 8
+    && items.filter(b => b.closest('.pf-v6-c-menu__group') === menu.querySelector('.pf-v6-c-menu__group')).length === 7
     && !!d.getElementById('annoMenuItem'));
   const docs = menu.querySelector('a[data-x="docs"]') || items.find(b => b.textContent.includes('Product documentation'));
   OK('Product documentation is a real external link (Red Hat docs, new tab)',
@@ -62,5 +62,48 @@ setTimeout(() => {
   d.querySelector('#aboutModal .pf-v6-c-modal-box__close').click();
   OK('About modal closes', am.hidden);
 
-  console.log(pass + ' passed, ' + fail + ' failed');
+  // ---- in-application online help (Suggestion 54, defect row 189) ----
+  const helpMenuItem = items.find(b => b.textContent.includes('In-application help'));
+  OK('help menu carries the in-application help item with a #54 description',
+    !!helpMenuItem && helpMenuItem.textContent.includes('version-matched') && helpMenuItem.textContent.includes('#54'));
+  helpMenuItem.click();
+  const art = d.getElementById('helpArticle');
+  OK('menu item opens the help drawer on the context topic (home -> Getting started)',
+    !d.getElementById('drawerRoot').hidden && w.eval('state.help') === 'overview'
+    && art.querySelector('h3').textContent.includes('Getting started'));
+  OK('the panel is the embedded-content surface: version-match note + 6 topics + search + feedback',
+    !!d.querySelector('#drawerBody .help-panel[data-i18n-skip]')
+    && d.querySelector('.help-note').textContent.includes('installed version')
+    && d.querySelectorAll('#helpTopicList .help-topic').length === 6
+    && !!d.getElementById('helpSearch') && !!d.getElementById('helpFeedback'));
+  [...d.querySelectorAll('#helpTopicList .help-topic')].find(b => b.dataset.helpTopic === 'running-waves').click();
+  OK('topic switch updates article, aria-current and the &help= hash',
+    w.eval('state.help') === 'running-waves'
+    && [...d.querySelectorAll('#helpTopicList .help-topic')].find(b => b.dataset.helpTopic === 'running-waves').getAttribute('aria-current') === 'true'
+    && decodeURIComponent(w.location.hash).includes('help=running-waves'));
+  w.helpFilter('triage');
+  OK('full-text search filters the topic list', [...d.querySelectorAll('#helpTopicList .help-topic')]
+    .filter(b => !b.parentElement.hidden).map(b => b.dataset.helpTopic).join(',') === 'overview,triage-incidents');
+  w.helpFilter('');
+  w.helpFeedback(d.getElementById('helpFeedback').querySelector('button'), true);
+  OK('per-topic feedback stub records a thanks message', d.getElementById('helpFeedback').textContent.includes('Thanks'));
+  w.closeDrawers();
+  OK('closing clears the help state and the hash parameter',
+    d.getElementById('drawerRoot').hidden && !decodeURIComponent(w.location.hash).includes('help='));
+
+  // deep link: a fresh boot with &help=<topic> opens the drawer pre-navigated
+  setTimeout(() => {
+    const dom2 = new JSDOM(html, { url: 'http://localhost/mock.html#persona=architect&help=agent-registry', runScripts: 'dangerously', pretendToBeVisual: true });
+    dom2.window.addEventListener('error', e => console.log('RUNTIME ERROR:', e.message));
+    setTimeout(() => {
+      const d2 = dom2.window.document;
+      OK('&help=<topic> deep link opens the drawer pre-navigated on boot',
+        !d2.getElementById('drawerRoot').hidden && dom2.window.eval('state.help') === 'agent-registry'
+        && d2.getElementById('helpArticle').querySelector('h3').textContent.includes('agent registry'));
+      console.log(pass + ' passed, ' + fail + ' failed');
+      process.exit(fail ? 1 : 0);
+    }, 700);
+  }, 50);
+
+  console.log(pass + ' passed, ' + fail + ' failed (through in-application help)');
 }, 700);

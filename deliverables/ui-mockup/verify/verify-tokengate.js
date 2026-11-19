@@ -15,7 +15,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   // ---- DE: admin landing — wave-gate summary composition (i18nGateTxt fragments) ----
   w.show('home'); await sleep(150);
   OK('DE: wave-gate summary composes "Welle 3s Gate ist kritisch (2 offene Tickets"', T().includes('Welle 3s Gate ist kritisch (2 offene Tickets'));
-  OK('DE: suites-red fragment', T().includes('2 von 9 Suiten rot'));
+  OK('DE: suites-red fragment', T().includes('3 von 10 Suiten rot'));
   OK('DE: expiring-credential fragment singular', T().includes('1 Zugang läuft ab (svn-read-key)'));
   OK('DE: quota-blocked fragment', T().includes('2 kontingentblockiert'));
   OK('DE: no digit-eating bug ("Welle as Gate")', !T().includes('Welle as Gate') && !T().includes('(  offene'));
@@ -92,7 +92,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   await sleep(900);
   const w2 = dom2.window, d2 = w2.document;
   w2.setPersona('admin', true); w2.show('home'); await sleep(150);
-  OK('EN: wave-gate summary unchanged', d2.body.textContent.includes("Wave 3’s gate is failing (2 open tickets, 2 of 9 suites red, 1 credential expiring (svn-read-key))"));
+  OK('EN: wave-gate summary unchanged', d2.body.textContent.includes("Wave 3’s gate is failing (2 open tickets, 1 blocking incident (claims-batch), 3 of 10 suites red, 1 credential expiring (svn-read-key))"));
   OK('EN: spend KPI unchanged', d2.body.textContent.includes('$93.37 · 3.5M tokens · 12 runs'));
 
   console.log('\n' + pass + ' passed, ' + fail + ' failed');

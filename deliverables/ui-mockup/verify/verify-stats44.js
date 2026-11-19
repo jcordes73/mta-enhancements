@@ -20,7 +20,7 @@ setTimeout(() => {
   OK('member rows = store members', memRows().sort().join(',') === 'claims-batch,claims-web,cust-portal,invoicing,ledger-sync,payments-api');
   // archetype table row: no "(N in portfolio)" suffix, live count
   const archRow = [...d.querySelectorAll('#archBody tr')].find(tr => tr.textContent.includes('EAP8-archetype'));
-  OK('archetype row: live count, no portfolio suffix', archRow && archRow.cells[5].textContent.trim() === '6' && !archRow.textContent.includes('in portfolio'));
+  OK('archetype row: live count, no portfolio suffix', archRow && archRow.cells[2].textContent.trim() === '6' && !archRow.textContent.includes('in portfolio'));
   OK('review string no longer "2 of 18"', !archRow.textContent.includes('of 18'));
   // 2. A2A count
   console.log('A2A count text:', d.getElementById('a2aAgentCount').textContent);

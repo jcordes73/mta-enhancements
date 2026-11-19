@@ -10,7 +10,7 @@ setTimeout(async () => {
   const waveLine = () => [...d.querySelectorAll('#lpAdmStatus li')][0].textContent.replace(/\s+/g,' ').trim();
   const tqLine = () => [...d.querySelectorAll('#lpAdmStatus li')][3].textContent.replace(/\s+/g,' ').trim();
   console.log('=== nwf boot ==='); console.log('  ', waveLine()); console.log('  ', tqLine());
-  OK('Wave 3 named with live facts', waveLine().includes("Wave 3\u2019s gate is failing (2 open tickets, 2 of 9 suites red, 1 credential expiring (svn-read-key))"));
+  OK('Wave 3 named with live facts', waveLine().includes("Wave 3\u2019s gate is failing (2 open tickets, 1 blocking incident (claims-batch), 3 of 10 suites red, 1 credential expiring (svn-read-key))"));
   OK('Wave 4 named too (was Wave-4-blind)', waveLine().includes("Wave 4\u2019s gate is failing"));
   OK('task queue line = 4 (nwf truth)', tqLine().includes('4 queued'));
   // mrd: no waves -> no gate clause; task count scoped
@@ -30,11 +30,12 @@ setTimeout(async () => {
   OK('both waves still reported store-true (credential gate reasons now visible)', waveLine().includes("Wave 3\u2019s gate is failing") && waveLine().includes("Wave 4\u2019s gate is failing (2 quota-blocked)"));
   OK('credential reasons appear in the phrase (Waves-screen vocabulary)', waveLine().includes('expiring (') || waveLine().includes('unverified in use ('));
   // now make Wave 3 truly pass: rotate the expiring credential + verify the unverified one
-  w.eval('CREDS.forEach(c => { if (c.expLabel === "expiring") { c.expLabel = "ok"; c.expColor = "green"; } if (c.verifiedLabel === "unverified") { c.verifiedLabel = "verified"; } }); renderAdminLanding();');
+  // (row 198: the kafka-contract fix lands in the same breath — suite re-runs green, incident resolved)
+  w.eval('CREDS.forEach(c => { if (c.expLabel === "expiring") { c.expLabel = "ok"; c.expColor = "green"; } if (c.verifiedLabel === "unverified") { c.verifiedLabel = "verified"; } }); WAVE_EVIDENCE["claims-batch"].red = 0; delete WAVE_BLOCKERS["claims-batch"]; renderAdminLanding();');
   console.log('  ', waveLine());
   OK('Wave 3 passing is reported while Wave 4 stays failing (blindness fixed)', !waveLine().includes("Wave 3") && waveLine().includes("Wave 4\u2019s gate is failing (2 quota-blocked)"));
   // all gates pass -> the passing branch
-  w.eval('Object.values(WAVE_TICKETS).forEach(t => t.outcome = "closed"); CREDS.forEach(c => { c.expLabel = "ok"; c.expColor = "green"; c.verifiedLabel = "verified"; }); MOCK_APPS.forEach(a => { if (a.state === "quota") a.state = "succeeded"; }); renderAdminLanding();');
+  w.eval('Object.values(WAVE_TICKETS).forEach(t => t.outcome = "closed"); CREDS.forEach(c => { c.expLabel = "ok"; c.expColor = "green"; c.verifiedLabel = "verified"; }); MOCK_APPS.forEach(a => { if (a.state === "quota") a.state = "succeeded"; }); Object.values(WAVE_EVIDENCE).forEach(e => e.red = 0); delete WAVE_BLOCKERS["claims-batch"]; renderAdminLanding();');
   console.log('  ', waveLine());
   OK('"both wave gates passing" branch', waveLine().includes('both wave gates passing'));
   // reactivity: queue an app into a wave -> waved count moves (store-driven still)

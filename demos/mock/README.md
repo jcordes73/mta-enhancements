@@ -7,8 +7,17 @@ Animated guided tour of the console mock, generated from `deliverables/ui-mockup
 |---|---|---|---|
 | `mta-mock-tour.webm` | VP9 video, 1280×720 | ~64 s | ~2.3 MB |
 | `mta-mock-tour.gif`  | GIF, 1280×720, looped | ~61 s | ~1.9 MB |
+| `mta-mock-tour-nl.webm` | VP9 video, 1280×720 (Dutch UI) | ~64 s | |
+| `mta-mock-tour-nl.gif`  | GIF, 1280×720, looped (Dutch UI) | ~61 s | |
 
 ## Tour (Northwind Financial org, English, light scheme — one persona at a time)
+
+The Dutch tour (`mta-mock-tour-nl.*`) follows the same 13 scenes with the UI,
+captions, and bubbles in Dutch (`&lang=nl` on every deep link).
+
+**General** — *"A short introduction"*
+
+0. **Home** - Introducing Miggy, the virtual migration assistant
 
 **Architect** — *"Where is the portfolio hurting?"*
 1. **Home** — persona landing, effort rollup + combined risk KPIs (slow scroll)
@@ -57,7 +66,11 @@ the caption bar). Both appear on the scene's final motion frame and hold — the
 moment the "click" happens. Scenes without a click (title/outro, the boot Home,
 and the modal that *is* the click's result) carry none.
 
-Regenerate: `demos/mock/make-demo.sh` — edit the `scenes` array there to
-change the tour (any deep-link state works: `&lang=ar`, `&scheme=dark`,
-`&persona=padmin`, `&anno=1`, …; the third field is the optional click-selector
-marker, URL-encoded; the fourth the bubble text).
+Regenerate: `demos/mock/make-demo.sh` (English, default) or `demos/mock/make-demo.sh nl`
+for the Dutch tour — same scenes, but every scene boots the mock with `&lang=nl`
+(row 211: full Dutch UI, including the click bubbles, captions, and title/outro
+cards in Dutch; persona badges use the mock's nl terms *Projectmanager* /
+*Programmamanager*) and writes `mta-mock-tour-nl.{gif,webm}`. Edit the `scenes`
+array there to change the tour (any deep-link state works: `&lang=ar`,
+`&scheme=dark`, `&persona=padmin`, `&anno=1`, …; the third field is the optional
+click-selector marker, URL-encoded; the fourth the bubble text).

@@ -17,7 +17,7 @@ anywhere, but the numbering is consistent across all layers:
 
 ```mermaid
 flowchart LR
-    A["📄 evidence/mta-improvement-suggestions.md<br/>53 suggestions · JIRA/GitHub/field evidence<br/>6 delivery waves (§5.1)"]
+    A["📄 evidence/mta-improvement-suggestions.md<br/>58 suggestions · JIRA/GitHub/field evidence<br/>6 delivery waves (§5.1)"]
     C["📋 proposals/ · proposals ①–⑤<br/>konveyor template · provisional<br/>≈ 50 engineer-weeks"]
     D["🗣 socialization kit<br/>socialization/socialization-scripts.md<br/>socialization/presentations/ (5 decks + index)"]
     E["⬆ konveyor/enhancements<br/>PRs at the provisional milestone<br/>(next step — human)"]
@@ -52,7 +52,7 @@ mta-improvements/
 
 | Path | What it is |
 |---|---|
-| **[evidence/mta-improvement-suggestions.md](evidence/mta-improvement-suggestions.md)** | The evidence base: 53 suggestions grounded in a live MTA 8.3.3 audit, with a 6-wave implementation sequence. Do not split or renumber — `#N` anchors every cross-reference. |
+| **[evidence/mta-improvement-suggestions.md](evidence/mta-improvement-suggestions.md)** | The evidence base: 58 suggestions grounded in a live MTA 8.3.3 audit, with a 6-wave implementation sequence. Do not split or renumber — `#N` anchors every cross-reference. |
 | **[proposals/](proposals/README.md)** | Five fileable enhancement proposals (①–⑤, Konveyor template, `provisional`) — summary table below. |
 | **[design/design.md](design/design.md)** | Program design (Part I): wave designs, filing plan, risks — plus §19 console governance and §20 screen anatomy. |
 | **[implementation/implementation.md](implementation/implementation.md)** | Implementation backlog (Part II): schemas, API contracts, RBAC, tests, rollout, ADRs, KPIs (§8–§18, §21). |
@@ -113,7 +113,7 @@ upstream content are complete; the remaining steps are human/process:
 
 | Status | Item | Where |
 |---|---|---|
-| ✅ | Evidence base — live MTA 8.3.3 audit, 53 suggestions, 6-wave sequence | [evidence §2](evidence/mta-improvement-suggestions.md#2-summary-of-suggestions) · [§5.1](evidence/mta-improvement-suggestions.md#51-suggested-implementation-sequence) |
+| ✅ | Evidence base — live MTA 8.3.3 audit, 58 suggestions, 6-wave sequence | [evidence §2](evidence/mta-improvement-suggestions.md#2-summary-of-suggestions) · [§5.1](evidence/mta-improvement-suggestions.md#51-suggested-implementation-sequence) |
 | ✅ | Five `provisional` proposals (YAML complete) | [proposals/](proposals/README.md) |
 | ✅ | Design (Part I + §19–20) and implementation backlog (Part II, §8–18, §21) | [design.md](design/design.md) · [implementation.md](implementation/implementation.md) |
 | ✅ | Socialization scripts + decks; Route 1/2/3 upstream content drafted | [socialization/](socialization/socialization-scripts.md) · [upstream/](upstream/route1-issue-comments.md) |

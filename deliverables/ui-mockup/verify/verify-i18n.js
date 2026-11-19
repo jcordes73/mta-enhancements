@@ -21,15 +21,17 @@ setTimeout(async () => {
   // boot: EN default — dropdown marks EN selected, toggle shows the native name
   OK('boots in English (row 98: toggle label is the native name, no flag)', d.body.dataset.lang === 'en' && langSel('en') && d.getElementById('langToggleLabel').textContent === 'English');
 
-  // dropdown behavior: opens with 10 language options (row 98: countries/flags removed; row 120 he, row 121 pt), selection switches language
+  // dropdown behavior: opens with 12 language options (row 98: countries/flags removed; row 120 he, row 121 pt, row 211 nl, row 214 el), selection switches language
   d.getElementById('langSwitch').click();
-  OK('dropdown opens with 10 language options, no flags/countries (row 98/120/121)', !d.getElementById('langMenu').hidden
-    && d.querySelectorAll('#langMenu [data-lang]').length === 10
+  OK('dropdown opens with 12 language options, no flags/countries (row 98/120/121/211/214)', !d.getElementById('langMenu').hidden
+    && d.querySelectorAll('#langMenu [data-lang]').length === 12
     && !d.querySelector('#langMenu .lang-flag')
     && d.querySelector('#langMenu [data-lang="ja"] .pf-v6-c-menu__item-text').textContent === '日本語'
     && d.querySelector('#langMenu [data-lang="de"] .pf-v6-c-menu__item-text').textContent === 'Deutsch'
+    && d.querySelector('#langMenu [data-lang="nl"] .pf-v6-c-menu__item-text').textContent === 'Nederlands'
     && d.querySelector('#langMenu [data-lang="he"] .pf-v6-c-menu__item-text').textContent === 'עברית'
-    && d.querySelector('#langMenu [data-lang="pt"] .pf-v6-c-menu__item-text').textContent === 'Português');
+    && d.querySelector('#langMenu [data-lang="pt"] .pf-v6-c-menu__item-text').textContent === 'Português'
+    && d.querySelector('#langMenu [data-lang="el"] .pf-v6-c-menu__item-text').textContent === 'Ελληνικά');
   d.querySelector('#langMenu [data-lang="de"]').click();
 
   // switch to DE
@@ -43,7 +45,7 @@ setTimeout(async () => {
   OK('table headers translated', [...d.querySelectorAll('#scr-home th')].some(t => t.textContent.trim() === 'Domäne') || [...d.querySelectorAll('#scr-home th')].some(t => t.textContent.includes('Domäne')));
   OK('state carries lang', w.eval('state.lang') === 'de');
   OK('trend caption: dynamic date fragments translated (user report)', d.getElementById('lpArchTrendCaption').textContent.includes('am 3. Nov')
-    && d.getElementById('lpArchTrendCaption').textContent.includes('seit 8. Sep'));
+    && d.getElementById('lpArchTrendGaugeLabel').textContent.includes('seit 8. Sep'));
   OK('DE: ISO dataset dates render in German everywhere', d.getElementById('lpArchTrendDates').textContent.includes('3. Nov')
     && !/\d{4}-\d{2}-\d{2}/.test(d.getElementById('scr-home').textContent));
 
@@ -199,7 +201,8 @@ setTimeout(async () => {
   OK('JA→EN: nav restored byte-exact', navApp().textContent === enNav2);
   OK('JA→EN: Home title restored byte-exact', d.querySelector('#scr-home .page-title').textContent === enTitle);
   OK('JA→EN: dates restored to the EN short form', d.getElementById('lpArchTrendDates').textContent.includes('Nov 3')
-    && d.getElementById('lpArchTrendCaption').textContent.includes('on Nov 3, −41% since Sep 8'));
+    && d.getElementById('lpArchTrendCaption').textContent.includes('on Nov 3')
+    && d.getElementById('lpArchTrendGaugeLabel').textContent.includes('−41% since Sep 8'));
 
   // ---- Italian: dictionary + composition rules ----
   w.setLang('it');
@@ -228,8 +231,8 @@ setTimeout(async () => {
   OK('TR: nav translated', navApp().textContent.includes('Uygulamalar'));
   OK('TR: Home title translated', d.querySelector('#scr-home .page-title').textContent.includes('Ana Sayfa'));
   OK('TR: help-menu chrome translated', d.getElementById('annoMenuText').textContent.includes('Açıklamalar'));
-  const trCap = d.getElementById('lpArchTrendCaption').textContent.replace(/\s+/g, ' ');
-    OK('TR: trend caption + composed chips translated', trCap.includes('3 Kas, tarihinde')
+  const trCap = d.getElementById('lpArchTrendCaption').textContent.replace(/\s+/g, ' ') + ' ' + d.getElementById('lpArchTrendGaugeLabel').textContent.replace(/\s+/g, ' ');
+    OK('TR: trend caption + composed chips translated', trCap.includes('3 Kas tarihinde')
     && trCap.includes('8 Eyl itibarıyla'));
   w.openTour(1);
   await sleep(60);
@@ -244,6 +247,44 @@ setTimeout(async () => {
   await sleep(60);
   OK('TR→EN: nav restored byte-exact', navApp().textContent === enNav2);
   OK('TR→EN: Home title restored byte-exact', d.querySelector('#scr-home .page-title').textContent === enTitle);
+
+  // ---- Dutch: 11th locale (row 211) — full dict parity + composition rules ----
+  w.setLang('nl');
+  await sleep(40);
+  OK('NL: switcher + state reflect NL', d.body.dataset.lang === 'nl' && langSel('nl') && d.getElementById('langToggleLabel').textContent === 'Nederlands');
+  OK('NL: nav translated', navApp().textContent.includes('Applicaties'));
+  OK('NL: home chrome translated', d.querySelector('#scr-home').textContent.includes('Waar de portefeuille knelt'));
+  OK('NL: help-menu chrome translated', d.getElementById('annoMenuText').textContent.includes('Annotaties'));
+  w.openTour(1);
+  await sleep(60);
+  OK('NL: tour composed via rules', d.getElementById('tourQ').textContent.startsWith('Je eerste vraag'));
+  w.tourOpenView();
+  await sleep(60);
+  OK('NL: dock composed in Dutch', d.getElementById('dockStep').textContent.startsWith('Stap 2 van 5'));
+  w.dockResume(); w.closeTour();
+  w.setLang('en');
+  await sleep(60);
+  OK('NL→EN: nav restored byte-exact', navApp().textContent === enNav2);
+  OK('NL→EN: Home title restored byte-exact', d.querySelector('#scr-home .page-title').textContent === enTitle);
+
+  // ---- Greek: 12th locale (row 214) — full dict parity + composition rules ----
+  w.setLang('el');
+  await sleep(40);
+  OK('EL: switcher + state reflect EL', d.body.dataset.lang === 'el' && langSel('el') && d.getElementById('langToggleLabel').textContent === 'Ελληνικά');
+  OK('EL: nav translated', navApp().textContent.includes('Εφαρμογές'));
+  OK('EL: home chrome translated', d.querySelector('#scr-home').textContent.includes('Πού πονάει το χαρτοφυλάκιο'));
+  OK('EL: help-menu chrome translated', d.getElementById('annoMenuText').textContent.includes('Σχόλια'));
+  w.openTour(1);
+  await sleep(60);
+  OK('EL: tour composed via rules', d.getElementById('tourQ').textContent.startsWith('Η πρώτη σας ερώτηση'));
+  w.tourOpenView();
+  await sleep(60);
+  OK('EL: dock composed in Greek', d.getElementById('dockStep').textContent.startsWith('Βήμα 2 από 5'));
+  w.dockResume(); w.closeTour();
+  w.setLang('en');
+  await sleep(60);
+  OK('EL→EN: nav restored byte-exact', navApp().textContent === enNav2);
+  OK('EL→EN: Home title restored byte-exact', d.querySelector('#scr-home .page-title').textContent === enTitle);
 
   // deep link boots in German
   const dom2 = make('#scr=home&persona=architect&lang=de');
@@ -275,7 +316,17 @@ setTimeout(async () => {
               setTimeout(() => {
                 const d8 = dom8.window.document;
                 OK('deep link &lang=tr boots Turkish', d8.body.dataset.lang === 'tr' && [...d8.querySelectorAll('.pf-v6-c-nav__link')].some(l => l.textContent.includes('Uygulamalar')));
-                console.log(pass + ' passed, ' + fail + ' failed');
+                const dom9 = make('#scr=home&persona=architect&lang=nl');
+                setTimeout(() => {
+                  const d9 = dom9.window.document;
+                  OK('deep link &lang=nl boots Dutch (row 211)', d9.body.dataset.lang === 'nl' && [...d9.querySelectorAll('.pf-v6-c-nav__link')].some(l => l.textContent.includes('Applicaties')));
+                  const dom10 = make('#scr=home&persona=architect&lang=el');
+                  setTimeout(() => {
+                    const d10 = dom10.window.document;
+                    OK('deep link &lang=el boots Greek (row 214)', d10.body.dataset.lang === 'el' && [...d10.querySelectorAll('.pf-v6-c-nav__link')].some(l => l.textContent.includes('Εφαρμογές')));
+                    console.log(pass + ' passed, ' + fail + ' failed');
+                  }, 700);
+                }, 700);
               }, 700);
             }, 700);
           }, 700);

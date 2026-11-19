@@ -51,8 +51,10 @@ setTimeout(() => {
     && alert.textContent.includes('Dedicated assessment')
     && alert.textContent.includes('override the inherited archetype assessment(s) for')
     && alert.textContent.includes('baseline stays untouched'));
-  OK('the questionnaire keeps its inherited-risk context (openAssessment\u2019s Completed label + risk line)',
-    d.getElementById('drawerBody').textContent.includes('Completed · v3')
+  OK('the questionnaire keeps its inherited-risk context (row 180: Completed pill + version beside it)',
+    d.getElementById('drawerBody').textContent.includes('Completed')
+    && d.getElementById('drawerBody').textContent.includes('v3')
+    && !!d.getElementById('drawerBody').querySelector('.pf-v6-c-label.pf-m-green')
     && d.getElementById('drawerBody').textContent.includes('inherited from archetype')
     && !!d.getElementById('drawerBody').querySelector('table'));
   OK('the drawer is deep-linked (state.drawer = assess)', w.eval('state.drawer') === 'assess');

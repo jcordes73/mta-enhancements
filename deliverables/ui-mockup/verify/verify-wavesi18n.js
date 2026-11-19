@@ -20,6 +20,23 @@ setTimeout(() => {
       /* row 127 member-table chrome is EN-only by the recorded row-127 decision; 'quota-blocked'
          is a pre-existing state key (identifier-guarded, never translated) */
       'of 2','quota-blocked',
+      /* row 198: the gateList blocker row composes data (app + finding, EN by the incident-text
+         rule) with a short count phrase — the strip chip is skip-pinned; these stay EN pending
+         the i18n pass, like the row-127 chrome */
+      '1 blocking incident','\u2014 claims-batch: Kafka contract mismatch \u2014 kafka-contract suite red',
+      /* row 199: the Blocking-incidents tab's data nodes (finding + source are seeded EN) */
+      'Kafka contract mismatch \u2014 kafka-contract suite red','(citrus-verification WR-12)',
+      /* row 200: the Quota-blocks tab's row text (chrome composed with #38 cite) */
+      'analysis postponed \u2014 waiting for org quota (#38)',
+      /* row 207: the Burndown tab label — DE/ES/FR/IT/TR/PT keep the loanword (identity
+         translation by design), so the node is never rewritten and trips the heuristic */
+      'Burndown',
+      /* row 210: the Dependencies tab's Status header — DE value is the identity 'Status'
+         (loanword), so the node is never rewritten and trips the heuristic, like Burndown */
+      'Status',
+      /* row 212 follow-on: the per-wave burndown legend's 'Ideal' — DE value is the identity
+         'Ideal' (loanword); the node only surfaced once row 212 made the chart mount under DE */
+      'Ideal',
     ]);
     const left = w.eval(`(() => {
       const out = [];
@@ -43,9 +60,15 @@ setTimeout(() => {
     OK('DE: no mixed "gate kritisch"', !txt.includes('gate kritisch'));
     OK('DE: incidents count translated', txt.includes('88 Vorfälle'));
     OK('DE: tokens·runs composed', txt.includes('3.5M Tokens · 11 Läufe'));
-    OK('DE: gate titles translated', txt.includes('Keine Kontingentblocker') && txt.includes('Verifizierung grün'));
+    OK('DE: gate condition names translated (row 205: creds tab + stat tile carry them)', txt.includes('Zugangsdaten verifiziert') && txt.includes('Kapazität'));
     OK('DE: wave chips translated', txt.includes('abgeschlossen') && txt.includes('blockiert'));
     OK('DE: months localized', txt.includes('Okt'));
+    /* row 212: the burndown charts (per-wave + aggregate) must mount under non-EN —
+       the lane lookup used to match the rendered 'Wave N' title, which translates,
+       silently skipping every chart (EN-only charts since row 207) */
+    OK('DE: aggregate burndown mounts (row 212)', !!d.getElementById('waveBurnAll').querySelector('svg'));
+    OK('DE: per-wave burndown mounts (row 212)', !!d.getElementById('waveBurn-3').querySelector('svg'));
+    OK('DE: wave risk rollup counts from data-risk (row 212)', /1 hoch \u00b7 1 mittel \u00b7 1 niedrig/.test(txt));
     process.exit(global.__fails ? 1 : 0);
   }, 300);
 }, 900);

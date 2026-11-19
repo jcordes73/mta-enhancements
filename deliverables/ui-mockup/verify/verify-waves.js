@@ -13,13 +13,22 @@ setTimeout(() => {
   const scr = d.getElementById('scr-waves');
   const topTitles = [...scr.querySelectorAll('.pf-v6-c-card__title')].filter(x => !x.closest('.wave-exec-detail') && !x.closest('#pgmCoord') && !x.closest('#credReadiness')).map(x => x.textContent.trim());
   t('single top-level card', topTitles.length === 1 && topTitles[0].includes('Wave execution'));
-  t('4 lanes + month header + 4 bars', d.querySelectorAll('#scr-waves .wave-exec').length === 4 && d.querySelectorAll('#scr-waves .gantt .bar').length === 4 && !!d.querySelector('#scr-waves .month-labels'));
+  /* row 207 overrun pass: wave 3 gains a hatched .bar-overrun continuation segment */
+  t('4 lanes + month header + 5 bars (incl. wave 3 overrun segment)', d.querySelectorAll('#scr-waves .wave-exec').length === 4 && d.querySelectorAll('#scr-waves .gantt .bar').length === 5 && !!d.querySelector('#scr-waves .month-labels'));
+  t('wave 3 overrun segment: hatched, contiguous, data-overrun to today, labeled +25d overdue', !!d.querySelector('#scr-waves .gantt .bar-overrun') && d.querySelector('#scr-waves .gantt .bar-overrun').getAttribute('data-overrun') === '2026-10-24/2026-11-18' && d.querySelector('#scr-waves .gantt .bar-overrun').textContent.includes('+25d overdue') && d.querySelector('#scr-waves .gantt .bar-overrun').getAttribute('style').includes('repeating-linear-gradient'));
 
   const lanes = [...d.querySelectorAll('#scr-waves .wave-exec')];
   const statv = (lane, k) => { const st = [...lane.querySelectorAll('.wave-stat')].find(x => x.querySelector('.wave-stat-k').textContent.trim().startsWith(k)); return st ? st.querySelector('.wave-stat-v') : null; };
   t('W1 planned-actual', statv(lanes[0], 'Planned').textContent.includes('Sep 1\u201315 \u2192 Sep 1\u201315'));
   t('W2 +2d slippage', statv(lanes[1], 'Planned').textContent.includes('+2d'));
   t('W3 R-12 + re-validate', statv(lanes[2], 'Composition').textContent.includes('R-12') && !!statv(lanes[2], 'Composition').querySelector('button'));
+  /* row 191: the wave-side re-validate is wired — click absorbs the flag, recomputes effort,
+     and toasts the confirmation with the dependency check */
+  statv(lanes[2], 'Composition').querySelector('button').click();
+  t('W3 re-validate clears the flag to a member count', statv(lanes[2], 'Composition').textContent.includes('5 members') && !statv(lanes[2], 'Composition').querySelector('.pf-v6-c-label'));
+  t('W3 re-validate toast quotes the flag + dependency check (#25, #46)',
+    d.getElementById('rbacToast').textContent.includes('Wave 3') && d.getElementById('rbacToast').textContent.includes('rule R-12 added 3 apps')
+    && d.getElementById('rbacToast').textContent.includes('dependency check clean'));
   t('W4 Nov 3-21', statv(lanes[3], 'Planned').textContent.includes('Nov 3\u201321'));
 
   t('waveStake ids (4)', d.querySelectorAll('#scr-waves [id^="waveStake-"]').length === 4);
@@ -60,7 +69,7 @@ setTimeout(() => {
   b1.click();
   t('W1 chevron flips back on collapse', !b1.classList.contains('pf-m-expanded') && b1.getAttribute('aria-expanded') === 'false' && d.getElementById('wave-members-1').hidden);
 
-  t('W3 open at rest with full story', !d.getElementById('wave-members-3').hidden && d.getElementById('wave-members-3').textContent.includes('Gate status') && d.getElementById('wave-members-3').textContent.includes('MIG-412'));
+  t('W3 open at rest with full story', !d.getElementById('wave-members-3').hidden && d.getElementById('wave-members-3').textContent.includes('Blocking incidents') && d.getElementById('wave-members-3').textContent.includes('MIG-412'));
   const d1 = d.getElementById('wave-members-1');
   lanes[0].querySelector('button[data-expand]').click();
   t('W1 expands + explains', !d1.hidden && d1.textContent.includes('no sampled applications'));
@@ -82,6 +91,21 @@ setTimeout(() => {
   irows.forEach((r, i) => { const got = [...r.children].map(c => norm(c.innerHTML)); const want = ref[i].cells.map(norm); if (got.some((c, j) => c !== want[j])) mm++; });
   t('byte-equality 12x10', mm === 0 && irows.length === 12);
   t('masthead 4', d.getElementById('taskQueueCount').textContent === '4');
+  /* row 202: capacity derives from staffing — 2 stakeholders × 9 working days (Oct 13–24) × 60% → 11;
+     the plan's load (WAVE_LOAD[3] = 9) fits; wave 4 is unstaffed → capacity unknown */
+  /* row 205: the Gate-status tab is retired — capacity lives on the header stat tile;
+     these assertions follow the row-202/203 model via the tile */
+  const cap3 = d.getElementById('waveCap-3').textContent.replace(/\s+/g, ' ').trim();
+  t('capacity derived from staffing: 9/11 team-days (stat tile)', cap3 === '9/11 team-days');
+  t('capacity facts: 2 staff × 9 working days × 0.6 → 11', (() => { const c = w.waveCapacity(3); return c.staff === 2 && c.days === 9 && c.cap === 11 && c.load === 9; })());
+  t('wave 4 unstaffed: — pending staffing (stat tile)', d.getElementById('waveCap-4').textContent.replace(/\s+/g, ' ').trim() === '\u2014 pending staffing');
+  w.eval('WAVE_LOAD[3] = 99; buildWaveMembers();');
+  t('over-commitment flag flips when load exceeds capacity (#46 item 4)', d.getElementById('waveCap-3').textContent.includes('Over-committed'));
+  w.eval('WAVE_LOAD[3] = 9; buildWaveMembers();');
+  /* row 203: the capacity stat tile on every wave header */
+  t('stat tile w3: 9/11 team-days', d.getElementById('waveCap-3').textContent.replace(/\s+/g, ' ').trim() === '9/11 team-days');
+  t('stat tile w4: — pending staffing', d.getElementById('waveCap-4').textContent.replace(/\s+/g, ' ').trim() === '\u2014 pending staffing');
+  t('stat tiles w1/w2: derived 0/7 and 0/11', d.getElementById('waveCap-1').textContent.trim() === '0/7 team-days' && d.getElementById('waveCap-2').textContent.trim() === '0/11 team-days');
   t('no errors', errors.length === 0);
   console.log(pass + ' passed, ' + fail + ' failed');
 }, 120);

@@ -44,8 +44,9 @@ setTimeout(() => {
     }
   }
 
-  // 5. JS-rendered KPI cards carry gc4 in both branches (non-nwf org + nwf)
-  assert('JS KPI cards carry gc4', (html.match(/pf-v6-c-card gc4/g) || []).length >= 6);
+  // 5. JS-rendered KPI cards carry gc4 in the empty-org branch (3 tiles) and gc3 in the
+  //    nwf branch (row 203: 4 tiles — Wave capacity joins, 4 × 3 tracks = 12)
+  assert('JS KPI cards carry gc4 + gc3', (html.match(/pf-v6-c-card gc4/g) || []).length >= 3 && (html.match(/pf-v6-c-card gc3/g) || []).length >= 4);
 
   // 6. JS-rendered lpPgmKpis container exists and is a grid12
   const kpis = document.getElementById('lpPgmKpis');

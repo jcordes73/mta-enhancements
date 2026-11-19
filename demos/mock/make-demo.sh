@@ -1,9 +1,17 @@
 #!/bin/bash
 # Regenerates mta-mock-tour.gif / mta-mock-tour.webm from ui-mockup/index.html.
 # Every scene carries a caption overlay naming the screen and what to notice.
+# Usage: make-demo.sh [en|nl]  — nl renders the tour with &lang=nl deep links,
+# Dutch captions/bubbles/cards and -nl output filenames (row 211).
 # Requirements: google-chrome (headless), python3 + Pillow, ffmpeg, Red Hat fonts
 # (/usr/share/fonts/redhat). Run from any directory; writes frames to /tmp.
 set -euo pipefail
+LANG_ARG="${1:-en}"
+case "$LANG_ARG" in
+  en) SUF="";;
+  nl) SUF="-nl";;
+  *) echo "unsupported locale '$LANG_ARG' (en|nl)"; exit 1;;
+esac
 OUT="$(cd "$(dirname "$0")" && pwd)"   # demos/mock/
 cd "$(dirname "$0")/../../deliverables/ui-mockup"   # read index.html + write nothing here
 WORK=/tmp/opencode/demo-run
@@ -115,8 +123,27 @@ scenes=(
   "pgm-tasks|scr=tasks&persona=pgm&org=nwf|%5Bdata-screen%3D%22tasks%22%5D|Opens the task manager — the escalation surface for shared platform work.|0 130 260 390 520 640"
 )
 : > "$WORK/manifest.txt"
+# nl: every scene boots the mock in Dutch via the &lang= deep link (deep link
+# wins over persisted state — same precedence the mock gives lang everywhere)
+LANGQ=""; [ "$LANG_ARG" = nl ] && LANGQ="&lang=nl"
+# nl bubble texts (scene-name → text); EN bubbles stay in the scenes array
+declare -A BUB_OVR=()
+if [ "$LANG_ARG" = nl ]; then
+  BUB_OVR[arch-inventory]="Opent de applicatie-inventaris — de centrale administratie."
+  BUB_OVR[arch-waves]="Opent Migratiegolven — samenstelling, gates en de tijdlijn gepland vs. werkelijk."
+  BUB_OVR[mig-home]="Schakelt naar de migrator — het bereik pin op het team Claims."
+  BUB_OVR[mig-incidents]="Opent de triage-wachtrij — het dagelijkse werkoppervlak van de migrator."
+  BUB_OVR[pm-home]="Schakelt naar de projectmanager — alleen-lezen en team-gebonden."
+  BUB_OVR[pm-waves]="Opent Migratiegolven — de cijfers voor de programmareview."
+  BUB_OVR[pm-reports]="Opent Rapporten — inspannings- en voortgangsrollups, toegespitst op het team."
+  BUB_OVR[pgm-home]="Schakelt naar de programmamanager — org-breed bereik."
+  BUB_OVR[pgm-waves]="Opent de cross-team samenstellingskaart — golven die meer dan één team beslaan."
+  BUB_OVR[pgm-tasks]="Opent de taakbeheerder — het escalatie-oppervlak voor gedeeld platformwerk."
+fi
 for s in "${scenes[@]}"; do
   name="${s%%|*}"; rest="${s#*|}"; hash="${rest%%|*}"; rest="${rest#*|}"; click="${rest%%|*}"; rest="${rest#*|}"; bubble="${rest%%|*}"; steps="${rest#*|}"
+  hash="${hash}${LANGQ}"
+  bubble="${BUB_OVR[$name]:-$bubble}"
   i=0; n=$(wc -w <<< "$steps")
   for fx in $steps; do
     h="${hash}&fx=${fx}"
@@ -141,10 +168,11 @@ chmod +x "$WORK/cap.sh"
 xargs -P 4 -I{} "$WORK/cap.sh" {} < "$WORK/manifest.txt"
 
 # 4. captions, title/outro cards (brand fonts) + assembly
-python3 - "$OUT" <<'PYEOF'
+python3 - "$OUT" "$LANG_ARG" "$SUF" <<'PYEOF'
 import sys
 from PIL import Image, ImageDraw, ImageFont
-out, work = sys.argv[1], '/tmp/opencode/demo-run'
+out, lang, suf = sys.argv[1], sys.argv[2], sys.argv[3]
+work = '/tmp/opencode/demo-run'
 W, H = 1920, 1080
 f1  = ImageFont.truetype("/usr/share/fonts/redhat/RedHatDisplay-Bold.otf", 88)
 f2  = ImageFont.truetype("/usr/share/fonts/redhat/RedHatDisplay-Regular.otf", 44)
@@ -190,19 +218,29 @@ def card(lines):
         d.text(((W-d.textlength(txt,font=f))/2, y), txt, font=f, fill=c); y += f.size+40
     return im
 
-card([("Migration Toolkit for Applications",f1,WHITE),
-      ("UI mockup — role-based guided tour",f2,GRAY),
-      ("Northwind Financial · architect → migrator → project mgr → program mgr",f3,GRAY),
-      ("real PatternFly 6.7.0 · 8 locales · light/dark · tenancy-scoped",f3,GRAY)]
-     ).save(work+'/frames/card_title.png')
-card([("Try it yourself",f1,WHITE),
-      ("ui-mockup/index.html — deep-linkable: #scr=…&persona=…&lang=…&scheme=…",f3,GRAY),
-      ("every frame above is a real render of the mock",f3,GRAY)]).save(work+'/frames/card_outro.png')
+if lang == 'nl':
+    card([("Migration Toolkit for Applications",f1,WHITE),
+          ("UI-mockup — begeleide tour per rol",f2,GRAY),
+          ("Northwind Financial · architect \u203a migrator \u203a projectmanager \u203a programmamanager",f3,GRAY),
+          ("echte PatternFly 6.7.0 · 11 talen · licht/donker · tenancy-scoped",f3,GRAY)]
+         ).save(work+'/frames/card_title.png')
+    card([("Probeer het zelf",f1,WHITE),
+          ("ui-mockup/index.html — deep-linkable: #scr=…&persona=…&lang=…&scheme=…",f3,GRAY),
+          ("elk frame hierboven is een echte render van de mock",f3,GRAY)]).save(work+'/frames/card_outro.png')
+else:
+    card([("Migration Toolkit for Applications",f1,WHITE),
+          ("UI mockup — role-based guided tour",f2,GRAY),
+          ("Northwind Financial · architect \u203a migrator \u203a project mgr \u203a program mgr",f3,GRAY),
+          ("real PatternFly 6.7.0 · 11 locales · light/dark · tenancy-scoped",f3,GRAY)]
+         ).save(work+'/frames/card_title.png')
+    card([("Try it yourself",f1,WHITE),
+          ("ui-mockup/index.html — deep-linkable: #scr=…&persona=…&lang=…&scheme=…",f3,GRAY),
+          ("every frame above is a real render of the mock",f3,GRAY)]).save(work+'/frames/card_outro.png')
 
 # tour scenes: (frame-name, n-steps, persona badge, caption label, explanation)
 # one persona section at a time — Northwind org, following each persona's own
 # in-mock guided tour (TOURS in index.html)
-TOUR = [
+TOUR_EN = [
     ("arch-home", 5, "Architect", "Portfolio health at a glance",
      "The architect's org-wide landing: effort rollup (#4), combined risk (#32) and analysis coverage \u2014 \u201cWhere is the portfolio hurting?\u201d answered before any click."),
     ("arch-inventory", 6, "Architect", "Applications \u2014 the inventory",
@@ -228,6 +266,37 @@ TOUR = [
     ("pgm-tasks", 6, "Program mgr", "Task manager \u2014 shared platform work",
      "Quota blocks and platform tasks (#30/#38) hit several teams at once; the queue is the escalation surface."),
 ]
+
+# nl tour (row 211): persona badges use the mock's own nl terms (Projectmanager,
+# Programmamanager); suggestion refs (#4/#32/…) stay as-is — annotations are
+# locale-neutral; loanwords (gate, run, tracker, cross-team) follow the nl dict
+TOUR_NL = [
+    ("arch-home", 5, "Architect", "Portfoliogezondheid in een oogopslag",
+     "De org-brede landing van de architect: inspanningsrollup (#4), gecombineerd risico (#32) en analysedekking \u2014 \u201cWaar knelt de portefeuille?\u201d beantwoord v\u00f3\u00f3r de eerste klik."),
+    ("arch-inventory", 6, "Architect", "Applicaties \u2014 de inventaris",
+     "De ene bron van waarheid: filter op risico of analysestatus (#2), sorteer op inspanning (#4), golftoewijzing en risicoherkomst (#32) op elke rij."),
+    ("arch-waves", 7, "Architect", "Migratiegolven \u2014 planning & gates",
+     "Golfsamenstelling met gates en tijdlijn (#46): gepland vs. werkelijk, de quotageblokkeerde gate (#38) en per golf het agentverbruik (#20)."),
+    ("mig-home", 5, "Migrator", "Een teamgebonden landing",
+     "Geschakeld naar de migrator \u2014 bereik vastgepind op het team Claims (#41): opdrachten en mijn werk eerst, geen portefeuilleruis, geen Administration-items."),
+    ("mig-incidents", 6, "Migrator", "Incidenten \u2014 de triagewachtrij",
+     "Het dagelijkse werkoppervlak van de migrator: beschrijfbare triagestatussen (bevestigd / vals positief / geen probleem, #33), live filters, sorteren en paginering."),
+    ("mig-modal", 4, "Migrator", "Triagedetail",
+     "Regel, trackersynchronisatie (#37), archetypecohort en triagehistorie \u2014 oplossen, als vals positief markeren of toewijzen aan een agentgroep."),
+    ("pm-home", 5, "Projectmanager", "De landing van de projectmanager",
+     "Alleen-lezen en teamgebonden: de golftijdlijn en wat er op risico staat leiden de pagina (#36/#46). Mutatiehandelingen ontbreken door RBAC."),
+    ("pm-waves", 6, "Projectmanager", "Migratiegolven \u2014 tijdlijn & gates",
+     "Vanuit de stoel van de pm: gepland vs. werkelijk per golf en gatestatussen (#46) \u2014 de cijfers voor de programmareview."),
+    ("pm-reports", 6, "Projectmanager", "Rapporten \u2014 inspanning & voortgang",
+     "Inspanningsrollup per business service (#4) en golfexecutierollups (#46), toegespitst op het team van de pm."),
+    ("pgm-home", 5, "Programmamanager", "De landing van de programmamanager",
+     "Orgbrede co\u00f6rdinatie eerst (#36/#41): teams in scope, golven die meer dan \u00e9\u00e9n team beslaan, gedeelde blokkades."),
+    ("pgm-waves", 6, "Programmamanager", "Migratiegolven \u2014 cross-teamsamenstelling",
+     "De co\u00f6rdinatiekaart toont per golf de bijdragende teams en markeert cross-teamgolven \u2014 de change-window-gesprekken die een programmamanager voert."),
+    ("pgm-tasks", 6, "Programmamanager", "Taakbeheerder \u2014 gedeeld platformwerk",
+     "Quotablokkades en platformtaken (#30/#38) raken meerdere teams tegelijk; de wachtrij is het escalatieoppervlak."),
+]
+TOUR = TOUR_NL if lang == 'nl' else TOUR_EN
 MOTION, HOLD, TITLE, OUTRO = 320, 2800, 3000, 2800
 
 persona_tot, persona_idx = {}, {}
@@ -251,7 +320,7 @@ gf, gd = [], []
 for p, ms in frames:
     im = Image.open(f'{work}/frames/{p}').convert('RGB').resize((1280,720), Image.LANCZOS)
     gf.append(im); gd.append(ms)
-gf[0].save(out+'/mta-mock-tour.gif', save_all=True, append_images=gf[1:],
+gf[0].save(out+'/mta-mock-tour%s.gif' % suf, save_all=True, append_images=gf[1:],
            duration=gd, loop=0, optimize=True)
 with open(work+'/concat.txt','w') as f:
     for p, ms in frames:
@@ -261,5 +330,5 @@ PYEOF
 
 ffmpeg -y -f concat -safe 0 -i "$WORK/concat.txt" \
   -vf "fps=15,scale=1280:720:flags=lanczos" -c:v libvpx-vp9 -b:v 1500k -pix_fmt yuv420p \
-  "$OUT/mta-mock-tour.webm" 2>/dev/null
+  "$OUT/mta-mock-tour${SUF}.webm" 2>/dev/null
 echo "done:"; ls -la "$OUT"

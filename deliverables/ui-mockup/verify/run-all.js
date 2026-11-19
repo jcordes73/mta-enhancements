@@ -18,7 +18,9 @@ const args = process.argv.slice(2);
 const jobsArg = args.find(a => a.startsWith('--jobs='));
 const onlyArg = args.find(a => a.startsWith('--only='));
 const jobs = jobsArg ? Math.max(1, parseInt(jobsArg.split('=')[1], 10) || 1) : Math.min(os.cpus().length, 6);
-const SUITE_TIMEOUT_MS = 420000;
+/* row 214: raised 420s → 900s — the i18n suite takes ~14min standalone at 12 locales
+   (was ~8m19s at 11 in row 211, when 420s only failed under jobs=6 contention) */
+const SUITE_TIMEOUT_MS = 900000;
 
 let suites = fs.readdirSync(__dirname).filter(f => /^verify-.*\.js$/.test(f)).sort();
 if (onlyArg){

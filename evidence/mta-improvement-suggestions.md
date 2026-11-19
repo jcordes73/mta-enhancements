@@ -15,6 +15,10 @@ design and implementation documents and in
 model; previously implemented in the mock as design-conformance chrome, now catalogued) and
 Suggestion 53 (collapsible navigation sidebar with a per-user preference; the masthead ☰
 toggle, catalogued after the row-102 collapse fix).
+2026-11-18 — new Suggestion 54 (in-application online help: embedded, searchable,
+version-matched task topics in a help drawer — the content layer beneath Suggestion 43's
+help surfaces) and Suggestion 55 (migration assistant: a chat bot grounded in the tenant's
+own migration data, riding the governance stack of Suggestions 16/19/20/28/29).
 2026-11-12 — mock-validation pass: 27 suggestions now carry a **Status
 (mock-validated)** line from the interactive PatternFly 6 UI mock; #36, #41, and #42 gained
 implementation-update paragraphs recording how the mock work refined the original proposals.
@@ -27,7 +31,7 @@ We use MTA 8.3 end-to-end — platform administration, portfolio assessment and
 analysis (100+ Java EE applications on commercial application servers), migration
 planning to EAP 8/Quarkus and OpenShift, and remediation execution via the Hub
 and the VS Code extension. Based on this hands-on experience across all roles,
-we propose **53 improvement suggestions**, grouped into seven themes:
+we propose **58 improvement suggestions**, grouped into seven themes:
 
 **1. Trustworthy analysis results (the foundation).** Effort numbers must be
 plannable: deterministic results for identical inputs (#7), rule transparency
@@ -191,6 +195,12 @@ published known issues (JIRA references included where applicable).
 | 51 | Multi-lingual console UI (externalized string catalog, language switcher, full RTL) | Hub / Web UI| Med |
 | 52 | Light/dark color scheme (RHDS theming model — PF6 dark scheme, persisted, deep-linkable) | Hub / Web UI| Med |
 | 53 | Collapsible navigation sidebar (masthead toggle, per-user preference) | Hub / Web UI| Low |
+| 54 | In-application online help (embedded, searchable, version-matched task topics) | Hub / Web UI| Med |
+| 55 | Migration assistant — a grounded, governed chat bot over the tenant's own migration data | Agentic AI| High |
+| 56 | MCP server for the Tackle Hub | Hub API / Automation | High |
+| 57 | Integration with Apicurio Registry A2A — the migration factory's agents as governed, discoverable A2A agents | Integrations | Med |
+| 58 | Per-agent MCP server configuration — governed tool bindings as first-class, versioned artifacts, rendered into the agent framework's native configuration (Goose, LangGraph, …) | Agentic AI | High |
+| 59 | Wave staffing availability — absence-aware capacity for wave planning (per-stakeholder allocation + absence, double-booking surfacing) | Migration planning| Med |
 
 ---
 
@@ -478,7 +488,7 @@ published known issues (JIRA references included where applicable).
 
 1. **AI Hub MCP Catalog / MCP Lifecycle Operator (RHOAI 3.x):** package the MTA MCP server for the AI Hub MCP Catalog (Red Hat support tier) so cluster administrators can deploy it via an `MCPServer` custom resource alongside the MTA hub — the same pattern Red Hat's own `rhoai-mcp` server uses. This turns MTA's AI integration into a first-class, on-cluster, lifecycle-managed capability instead of a separately downloaded binary.
 2. **Shared identity chain:** reuse the MTA hub's Keycloak/OIDC infrastructure for token exchange (the pattern the MCP server for Red Hat OpenShift already implements), so agent traffic arrives at MTA with a delegated user identity and MTA's existing roles (administrator/architect/migrator) govern authorization. No parallel identity model; reinforces Suggestion 5.
-3. **Governance via the MCP Gateway (Red Hat Connectivity Link, GA since 1.5):** register MTA tools in the enterprise MCP Gateway for tenant isolation, progressive tool discovery, and NeMo guardrails — e.g., read-only tools (query incidents, dependencies, insights) broadly available, write tools (trigger analyses, accept solutions, generate assets) restricted per role/tenant and screened against prompt-injection and data-exfiltration policies.
+3. **Governance via the MCP Gateway (Red Hat Connectivity Link, GA since 1.5):** register MTA tools in the enterprise MCP Gateway for tenant isolation, progressive tool discovery, and NeMo guardrails — e.g., read-only tools (query incidents, dependencies, insights) broadly available, write tools (trigger analyses, accept solutions, generate assets) restricted per role/tenant and screened against prompt-injection and data-exfiltration policies. Upstream proof of this pattern (verified 2026-11-19): Red Hat's "Bring Your Own Agent on Red Hat AI" demonstration operationalizes OpenClaw against the Envoy-based MCP Gateway — one `MCP_URL`, OAuth2 token exchange per backend, and identity-based tool filtering where token claims, not prompt content, decide tool reachability (prompt injection cannot reach unauthorized tools).
 4. **Composable agent workflows on Llama Stack:** with MTA tools registered in the catalog, RHOAI/Llama Stack agents can compose MTA tools with the OpenShift MCP server's cluster tools — e.g., "analyze this application with MTA, remediate the incidents using Solution Server examples, generate deployment assets, apply and verify on the target cluster." This provides an open, standards-based composition path that complements (and can gradually absorb) the proprietary handoff mechanism of the Agentic Migration Factory (Suggestion 16).
 5. **Operational parity:** adopt the same operational conventions as the OpenShift MCP server — OpenTelemetry traces/metrics into OpenShift monitoring, read-only-by-default toolsets with explicit opt-in for write operations, and audit-trail user-agent marking for agent-initiated actions.
 
@@ -2183,6 +2193,489 @@ A12 (use-case issue; extends the A11 wave-execution thread)._
 
 ---
 
+### 3.39 Hub / Web UI / UX (new, 2026-11-18)
+
+#### Suggestion 54: In-application online help — embedded, searchable, version-matched task topics
+
+- **Area:** Hub / Web UI / UX
+- **Problem / Pain point:** Suggestion 43 gives the console a help **surface** — masthead
+  menu, per-view docs deep-links, guided tour, role welcome, contextual popovers. But every
+  one of those paths still **leaves the application**: docs.redhat.com serves the *latest*
+  documentation, not the documentation of the version the user is running — a version skew
+  that matters for a product moving as fast as 8.3's agentic features (the agent registry,
+  skills, gateways and workflows documented upstream may not match what the console in front
+  of you actually renders). Following a link also abandons the exact triage or assessment
+  context that raised the question, and disconnected installs — common in MTA's target
+  environments — cannot assume the machine browsing docs.redhat.com is even the same one
+  running the console. The practical result: users keep a docs browser tab open beside the
+  console and guess which tab matches their installed version.
+- **Proposed improvement:** ship task-based help **inside the application**: a Help panel
+  (PF6 drawer, deep-linkable) whose content is the modular-docs AsciiDoc source built into
+  the product image at build time — the same source that publishes docs.redhat.com, so the
+  in-console topics cannot drift from the installed version. Properties:
+  1. **Context-aware opening** — the panel opens on the topic for the current view
+     (Inventory → "Managing applications"; Waves → "Running waves and gates"; Agentic →
+     "Agent registry and skills"), driven by Suggestion 43's per-view data source as the
+     topic selector — one map, contract-tested, feeding both the external link and the
+     embedded topic.
+  2. **Full-text search** across the embedded corpus, keyboard accessible.
+  3. **Version-matched by construction** — content ships with the image; the About dialog
+     (Suggestion 43) states the content version.
+  4. **Deep-linkable topics** (`&help=<topic>`) so support cases, Suggestion 2's saved views
+     and the guided tour can carry a help reference that opens the panel pre-navigated.
+  5. **Per-topic feedback** ("Was this helpful?") filing structured docs feedback — giving
+     MTA-7360's catch-all a real signal instead of an email address.
+  6. **i18n-ready** — topics are plain rendered HTML/markdown in-console, so localized doc
+     builds slot into Suggestion 51's locale model as they become available.
+  Vendor-neutral: no new service — static content served by the existing Hub static-file
+  path; the external docs link remains the "full documentation" escape hatch.
+- **Mockup validation (2026-11-18, demonstrated):** the mock carries the full
+  demonstration — a **Help drawer** (the real PF6 detail drawer) with six task topics
+  (Getting started, Managing applications, Archetypes and cohorts, Running migration waves,
+  Triaging incidents, The agent registry and workflows), each task-shaped with numbered
+  steps that reference the console's own affordances (#45 archetypes, #46 gates, #38 quota,
+  #33 provenance, #49/#50 agentic attribution). Properties demonstrated: **context-aware
+  opening** (the help menu item opens the topic for the current view), **full-text search**
+  over titles + bodies, **deep-linkable topics** (`&help=<topic>` opens the drawer
+  pre-navigated on boot), **per-topic feedback** ("Was this topic helpful?" stub), and the
+  **version-match note** stating why the content is embedded (Suggestion 43's external links
+  remain the escape hatch). Topic content is English-only like the annotations
+  (`data-i18n-skip`), i18n-ready for Suggestion 51's model. Verified in
+  [use-case-verification.md](../deliverables/ui-mockup/use-case-verification.md)
+  (defect row 189; verify-helpmenu.js extended to 23 assertions incl. the deep link).
+- **Adoption notes:** drive the panel from the docs build pipeline (modular docs → HTML
+  bundle in the image); reuse Suggestion 43's contract test to assert every topic the
+  per-view map references exists in the bundle (a missing topic fails the build, never 404s
+  in the UI); keep topics short and task-shaped — the panel is a cookbook, not a manual dump.
+
+---
+
+### 3.40 Agentic AI / Hub / Web UI (new, 2026-11-18)
+
+#### Suggestion 55: Migration assistant — a grounded, governed chat bot over the tenant's own migration data
+
+- **Area:** Agentic AI / Hub / Web UI
+- **Problem / Pain point:** The console answers "what" (tables, KPIs, reports) but not
+  "why" or "what should I do" in prose. The questions field users actually ask — *why is
+  this application High risk?*, *which wave should this app join and why?*, *what do these
+  214 incidents have in common?*, *summarize what changed since the last analysis run* —
+  today require assembling an answer from five views, a run record and the rule
+  descriptions. Suggestion 54's help topics are static content; they cannot reason over
+  the tenant's live data. The raw materials all exist in the Hub (incidents, run diffs,
+  wave gates, task states, the agentic registry) — there is no conversational surface that
+  can cite them. And ad-hoc "just add a chatbot" implementations are exactly what the
+  program's governance suggestions warn against: unattributed answers, unscoped data
+  access, no showback.
+- **Proposed improvement:** a **Migration assistant** panel (collapsible side panel or
+  route) that answers in prose **grounded in the caller's tenant data**, under the full
+  governance stack this document already establishes:
+  1. **Grounded, cited answers** — every claim links its source: the incident row, run
+     record, gate condition or archetype rule it was derived from. An answer that cannot
+     cite a source says so instead of guessing; the assistant never invents effort figures
+     or risk values (#13's methodology documentation is its reference for what effort *is*).
+  2. **Tenant- and RBAC-scoped by construction** — the assistant executes with the
+     requesting user's scopes (#36) inside their organization (#41): it can only see, quote
+     and summarize what the user could open themselves; every retrieval is in scope #42's
+     audit record.
+  3. **Full AI transparency per the RHDS AI design principles** — every answer carries its
+     attribution footer: agent name, gateway + model (`llm-gateway-1 (granite-3.3-70b)`
+     style), token and cost showback, and a timestamped event trail in the run-event log
+     (#50). No first-person persona, no "I can help you" copy — the assistant is
+     system-like, answers are statements, not role-play (#16's guardrails; #28's versioned
+     prompt templates define its system prompt).
+  4. **Inference through the governed layer** — requests route through Suggestion 20's
+     MaaS gateway (quotas, per-tenant showback); the abstraction is Suggestion 19's
+     MCP/tool interface — the assistant is an MCP-capable client whose tools are Hub reads,
+     so the same tool surface serves API consumers (#48).
+  5. **Human-in-the-loop for actions** — read-only by default; any write it proposes
+     (queue an analysis, draft a triage) renders as an explicit actionable card the user
+     accepts or rejects, never a side effect of the conversation (#16).
+  6. **Cost visibility** — sessions show token/cost accumulation live, so "ask the
+     assistant" is a metered choice, not a hidden one (#20).
+- **Mockup validation (2026-11-18, demonstrated):** a **Migration assistant panel**
+  (masthead sparkle button — the AI-experience marker, `#55` anno tip — opening the real
+  PF6 detail drawer). The demo answers a fixed set of questions, but every answer is
+  **computed live from the tenant's records at ask time**: *why is payments-api High risk?*
+  derives the rating, incident count and effort from the application record and the
+  archetype's group assessment; *what changed since the last run?* summarizes the current
+  scope state and explicitly declines to infer history ("I cite state, not inference").
+  Governance demonstrated per the proposal: **citations** render as deep links into the
+  actual records; the **attribution footer** carries the `.ai-marker` sparkle + "planner ·
+  llm-gateway-1 (granite-3.3-70b) · tokens · cost · logged to the run-event log" (#16,
+  #20, #50); the **session meter** accumulates questions/tokens/cost (#20 showback);
+  **writes are explicit** — the "queue analysis for docs-portal" proposal renders as an
+  accept/reject card, and accepting executes the console's real queue action (#16);
+  **scoping is live** — under padmin, pivoting to Meridian Health (audited, #42) changes
+  the scope note and the same question then refuses: "not in your current scope (#41)".
+  Panel content is English-only (`data-i18n-skip`); system-like voice throughout — no
+  first-person persona. Verified in
+  [use-case-verification.md](../deliverables/ui-mockup/use-case-verification.md)
+  (defect row 190; verify-assistant.js — 13 assertions).
+- **Adoption notes:** the assistant is a *consumer* of the platform suggestions, not a
+  prerequisite for any of them — it should be sequenced last in its wave. Grounding
+  retrieval uses the Hub query API (#33/#48); prompt templates and evaluation harness come
+  from #28/#29; feedback ("was this answer correct?") feeds the same MTA-7360-adjacent
+  signal as #54's topic feedback and #6's false-positive loop.
+
+---
+
+### 3.41 Hub API / Automation (new, 2026-11-19)
+
+#### Suggestion 56: MCP server for the Tackle Hub
+
+- **Area:** Hub API / Automation (Agentic AI)
+- **Problem / Pain point:** Suggestion 19 defined the MTA-wide MCP ambition — analysis
+  engine, Solution Server, rules, IDE bridge — but the Hub itself, the system of record for
+  inventory, incidents, waves and gates, assessment and the agentic registry, exposes that
+  data only through its REST API (#48) and the UI. Every AI consumer today builds a bespoke
+  REST client with hand-rolled auth and tenancy handling: the VS Code extension speaks its
+  own endpoints, Kai's MCP bridge re-implements `run_analysis` / `get_analysis_results` /
+  `get_incidents_by_file` against non-Hub surfaces, and an organization's own automation
+  each re-discovers the Hub's auth reality (observed 2026-11, see #19): the Hub is **its own
+  OIDC provider and rejects Keycloak JWTs** — programmatic access must mint tokens via Hub
+  basic auth (`POST /auth/tokens`). #48 made the API a machine-first contract; what is
+  missing is the tool-call layer agent runtimes already speak, so the contract's semantics
+  do not have to be re-encoded per client.
+- **Proposed improvement:** ship an **MCP server alongside the Hub** that exposes the #48
+  contract as MCP tools and resources — a 1:1 mapping, no new semantics:
+  1. **Tool surface = the contract.** Tools mirror the contract's resources and verbs
+     (applications, incidents + triage, analyses, waves + gates, tasks, identities, audit);
+     the read set is the default toolset, mutating verbs (#33: queue analysis, triage,
+     assign-to-wave) ship as explicitly enabled tools. Tool annotations (`readOnlyHint`,
+     `destructiveHint`) follow the MCP spec so clients can gate without out-of-band docs.
+  2. **Auth = the documented exchange, not a workaround per client.** OAuth 2.1/OIDC per
+     the current MCP specification (2026-07-28); enterprise IdP (Keycloak, #5) → Hub token
+     via a token-exchange/delegation step — the pattern the MCP server for OpenShift
+     implements and the field observation above demands. RBAC scopes (#36) and organization
+     tenancy (#41, including the Keycloak Organizations claims) are enforced **server-side
+     per call**: an agent inherits the caller's visibility, never the server's; a cross-org
+     pivot is the audited padmin flow, not a tool flag.
+  3. **Governance rides the existing substrate.** Every tool call lands in #42's audit
+     record; tool calls that trigger agentic work attribute tokens/costs to the run-event
+     log (#50) and route inference through the #20 gateway.
+  4. **Transports & packaging.** stdio for local/IDE use; streamable HTTP for shared
+     deployments; packaged with the Hub (same image or sidecar) and declared through the
+     operator (#31) so a cluster admin enables it declaratively.
+  5. **Conformance is contract conformance.** The #48 parity gate extends to the tool
+     surface: a tool whose schema, scopes or error semantics drift from the REST contract
+     fails CI — the discipline the workspace's hub-backend reference implementation already
+     applies to the REST side (Keycloak-OIDC-everywhere auth, Keycloak Organizations
+     tenancy, checked-in schema of record).
+  6. **Ecosystem placement.** Registers in the RHOAI MCP Catalog and is governable by the
+     MCP Gateway (#19's integration section); the migration assistant (#55) is its
+     first-party client; the IDE integration (#26) rides it instead of bespoke endpoints.
+- **Validation (substrate demonstrated, server proposed):** the workspace's
+  `deliverables/hub-backend/` reference implementation (Quarkus 3.40 / Java 21, Keycloak
+  OIDC in every profile, realm-based scopes and org claims, the 22-entity schema of record)
+  is the natural host — Quarkus ships an MCP server extension, so the tool layer is
+  annotation-level over the existing Panache resources. Honest gap: the MCP server itself
+  is not yet implemented, and the console mock demonstrates only the client side (#55's
+  assistant panel).
+- **Expected benefit:** any MCP-capable agent, IDE or automation can drive the Hub with
+  governed, scoped, audited access; the bespoke-client class disappears; #55 and #26 become
+  consumers of one supported surface instead of defining their own.
+- **Estimated effort:** M — the contract (#48) and the auth/tenancy substrate exist; the
+  work is the tool mapping, the token exchange, and the conformance tests.
+- **Workarounds used today:** bespoke REST clients with hand-rolled auth; the VS Code
+  extension's private endpoints; Kai's MCP bridge re-implementing analysis tools outside
+  the Hub.
+- **References:** MCP specification (2026-07-28, Linux Foundation / Agentic AI Foundation);
+  Quarkus MCP server extension; Konveyor `kai_mcp_solution_server` and the editor-extensions
+  MCP bridge; MCP server for Red Hat OpenShift (token-exchange pattern); Suggestions #19
+  (MTA-wide MCP surface), #48 (Hub API contract), #33 (verbs), #41/#42 (tenancy, audit),
+  #55 (first-party client), #26 (IDE consumer).
+
+---
+
+### 3.42 Integrations (new, 2026-11-19)
+
+#### Suggestion 57: Integration with Apicurio Registry A2A — the migration factory's agents as governed, discoverable A2A agents
+
+- **Area:** Integrations (Agentic AI interoperability)
+- **Problem / Pain point:** Suggestion 16 adopted A2A Agent Cards and Agent Skills as the
+  factory's interoperability standards — replacing the proprietary Git-branch handoffs — and
+  Suggestion 27 (item 5) noted that Apicurio Registry already stores `AGENT_CARD`,
+  `MCP_SERVER`, and `MCP_TOOL` artifacts. What is still missing is the protocol wiring: the
+  factory's agents (planner, verifier-*, remediation workers) are invisible to the A2A
+  ecosystem — no published cards, no discovery endpoint, no way for an organization's other
+  agents (or RHOAI-hosted ones) to find and invoke a migration capability, and no way for
+  the factory to consume external agents without bespoke integration. Interop then degrades
+  to out-of-band agent inventories — the same undocumented-coupling problem #27 solved for
+  API contracts, now at the agent layer.
+- **Upstream status (verified 2026-11-19):** Apicurio Registry ships the substrate —
+  `AGENT_CARD` is a native artifact type (schema-validated, versioned, searchable) with A2A
+  discovery via the `/.well-known/agent.json` convention, search by capability/skill/mode,
+  compatibility rules as agents evolve, and change tracking for compliance; the registry
+  itself doubles as an A2A agent exposing its own skills (schema-validation,
+  artifact-management, agent-discovery, …). Caveat to plan around: A2A support is
+  **experimental and disabled by default** (`APICURIO_A2A_ENABLED=true` plus the
+  experimental-features flag) — treat the flag as a supportability gate, not a given.
+- **Proposed improvement:**
+  1. **Publish the factory's agents as A2A agents:** every registered factory agent (#16's
+     registry) publishes an Agent Card to the registry — identity, version, skills, I/O
+     modes, auth requirements, endpoint URL. Card versions are pinned per workflow (#49),
+     so a workflow's behavior stays reproducible; run-event log entries (#50) attribute
+     each agent-to-agent task to the card version that served it.
+  2. **Consume external A2A agents as factory workers:** the workflow engine (#49) resolves
+     a step's agent by registry search (capability/skill query), not a hard-coded URL — an
+     organization can swap in its own remediation or translation agent, and the factory
+     gate evaluates it by the same evidence rules (#16).
+  3. **Compatibility rules as the evolution gate:** a card change that breaks a pinned
+     consumer fails the registry's compatibility check the same way a schema change does
+     (#27 item 3) — agent evolution gets the consumer-verified impact analysis that code
+     contracts already have.
+  4. **Governed exposure, not a public dump:** publish/unpublish is a scoped, audited
+     operation (#42); cards carry the factory's attribution (agent name, gateway + model,
+     #16/#50) in their descriptions; external discovery honors the organization boundary
+     (#41) — the registry search endpoint fronts the same tenancy filter as the Hub.
+  5. **Guardrail attestation on the card:** before a card is publishable, #29's evaluation
+     results (adversarial runs, guardrail configuration) are recorded against that card
+     version — discovery consumers see an agent's tested posture, not just its
+     self-description.
+- **Validation (data model demonstrated, protocol wiring proposed):** the console mock's
+  agentic registry (agent/skill/gateway screens) renders the data model such cards describe
+  (agent name, skills, gateway + model attribution); hub-backend's agent/workflow/
+  agent_run entities are the substrate a card projection would read from. Honest gap: no
+  A2A endpoint or registry sync is implemented — this suggestion is the integration spec,
+  not a demonstration.
+- **Expected benefit:** the factory becomes a participant in the organization's agent
+  ecosystem instead of a closed product: migration capabilities are discoverable and
+  invokable A2A-wide, external capabilities compose in without bespoke work, and agent
+  evolution gains registry-enforced compatibility and audit — with the experimental-flag
+  caveat tracked until Apicurio promotes A2A support to GA.
+- **Estimated effort:** M (card generation from the existing agent registry, registry sync,
+  search-fronted tenancy; the registry substrate exists upstream but is experimental).
+- **Workarounds used today:** agent handoffs via the proprietary Git-branch conventions
+  (#16's pain point); out-of-band agent inventories.
+- **References:** Apicurio Registry A2A features and agent-registry quick start (3.2.x–3.4.x
+  docs; `AGENT_CARD` type, `APICURIO_A2A_ENABLED`, well-known discovery); A2A protocol
+  specification (Agent Card, discovery); Suggestions #16 (A2A adoption), #27 (registry
+  integration, item 5), #49 (workflow authoring), #50 (run-event log), #41/#42 (tenancy,
+  audit), #29 (attestation), #56 (Hub MCP server — the tool-call counterpart).
+
+---
+
+### 3.43 Agentic AI / Hub (new, 2026-11-19)
+
+#### Suggestion 58: Per-agent MCP server configuration — governed tool bindings, rendered into the agent framework's native configuration
+
+- **Area:** Agentic AI / Hub (agent registry)
+- **Problem / Pain point:** Suggestion 19 establishes the MCP servers and has the factory
+  agents consume them; #16's sandbox constrains network reachability; #29 wraps every call
+  in rails. But nowhere is *which* MCP servers a specific agent may use — and with which
+  scopes — a governed artifact. Today the wiring lives in ad-hoc agent definition files
+  (`.mcp.json`-style), unversioned and invisible to the Hub: an agent's tool access can
+  drift between runs; a workflow that pins the agent version (#49) still cannot state what
+  tools the agent could touch; and audit (#42) cannot answer "what could this run's agent
+  do?" except post-hoc, from the run-event log's invocation records (#50). The binding is
+  the missing artifact between the registry's agents (#16) and the registry's servers
+  (#27's `MCP_SERVER`) — and the platform already has the pattern for it: plugins declare
+  capabilities, permissions, and receive least-privilege credentials (#34). Underneath,
+  every factory agent is built on a **concrete agent framework** — Goose, LangGraph,
+  CrewAI, Semantic Kernel — and it is the *framework* that owns the MCP configuration
+  format: Goose reads MCP servers as `extensions:` from `~/.config/goose/config.yaml`
+  (a **global** file shared across agents, with a permission mode that defaults to
+  operating autonomously), LangGraph wires `langchain-mcp-adapters` in code, CrewAI uses
+  its `MCPServerAdapter`. The framework-native configs are exactly the hand-maintained,
+  drift-prone layer this suggestion must own — and the binding must *render into* them,
+  not bypass them (verified 2026-11-19 against the Goose extension docs).
+- **Proposed improvement:**
+  1. **Bindings as first-class, versioned artifacts:** the agent registry gains an
+     MCP-server section per agent — an ordered list of MCP server references (Apicurio
+     `MCP_SERVER` artifacts, #27/#57), each with a tool filter (allow/deny patterns) and
+     declared scopes, versioned like prompt templates (#28) and Agent Cards (#57).
+     hub-backend's `agent`/`agent_skills` entities are the substrate — the binding is the
+     sibling of the existing agent→skills relation.
+  2. **Framework-native rendering, never hand-edited:** the agent registry records the
+     underlying framework (name + version) next to the image; the run assembler *compiles*
+     the framework-neutral binding into that framework's configuration and injects it
+     read-only into the sandbox — for a Goose agent, `extensions:` entries with
+     `type: streamable_http`, the exchanged credentials in the `client_id`/`scopes` fields
+     (per-session injection via `--with-streamable-http-extension` where the framework
+     supports it), and the permission mode pinned to the binding's posture instead of the
+     default "operates autonomously". The same compile step targets LangGraph's adapter
+     wiring, CrewAI's `MCPServerAdapter`, or Semantic Kernel's MCP plugins; a rendered
+     config that does not parse in the target framework fails CI (the #48 parity-gate
+     discipline applied to the render step). A framework upgrade re-renders — nothing is
+     re-edited.
+  3. **Credentials by token exchange, never shared secrets:** at run start the agent
+     receives exchanged, scope-limited tokens for each bound server (#5's identity chain,
+     #56's exchange; inference credentials via #20). Raw server credentials never enter
+     the agent's environment — closing the leak class the current env-var configuration
+     implies.
+  4. **Enforced at two layers, derived from one source:** the sandbox network policy
+     (#16's OpenShell per-binary rules) is *generated from* the binding, and #29's
+     execution rails validate every tool call against it — a call to an unbound server
+     fails closed. One declaration, two enforcers: no drift between what is declared and
+     what is possible.
+  5. **Governance and audit:** binding changes are audited mutations (#42); every run
+     record states the binding version used, so "which tools could this run touch?" is
+     answerable before reading a single event (#50); workflows can pin binding versions
+     (#49) the way they pin Agent Card versions (#57).
+  6. **UI:** the console's agent registry renders the bound servers with their scopes next
+     to the existing skills, and the agent-detail view shows effective access — binding +
+     credential scopes.
+  7. **Example bindings** — using the console mock's registry agents and the #19/#56 server
+     surface; least privilege is shown by what is *absent* as much as by what is present:
+     - `analyzer-jboss-eap-7-to-8` → `hub-tools` (#56), **read-only** tool filter
+       (`applications/*`, `incidents/*`, `analyses/*`; every mutating verb denied) — an
+       analyzer never writes; no other server bound.
+     - `planner-spring-boot-to-quarkus` → `hub-tools` (read) + `kai-solution-server`
+       (#19 item 3, retrieval scope) — plan generation needs solved examples, not write
+       access; `runs:create` deliberately denied, queueing stays human-gated (#16).
+     - `rewriter-spring-boot-to-quarkus` → `github-tools` scoped to the application's
+       repository and the workspace branch, PR creation only — git remains the human
+       review gate (#16 item 7) — plus `hub-tools` `analyses:read`. The only agent with
+       repo-write reach, and even that lands as a PR, not a push.
+     - `verifier-citrus` → `hub-tools` (read: `waves/*`, verification evidence) +
+       `sandbox-exec` (#47: execute the charter's suites in the sandbox) — no repo write,
+       no deploy path.
+     - `remediation-internal` → the organization's internal `rgctl` server (#34's plugin
+       pattern: declared permissions) + `hub-tools` (read); its `mig-deploy` skill stays
+       behind the human-approved gate, so the binding grants no production-reaching tool.
+     Framework annotation: the mock's agents are container images; a registry record adds
+     the framework — say the rewriter and verifier are **Goose** agents, the planner a
+     **LangGraph** graph. Each binding is versioned; a workflow (#49) pins
+     `rewriter-spring-boot-to-quarkus@binding-v3` and the run record (#50) prints exactly
+     that — so "what could this run's rewriter touch?" has a one-line answer. For the
+     Goose rewriter, binding v3 renders to (injected read-only into the sandbox):
+```yaml
+# rendered from binding v3 — not hand-maintained
+extensions:
+  hub-tools:
+    name: hub-tools
+    type: streamable_http
+    uri: https://hub.mta.svc/mcp
+    client_id: rewriter-binding-v3
+    scopes: [analyses.read]
+    enabled: true
+  github-tools:
+    name: github-tools
+    type: streamable_http
+    uri: https://mcp-gateway.internal/github
+    scopes: [repo:payments-api:pr]
+    enabled: true
+# permission mode pinned by the assembler, not left at the autonomous default
+```
+     The planner's LangGraph render wires the same two servers through
+     `langchain-mcp-adapters` with the identical scope set — one binding, two frameworks,
+     zero hand-maintained config files.
+  8. **Factory frameworks vs. BYOA consumers — the scope boundary:** renderers exist for
+     frameworks the factory's agents are *built on*; tools that merely connect to the
+     surface get no renderer — they get governed access through the MCP Gateway with
+     token-claims-driven tool filtering. Both directions have upstream proof (verified
+     2026-11-19). Consumer side: Red Hat's "Bring Your Own Agent" pattern operationalizes
+     OpenClaw on Red Hat AI by pointing the agent at a single gateway `MCP_URL` and letting
+     token claims — never prompt content — decide which tools are reachable (OAuth2 token
+     exchange per backend, identity-based filtering at the Envoy MCP Gateway; prompt
+     injection cannot reach unauthorized tools because the gateway ignores prompt content
+     entirely) — the same enforcement-from-the-binding principle this suggestion codifies,
+     already implemented at the infrastructure layer. Framework side: Hermes Agent's
+     native MCP configuration (`mcp_servers:` with per-server `tools.include` /
+     `tools.exclude` filters, custom headers, `${VAR}` credential references) maps onto
+     the binding artifact almost 1:1 — the cheapest on-demand renderer — though its
+     personal-automation shape (broad host access, messaging-first, a skills loop that
+     rewrites its own tools) fits it as an A2A-registered external agent (#57) or an MCP
+     client of #19/#56, not as a sandboxed factory worker (#16).
+- **Validation (demonstrated by adjacency, binding itself proposed):** the mock's
+  agent/skill registry renders agent→skills and hub-backend's `agent_skills` entity is
+  that same relation — the binding is the missing twin. Honest gap: no MCP-binding entity,
+  policy generation, or UI section exists yet.
+- **Expected benefit:** tool access becomes declarative, least-privilege, versioned and
+  auditable per agent — the configuration layer that makes #19's tool surface safe to
+  scale across agents and organizations; drift between declared and actual tool access
+  disappears.
+- **Estimated effort:** M (binding entity + registry UI + credential exchange + policy
+  generation + one renderer per supported framework — Goose first; every substrate
+  exists).
+- **Workarounds used today:** ad-hoc agent definition files outside the Hub; network
+  reachability as the only de-facto permission boundary; post-hoc tool-use forensics via
+  run logs.
+- **References:** Red Hat, "Operationalizing Bring Your Own Agent on Red Hat AI, the OpenClaw edition" (MCP Gateway, token-claims tool filtering); Nous Research Hermes Agent MCP docs (`mcp_servers` config, per-server tool filters); Goose extension docs (`extensions:` in `config.yaml`); Suggestions #19 (tool surface), #16 (sandbox enforcement), #29 (rails),
+  #27/#57 (`MCP_SERVER` artifacts), #56 (token exchange), #20 (credential isolation),
+  #28 (versioned-artifact precedent), #34 (permission-scoping pattern), #49/#50 (pinning,
+  run attribution), #42 (audit), #5 (identity chain).
+
+---
+
+### 3.44 Migration planning (new, 2026-11-19)
+
+#### Suggestion 59: Wave staffing availability — absence-aware capacity for wave planning
+
+- **Area:** Migration planning / Hub (wave planner, stakeholder registry)
+- **Problem / Pain point:** Suggestion 46 made wave capacity a first-class number, and the
+  mock's row-202 model is explicit about the formula: *stakeholders × working days in the
+  wave window × allocation factor*, with over-commitment flagged when the plan's team-day
+  load exceeds that capacity. But the only availability the model actually knows about is
+  the **calendar** (working days in the window) and a **uniform allocation constant** (60%
+  — "stakeholders are part-time on migration"). Person-level availability is invisible:
+  no absence data (PTO, partial leave, training, ramp-up — if a named stakeholder is out
+  two weeks of a six-week window, the capacity figure does not move), no per-person
+  allocation (a stakeholder at 100% and one at 30% count identically), and no cross-wave
+  double-booking surfacing (the team model allows one role per person *per team*, so a
+  person can implicitly sit in two teams feeding overlapping waves — that contention is
+  never shown). The consequences compound downstream: the over-commitment tail fires only
+  when *plan load exceeds derived capacity*, so it is blind to capacity that shrank after
+  the plan was made; wave gates (#46/#47) can pass a feasibility check against paper
+  capacity; and the numbers a pm/pgm bring to the program review are systematically
+  optimistic in exactly the waves that are understaffed in practice.
+- **Proposal:**
+  1. **Make availability data, not a constant.** Extend the stakeholder record with an
+     optional per-person `allocation` (default: the org's 60% factor) and absence entries
+     (date range, optional reason class: PTO / leave / training / other). Where an HR or
+     SCIM source exists (#5), absence syncs from it; otherwise it is maintained in
+     Administration → Teams / Stakeholders by the same roles that staff teams today.
+  2. **Absence-aware capacity formula.** Capacity = Σ over the wave's member-stakeholders
+     of (working days in window − absence days inside the window) × per-person allocation.
+     Absence subtracts *that person's* day-weighted contribution, not flat days, so a
+     30%-allocated stakeholder's week off costs less than an architect's.
+  3. **Double-booking: split the math, flag the cause.** When a stakeholder sits in N
+     teams whose waves overlap, the choice is between *splitting* the allocation across
+     the waves (honest capacity, but the contention becomes invisible) and *flagging* it
+     (visible, but each wave keeps paper capacity the person cannot actually deliver).
+     The proposal does both, each where it belongs: the **capacity math splits** — by
+     default the person's allocation divides equally across the overlapping waves (a
+     later per-wave weighting can refine this), so no wave counts days the person cannot
+     spend there — and the **UI flags** the split: the composition card names the shared
+     people and their divided allocation ("J. Cordes · 50/50 across Wave 2 + Wave 3"), so
+     the reduced capacity is diagnosable rather than silently swallowed. Flag-only was
+     rejected because it is exactly the paper-capacity failure this suggestion exists to
+     close; silent split was rejected because an unexplained capacity drop is worse than
+     an explained one.
+  4. **Cause-carrying over-commitment and gate evidence.** The capacity stat breaks down
+     (per-team-day today; per-person with absence lines under the proposal), so the
+     over-commitment tail states *why* ("2 absences, 1 shared stakeholder") instead of only
+     that the tail is red; the wave gate (#47) gains an availability evidence item; the
+     wave planner (#25) sizes suggested waves against real — not nominal — capacity.
+  5. **RBAC/tenancy.** Availability is tenant data (#41): editable by the roles that staff
+     teams (admin/architect via `waves:edit`-adjacent scopes), readable by pm/pgm;
+     mutations audited (#42); served through the #48 API contract like every other
+     planning input.
+- **Mockup validation:** the mock demonstrates the flat model this suggestion replaces —
+  row 202's capacity stat (stakeholders × working days × 60%, load vs. cap, the
+  "capacity unknown — staffing pending" state for an unstaffed wave) is fully rendered on
+  the waves screen, and the Waves suite asserts it. Honest gap: no absence data, no
+  per-person allocation, and no contention flag exist anywhere in the mock — the proposal
+  extends the composition card's capacity stat and over-commitment annotation; no mock
+  change has been made yet (suggestion-stage).
+- **Expected benefit:** wave capacity reflects who is actually present in the window;
+  over-commitment becomes diagnosable instead of merely visible; the wave gate's
+  feasibility evidence (#47) stops passing on paper capacity; program-review numbers
+  (pm/pgm landings, #46) become trustworthy for understaffed waves; and the planner (#25)
+  can size waves to real capacity instead of headcount.
+- **Estimated effort:** M (stakeholder extension: allocation field + absence entity;
+  capacity recompute and gate evidence item; composition-card breakdown UI; #48 API
+  additions — the wave/stakeholder entities and the row-202 math substrate all exist).
+- **Workarounds used today:** offline spreadsheets for absence; the uniform 60% constant;
+  verbal availability commitments that never reach the tool.
+- **References:** Suggestion #46 (wave execution tracking — the capacity surface),
+  #25 (wave planner — sizing input), #47 (verification & gate evidence), #41/#42
+  (tenancy, audit), #5 (identity/HR sync as the absence source), #48 (API contract),
+  #36 (role-adaptive visibility of the breakdown); mock defect row 202 (the capacity
+  model this extends).
+
+---
+
 ## 4. Positive Feedback (What Works Well)
 
 _Based on our experience with the 8.x releases — points we hope will be kept and strengthened:_
@@ -2264,6 +2757,12 @@ _Proposed grouping; adjust to your organization's needs._
 51. Suggestion 51 — Multi-lingual console UI (externalized string catalog + language switcher; EN/DE/AR/ES/FR/JA/IT/TR demonstrated, incl. full RTL)
 52. Suggestion 52 — Light/dark color scheme (RHDS theming model: PF6 dark scheme class, persisted, deep-linkable, state-reflecting sun/moon toggle)
 53. Suggestion 53 — Collapsible navigation sidebar (masthead toggle, per-user preference; row-102 grid pin as the regression guard)
+54. Suggestion 54 — In-application online help (embedded, searchable, version-matched task topics in a help drawer; rides Suggestion 43's per-view map as the topic selector)
+55. Suggestion 55 — Migration assistant (grounded, governed chat bot over the tenant's own migration data; consumer of the #16–#29/#48–#50 governance stack)
+56. Suggestion 56 — MCP server for the Tackle Hub (the #48 contract exposed as governed MCP tools; the server-side half of #19, and the surface #55's assistant connects through)
+57. Suggestion 57 — Integration with Apicurio Registry A2A (the factory's agents publish Agent Cards to the registry's agent registry; governed A2A discovery into and out of the factory — the protocol wiring for #16's A2A adoption and #27 item 5)
+58. Suggestion 58 — Per-agent MCP server configuration (governed tool bindings as versioned registry artifacts, rendered into the agent framework's native configuration — Goose `extensions:`, LangGraph adapters —; credentials by token exchange, enforced by #16's sandbox and #29's rails)
+59. Suggestion 59 — Wave staffing availability (per-stakeholder allocation + absence-aware capacity, double-booking split + flag; extends #46's row-202 capacity math with person-level data and feeds #25's planner and #47's gate evidence)
 
 ### 5.1 Suggested implementation sequence
 
@@ -2279,9 +2778,9 @@ Priority says *what matters*; sequence says *what order the work can actually pr
 | **0** | Quick wins & guardrails | **#35, #3, #15**, #38, #5, #11, #13, #21, #43, #44 | Small-to-medium effort, immediate friction relief, and the two must-haves that are process/safety (diagnostics, cutover safety). #35's automated a11y/navigation gate then guards all later UI work. #38 (queue resilience) is a field-verified wedge that blocks every analysis until fixed. #43 (help system) and #44 (wizards) start early so help and guided flows grow with the UI the other suggestions change — #44's import/tracker/run wizards eliminate the field-verified silent failure modes (#39, #37, #32) at the step that causes them. |
 | **1** | Platform & engine foundations | **#7, #12, #33, #48**, #30, #31, #41, #42 | The remaining must-haves (determinism, export) plus the API extension set (triage, diff, bulk, events, aggregates) that six later suggestions build on — and #48, which turns that API into a supported, versioned contract *before* those six consumers hard-wire against it; observability and the deployment CR are the ops substrate; #41 (multi-tenancy) is the authorization substrate — team scoping must exist before per-tenant attribution (#20/#30) and team-scoped wave planning (#25) can mean anything; #42 (audit logging) rides #33's change-detection internals and records the credential accesses #41 makes sensitive. |
 | **2** | Analysis & inventory quality | #23, #22, #24, #18, #8, #37 | Dependency resolution (#23) fixes the data underneath effort and CVEs; RHDA integration and vulnerability/test-coverage issue types (#22, #24) consume it; #18 sets the standards contract the plugin work will formalize; #37 keeps the wave-ticket sync alive against live Jira Cloud. |
-| **3** | Decision support | #1, #6, #10, #4, #32, #25, #9, #14, #2, #45, #46 | Consumes Wave 1–2: run diffs and the triage/false-positive loop (#1, #6→#10) need determinism + triage API; rollup and combined risk (#4, #32) need aggregates; the wave planner (#25) needs #4/#32/#23; trends (#14) need diff/history; saved views (#2) polish the now-filterable surfaces; #45 (archetype lifecycle) lands here because membership rules feed the planner (#25) with accurate groups and risk provenance (#32 item 6) restores the signal the aggregates display; #46 (wave execution) closes the loop the same wave opens — progress, gates, and actuals riding #25's compositions, #33 item 8's member state, and #37's ticket sync. |
-| **4** | Governed AI & agentic trust | #20, #19, #16, #39, #49, #50, #26, #28, #29, #47 | Governance first (#20 MaaS, then #28 versioned prompts), interop second (#19 MCP), then the agentic run reports/guardrails (#16) and runtime guardrails/evaluation (#29) that depend on all three; #39 (harness production-readiness) makes the runs trustworthy in enterprise setups before scale-up; #49 (workflow authoring) lands after #39 for the same reason — it composes the harness, registry, stage-context, and gate surfaces into an authorable artifact, so every substrate it needs ships first; the IDE two-way integration (#26) rides the MCP server and the Wave-1 triage API; #47 (verification) lands here deliberately — its execution rides #16's sandboxed run machinery and its evidence feeds #46's gates, so it needs both the Wave-3 execution tracking and the Wave-4 run substrate to exist first. |
-| **5** | Ecosystem & experience | #34, #27, #17, #36, #40, #51, #52, #53 | The plugin architecture (#34) formalizes what Waves 2–4 proved as integrations (#22, #27, #20); generator customization (#17) rides the plugin points; the tracker SPI (#40) ports Jira to the #34 contract with #37's fix as first plugin; the role-adaptive UI (#36) comes last deliberately — it reorganizes navigation around personas and needs the aggregates (#4/#32), consolidated views, and the #35 gate to exist first. |
+| **3** | Decision support | #1, #6, #10, #4, #32, #25, #9, #14, #2, #45, #46, #59 | Consumes Wave 1–2: run diffs and the triage/false-positive loop (#1, #6→#10) need determinism + triage API; rollup and combined risk (#4, #32) need aggregates; the wave planner (#25) needs #4/#32/#23; trends (#14) need diff/history; saved views (#2) polish the now-filterable surfaces; #45 (archetype lifecycle) lands here because membership rules feed the planner (#25) with accurate groups and risk provenance (#32 item 6) restores the signal the aggregates display; #46 (wave execution) closes the loop the same wave opens — progress, gates, and actuals riding #25's compositions, #33 item 8's member state, and #37's ticket sync. |
+| **4** | Governed AI & agentic trust | #20, #19, #56, #16, #57, #39, #49, #50, #26, #28, #29, #47, #55, #58 | Governance first (#20 MaaS, then #28 versioned prompts), interop second (#19 MCP), then the agentic run reports/guardrails (#16) and runtime guardrails/evaluation (#29) that depend on all three; #39 (harness production-readiness) makes the runs trustworthy in enterprise setups before scale-up; #49 (workflow authoring) lands after #39 for the same reason — it composes the harness, registry, stage-context, and gate surfaces into an authorable artifact, so every substrate it needs ships first; the IDE two-way integration (#26) rides the MCP server and the Wave-1 triage API; #47 (verification) lands here deliberately — its execution rides #16's sandboxed run machinery and its evidence feeds #46's gates, so it needs both the Wave-3 execution tracking and the Wave-4 run substrate to exist first; #55 (migration assistant) is the wave's consumer — it rides the governed inference (#20), prompt templates (#28), MCP tool surface (#19), run-event log (#50) and scoped-data model (#36/#41/#42), so it ships after every substrate it cites; #56 (Hub MCP server) ships beside #19 as its server-side half — it needs only the contract (#48) and the auth substrate (#5/#41), and #55 is one of its clients; #57 (Apicurio A2A) rides #27's registry connection and #16's A2A adoption — discovery and governance for the factory's agents, not a new substrate; #58 (per-agent MCP bindings) is the configuration layer under #19's tool surface — declared once, enforced by #16's sandbox and #29's rails. |
+| **5** | Ecosystem & experience | #34, #27, #17, #36, #40, #51, #52, #53, #54 | The plugin architecture (#34) formalizes what Waves 2–4 proved as integrations (#22, #27, #20); generator customization (#17) rides the plugin points; the tracker SPI (#40) ports Jira to the #34 contract with #37's fix as first plugin; the role-adaptive UI (#36) comes last deliberately — it reorganizes navigation around personas and needs the aggregates (#4/#32), consolidated views, and the #35 gate to exist first. |
 
 Parallelization: the waves gate *dependencies*, not teams — an engine stream (#23, #24, #7), a platform/API stream (#33, #48, #30, #12), a UI stream (#35-guarded), and an AI stream (#20→#19→#16) can overlap substantially; each wave boundary above marks where cross-stream handoffs occur (#33 → #4/#6/#36; #20/#19 → #16/#26; #23 → #25/#32).
 
@@ -2326,6 +2825,8 @@ own components:
 | 47 | Verification & integration testing | Hub + the existing sandboxed task/run machinery |
 | 49 | Workflow authoring | Hub + the factory's existing workflow/agent-run machinery |
 | 50 | Persistent run-event log | Hub + agentic-controller; OCSF (open standard) for denial events |
+| 56 | MCP server for the Tackle Hub | Hub only (MCP is an open standard; tools map 1:1 to the #48 contract) |
+| 58 | Per-agent MCP server configuration | Hub only (bindings as registry artifacts; sandbox/rails policy derives from them) |
 
 ### Tier 2 — Self-contained core with an abstraction point
 
@@ -2343,7 +2844,9 @@ implementation rather than a hard dependency:
 | 22, 24 | RHDA/RHTPA; vulnerability issue types | Vulnerability-data provider interface | OSV, OWASP dep-check, or none | Exhort API (RHDA), RHTPA/trustify backend |
 | 27 | Apicurio Registry integration | Schema-registry adapter interface | No registry (contract data simply absent) | Apicurio Registry (itself OSS) |
 | 28 | Governed prompt templates | Prompt-template store interface | Filesystem/Git-based template packs | Apicurio `PROMPT_TEMPLATE`, RHOAI Prompt Templates |
-| 29 | Runtime guardrails & adversarial evaluation | Guardrail + evaluation provider interfaces | Garak and NeMo Guardrails (both OSS) | EvalHub, MiDojo, asago orchestration |
+| 29 | Runtime guardrails & adversarial evaluation | Guardrail + evaluation provider interfaces | Garak and NeMo Guardrails (both OSS) | EvalHub, MiDojo, asago 
+| 55 | Migration assistant (chat bot) | MCP tool interface (#19); LLM client (OpenAI-compatible) | Any MCP-capable client over Hub read APIs | RHOAI MaaS gateway (quotas, per-tenant showback) |orchestration |
+| 57 | Apicurio A2A integration | A2A is an open protocol; registry-backed discovery is an abstraction point | Agents serve their own Agent Cards; any A2A-capable discovery | Apicurio Registry agent registry (validation, search, compatibility rules)
 
 ### Tier 3 — Genuine Red Hat product coupling (acceptable as optional enhancements)
 
@@ -2375,14 +2878,14 @@ side. The still-later additions 47–50 (already appended to the Tier-1 table
 above) keep the same shape: verification & integration testing (CI/sandbox
 tooling), the Hub API contract and workflow authoring (Hub resources), and
 the persistent run-event log (Hub + agentic-controller; OCSF denial events
-are an open standard). With these included, 42 of 53 suggestions require no Red Hat product
-at all, 11 carry only an abstraction point, and the five Tier 3 notes above
+are an open standard). With these included, 45 of 58 suggestions require no Red Hat product
+at all, 13 carry only an abstraction point, and the five Tier 3 notes above
 remain the only genuine product couplings (full-feature extras on Tier 2
 items).
 
 ### Implication
 
-More than three-quarters of this document (42 of 53 suggestions) requires
+More than three-quarters of this document (45 of 58 suggestions) requires
 **no Red Hat product at all** — it is
 upstream Konveyor engineering. Most of the remainder needs only clean provider
 interfaces, for which the open-source components Red Hat itself uses (Apicurio,
