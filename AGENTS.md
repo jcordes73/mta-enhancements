@@ -150,11 +150,11 @@ DevServices (podman socket). Landmines learned during the build:
   tenancy resolves from TWO claim sources — read about them together:
   - **Members are NOT importable** (keycloak#54343): realm JSON import
     creates orgs but silently drops members. `keycloak/sync-org-members.sh`
-    (kcadm, idempotent) adds them; compose runs it as the
-    `keycloak-bootstrap` one-shot init service (needs the bootstrap admin —
-    `KC_BOOTSTRAP_ADMIN_USERNAME/PASSWORD` on the keycloak service). For
-    dev runs, execute the script against :8180 manually or rely on the
-    `mta-org` attribute fallback.
+    (kcadm, idempotent) adds them — run it manually against the Dev
+    Services realm (defaults to port 8180); it also attaches the
+    `org-membership` client scope, which realm import cannot do. Without
+    the script every demo user still works via the `mta-org` attribute
+    fallback, but `r.olson` (membership-only tenancy) has none.
   - **Two org claims, one per source**: `mta-org` (display-name string,
     from the user attribute — tests/dev fallback) and `mta-orgs` (native
     `oidc-organization-membership-mapper` via the custom `org-membership`
@@ -177,9 +177,10 @@ DevServices (podman socket). Landmines learned during the build:
     match.
   - **Login is username-first** with orgs enabled (org identification step,
     then password) — e2e probes must handle the two-step form.
-  - **Port clash**: DevServices pins Keycloak to :8180 — stop the compose
-    keycloak service (or `podman rm` the DevServices container afterwards;
-    testcontainers leaves `nervous_blackwell`-style strays bound to 8180).
+  - **Port clash**: DevServices pins Keycloak to :8180 — a leftover
+    DevServices container from a failed test boot may hold the port
+    (`podman rm` the stray; testcontainers leaves
+    `nervous_blackwell`-style strays bound to 8180).
 - `schema.sql` (2026-11-16) is the **checked-in schema of record**, not an
   init script — never point Quarkus at it (Part 1 duplicates what Hibernate
   generates; runtime truth stays `update`/`drop-and-create`). Part 1 is the
@@ -191,26 +192,18 @@ DevServices (podman socket). Landmines learned during the build:
   because it backs the Quarkus implementation; the UI-mock link points at it.
 - Test profile uses `drop-and-create` + reseed per JVM; dev keeps
   `update` (persistent).
-- **Container stack (`deliverables/compose.yaml`, 2026-11-16)**: podman
-  compose runs postgres + keycloak (`start-dev --import-realm`, healthcheck
-  via bash `/dev/tcp` — no curl in the KC image) + hub-backend
-  (hub-backend/Containerfile, fast-jar) + console (ui-react/Containerfile +
-  nginx.conf, context = `deliverables/` because prebuild extracts generated.ts
-  from ui-mockup/index.html). Issuer landmine: tokens are issued as
-  `http://localhost:8180/realms/mta` (browser view) but the backend validates
-  against in-network `http://keycloak:8080/...` — compose sets
-  `QUARKUS_OIDC_TOKEN_ISSUER` to the localhost URL and
-  `QUARKUS_OIDC_CONNECTION_DELAY=45S` for the realm-import race. Ports
-  5173/8180 are pinned by the realm's redirect URIs. Datasource landmine:
-  the JDBC URL env is `QUARKUS_DATASOURCE_JDBC_URL` (`quarkus.datasource.jdbc.url`)
-  — plain `QUARKUS_DATASOURCE_URL` is not a property, and without a URL the
-  agroal bean deactivates ("Unable to find datasource '<default>'").
-  Postgres 18 mounts its volume at `/var/lib/postgresql` (not `.../data`).
-  **Recreate landmine (2026-11-16)**: after `podman compose build <svc>`,
-  `podman compose up -d <svc>` does NOT recreate the container from the new
-  image (it reports done while the old image keeps serving) — always
-  `up -d --force-recreate <svc>` and verify the running image ID matches
-  (`podman inspect <ctr> --format '{{.Image}}'` vs `podman image ls`).
+- **Container stack removed (2026-11-24)**: `deliverables/compose.yaml` and
+  the Containerfiles/nginx.conf it built from are gone — the stack runs in
+  dev mode (`mvn quarkus:dev` + `npm run dev`) or as a `%prod` jar against
+  external services. Durable landmines that outlive it: the JDBC URL env is
+  `QUARKUS_DATASOURCE_JDBC_URL` (`quarkus.datasource.jdbc.url`) — plain
+  `QUARKUS_DATASOURCE_URL` is not a property, and without a URL the agroal
+  bean deactivates ("Unable to find datasource '<default>'"); when OIDC
+  issuer views split (browser vs in-network Keycloak origin), set
+  `QUARKUS_OIDC_TOKEN_ISSUER` (+ `QUARKUS_OIDC_CONNECTION_DELAY` for the
+  realm-import race); Postgres 18 mounts its volume at
+  `/var/lib/postgresql` (not `.../data`). Ports 5173/8180 are pinned by the
+  realm's redirect URIs.
 - Incident keys embed file paths (slashes) — the triage route uses a regex
   path param `/{incidentKey: .+}/triage` and clients send the key raw.
 - **Console-extension resources (2026-11-16)**: 13 new entities (platform,

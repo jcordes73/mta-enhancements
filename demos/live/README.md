@@ -2,7 +2,7 @@
 
 Animated guided tour of the **live application** — the React console
 (`deliverables/ui-react`) reading the Quarkus hub backend through Keycloak
-auth, generated from the running compose stack. This is the live-API sibling
+auth, generated against the running application. This is the live-API sibling
 of `../mock/` (same tour, same caption overlays, same click
 markers — but every frame is a real authenticated render of the running app,
 not a file:// mock).
@@ -48,8 +48,9 @@ are the users' email addresses):
 
 ## How it works
 
-`make-demo.sh` requires the compose stack to be **up** (`podman compose up -d`
-from `deliverables/`): console `:5173`, Keycloak `:8180`, hub `:8080`. Then:
+The console must be **running** (the vite dev server from
+`deliverables/ui-react` — `npm run dev` — or any deployment): console
+`:5173`, Keycloak `:8180`, hub `:8080`. Then:
 
 1. **`capture.mjs`** (puppeteer-core, installed locally into `demos/node_modules`)
    signs each demo persona in through the real Keycloak login (username-first,
@@ -71,7 +72,8 @@ No video editing, no mocks — if the API is down the frames would show the
 app's error state. Regenerate:
 
 ```bash
-demos/live/make-demo.sh
+DEMO_BASE=http://<console-host>:5173 node demos/live/capture.mjs
+python3 demos/live/assemble.py
 ```
 
 Edit the `SCENES` array in `capture.mjs` (hash, click selector, scroll steps)

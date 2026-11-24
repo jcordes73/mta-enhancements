@@ -3,7 +3,7 @@ const fs = require('fs');
 const html = fs.readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8').replace(/<script[^>]*src=[^>]*><\/script>/g, '').replace(/<link[^>]*>/g, '');
 const OK = (n, c) => console.log((c ? 'PASS' : 'FAIL') + '  ' + n);
 const mk = (lang) => {
-  const dom = new JSDOM(html, { url: 'http://localhost/mock.html#lang=' + lang, runScripts: 'dangerously', pretendToBeVisual: true });
+  const dom = new JSDOM(html, { url: 'http://mock.test/mock.html#lang=' + lang, runScripts: 'dangerously', pretendToBeVisual: true });
   return new Promise(res => setTimeout(() => res(dom.window), 900));
 };
 (async () => {

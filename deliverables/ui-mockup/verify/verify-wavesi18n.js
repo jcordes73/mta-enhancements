@@ -2,7 +2,7 @@ const { JSDOM } = (() => { try { return require('jsdom'); } catch (e) { return r
 const fs = require('fs');
 const html = fs.readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8').replace(/<script[^>]*src=[^>]*><\/script>/g, '').replace(/<link[^>]*>/g, '');
 const OK = (n, c) => { if (!c) global.__fails = (global.__fails || 0) + 1; console.log((c ? 'PASS' : 'FAIL') + '  ' + n); };
-const dom = new JSDOM(html, { url: 'http://localhost/mock.html#lang=de', runScripts: 'dangerously', pretendToBeVisual: true });
+const dom = new JSDOM(html, { url: 'http://mock.test/mock.html#lang=de', runScripts: 'dangerously', pretendToBeVisual: true });
 const w = dom.window;
 setTimeout(() => {
   const d = w.document;

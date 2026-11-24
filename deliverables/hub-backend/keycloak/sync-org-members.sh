@@ -7,10 +7,9 @@
 # script is idempotent: it ensures the orgs exist (the realm import normally
 # creates them), then ensures every listed user is a member of their org.
 #
-# Run it after the realm exists (compose runs it as the `keycloak-bootstrap`
-# init service; for dev: `podman run --rm --network host -v .../keycloak:/w:Z
-# quay.io/keycloak/keycloak:26.7.4 bash /w/sync-org-members.sh` against the
-# DevServices Keycloak on localhost:8180).
+# Run it after the realm exists — against the Dev Services Keycloak (port
+# 8180, the default here), e.g. from a throwaway Keycloak container with the
+# keycloak/ directory mounted and KC_URL set to the reachable origin.
 #
 # Membership is what the native `mta-orgs` token claim (oidc-organization-
 # membership-mapper, client scope `org-membership`) is built from — the
@@ -23,7 +22,7 @@
 # ---------------------------------------------------------------------------
 set -euo pipefail
 
-KC_URL="${KC_URL:-http://keycloak:8080}"
+KC_URL="${KC_URL:-http://127.0.0.1:8180}"
 KC_ADMIN_USER="${KC_ADMIN_USER:-admin}"
 KC_ADMIN_PASSWORD="${KC_ADMIN_PASSWORD:-admin}"
 REALM="${REALM:-mta}"

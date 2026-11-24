@@ -159,9 +159,9 @@ button; nothing else renders.
 - **Static content boundaries** (kept in the app, no backend surface):
   `ACTIVE_LOGINS`/`EXTRA_USERS` (Config Access tab, console-directory demo) and
   the Reports combined-matrix/insights editorial prose.
-- **Dev proxy** (`vite.config.ts`): `/api/*` → `process.env.HUB_API ||
-  http://localhost:8080` (rewrite strips `/api`). Set `VITE_API_BASE` to point
-  the client elsewhere. Start the backend with `mvn quarkus:dev` in
+- **Dev proxy** (`vite.config.ts`): `/api/*` → `process.env.HUB_API` (dev
+  default: the hub's :8080; rewrite strips `/api`). Set `VITE_API_BASE` to
+  point the client elsewhere. Start the backend with `mvn quarkus:dev` in
   `../hub-backend`.
 - **`.tsx` generic arrow functions need `<T,>`** — `const per = async <T>(…)`
   parses `<T>` as JSX and fails with confusing syntax errors.
@@ -420,7 +420,8 @@ migration:
   the five demo identities (mock values: 14m/3d/1h/6h ago — was null ⇒
   'never' everywhere), and the adapter renders Expires the mock's EN way:
   relative "in N days" within 14 days, short date ("Sep 12") otherwise.
-  Requires a fresh DB volume (`podman compose down -v`) to reseed.
+  Requires reseeding the Dev Services database (drop the Dev Services
+  PostgreSQL container/volume, then restart `mvn quarkus:dev`).
 - **Known remaining divergences (accepted)**: the app-detail modal's Reports
   and Dependencies tabs still have no hub read (run comparison, artifact
   inventory); archetype management writes (create/edit/membership-rule
@@ -444,13 +445,13 @@ migration:
 cd ../hub-backend && mvn quarkus:dev   # the API on :8080 — start FIRST (hard dependency)
 cd ui-react
 npm install
-npm run dev        # http://localhost:5173 (proxies /api → :8080)
+npm run dev        # console on :5173 (proxies /api → :8080)
 npm run build      # type-checks + bundles (extraction runs first)
 node scripts/extract-data.mjs   # re-sync static literals from the mock
 ```
 
-Open http://localhost:5173 — you land on the **sign-in screen**. Sign in at
-the Dev Services Keycloak (http://localhost:8180, realm `mta`) with a demo
+Open the console (:5173) — you land on the **sign-in screen**. Sign in at
+the Dev Services Keycloak (:8180, realm `mta`) with a demo
 user (password `demo`): `keller` (architect), `cordes` (migrator), `schmidt`
 (pm · team Claims), `vogel` (pgm), `weber` (admin), `root` (padmin), `olson`
 (architect, tenancy from org membership). With the orgs feature enabled the

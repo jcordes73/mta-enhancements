@@ -57,7 +57,7 @@ card([("Migration Toolkit for Applications", f1, WHITE),
       ("Northwind Financial · architect → migrator → project mgr → program mgr", f3, GRAY)]
      ).save(frames_dir + "/card_title.png")
 card([("Try it yourself", f1, WHITE),
-      ("podman compose up -d  →  http://localhost:5173 — sign in as m.keller@northwind-financial.com / demo", f3, GRAY),
+      ("mvn quarkus:dev + npm run dev  →  :5173 — sign in as m.keller@northwind-financial.com / demo", f3, GRAY),
       ("deep-linkable: #scr=…&lang=…&scheme=… — every frame above is a live render", f3, GRAY)]
      ).save(frames_dir + "/card_outro.png")
 

@@ -9,6 +9,15 @@ line per row) remains the detailed evidence record; this file is the
 what-changed-when index. Long-form design-system rules:
 [`deliverables/ui-mockup/design-system-rules.md`](deliverables/ui-mockup/design-system-rules.md).
 
+- **Container stack removed (2026-11-24)** — `deliverables/compose.yaml`, the two
+  Containerfiles and nginx.conf are gone, and the docs no longer advertise a
+  localhost compose stack: deliverables/README now runs the stack in dev mode
+  (`mvn quarkus:dev` + `npm run dev` via Dev Services, port-only phrasing), the
+  guided-demo path is `capture.mjs` + `assemble.py` with a required `DEMO_BASE`,
+  and the jsdom suites use a non-resolving `mock.test` URL. `sync-org-members.sh`
+  stays (de-composed): it is the only path that gives `r.olson` his
+  membership-only tenancy and attaches the `org-membership` scope.
+
 - **Pages deploy self-heals on re-runs (row 246, deploy incident)** — the workflow deletes
   stale `github-pages` artifacts from earlier attempts before uploading (retried, non-fatal),
   so a failed deploy + re-run can no longer produce the "Multiple artifacts" deploy failure.

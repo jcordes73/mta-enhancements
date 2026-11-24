@@ -1,7 +1,7 @@
 const { JSDOM } = (() => { try { return require('jsdom'); } catch (e) { return require('/tmp/node_modules/jsdom'); } })();
 const fs = require('fs');
 const html = fs.readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8').replace(/<script[^>]*src=[^>]*><\/script>/g, '').replace(/<link[^>]*>/g, '');
-const dom = new JSDOM(html, { url: 'http://localhost/mock.html', runScripts: 'dangerously', pretendToBeVisual: true });
+const dom = new JSDOM(html, { url: 'http://mock.test/mock.html', runScripts: 'dangerously', pretendToBeVisual: true });
 dom.window.addEventListener('error', e => console.log('RUNTIME ERROR:', e.message));
 let pass = 0, fail = 0;
 const OK = (n, c) => { console.log((c ? 'PASS' : 'FAIL') + '  ' + n); c ? pass++ : fail++; };
@@ -46,12 +46,12 @@ setTimeout(() => {
     && d.getElementById('tourRoleName').textContent.includes('Program manager'));
   w.closeTour();
   // deep links skip the welcome
-  const dom2 = new JSDOM(html.replace('</body>', '<script>localStorage.clear();</script>'), { url: 'http://localhost/mock.html#scr=waves&persona=pm', runScripts: 'dangerously', pretendToBeVisual: true });
+  const dom2 = new JSDOM(html.replace('</body>', '<script>localStorage.clear();</script>'), { url: 'http://mock.test/mock.html#scr=waves&persona=pm', runScripts: 'dangerously', pretendToBeVisual: true });
   setTimeout(() => {
     const d2 = dom2.window.document;
     OK('deep link with unseen persona skips the welcome (shared context)', d2.getElementById('welcomeModal').hidden);
     // boot with no hash in a fresh storage greets
-    const dom3 = new JSDOM(html, { url: 'http://localhost/mock.html', runScripts: 'dangerously', pretendToBeVisual: true });
+    const dom3 = new JSDOM(html, { url: 'http://mock.test/mock.html', runScripts: 'dangerously', pretendToBeVisual: true });
     setTimeout(() => {
       OK('fresh boot (no hash, no flags) greets the boot persona', !dom3.window.document.getElementById('welcomeModal').hidden);
       console.log(pass + ' passed, ' + fail + ' failed');

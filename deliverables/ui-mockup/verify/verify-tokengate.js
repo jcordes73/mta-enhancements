@@ -3,7 +3,7 @@ const fs = require('fs');
 const html = fs.readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8').replace(/<script[^>]*src=[^>]*><\/script>/g, '').replace(/<link[^>]*>/g, '');
 let pass = 0, fail = 0;
 const OK = (n, c) => { console.log((c ? 'PASS' : 'FAIL') + '  ' + n); c ? pass++ : fail++; };
-const dom = new JSDOM(html, { url: 'http://localhost/mock.html#lang=de', runScripts: 'dangerously', pretendToBeVisual: true });
+const dom = new JSDOM(html, { url: 'http://mock.test/mock.html#lang=de', runScripts: 'dangerously', pretendToBeVisual: true });
 const w = dom.window;
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 (async () => {
@@ -88,7 +88,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   OK('AR: gate summary fragments', T().includes('بوابة الموجة 3 فاشلة'));
 
   // ---- EN must be byte-exact: reload fresh in EN ----
-  const dom2 = new JSDOM(html, { url: 'http://localhost/mock.html', runScripts: 'dangerously', pretendToBeVisual: true });
+  const dom2 = new JSDOM(html, { url: 'http://mock.test/mock.html', runScripts: 'dangerously', pretendToBeVisual: true });
   await sleep(900);
   const w2 = dom2.window, d2 = w2.document;
   w2.setPersona('admin', true); w2.show('home'); await sleep(150);

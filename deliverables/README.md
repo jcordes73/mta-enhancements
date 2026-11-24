@@ -10,99 +10,87 @@ build. For the workspace layout and pipeline context, see the
 
 The three artifacts relate as **reference → port → contract**:
 
-# Run everything with podman compose
+# Run the stack in dev mode
 
-[compose.yaml](compose.yaml) brings the whole stack up in containers —
-PostgreSQL, Keycloak (the checked-in realm), the Quarkus hub-backend
-(`%prod` profile), and the React console (nginx serving the production
-build with `/api` proxied to the hub). No host Java, Node, or Maven needed.
+The container stack (`podman compose`) was removed (2026-11-24) — the
+supported way to run the product is two dev servers: the Quarkus
+hub-backend (Dev Services auto-boot PostgreSQL + Keycloak with the
+checked-in realm) and the React console on the vite dev server (proxies
+`/api` to the hub). A `%prod` build (`mvn clean package`) runs the same
+way against external PostgreSQL/Keycloak via env vars.
 
 ## Prerequisites
 
-- **podman ≥ 4.7** with a compose provider (`podman compose version` must
-  work — on Fedora/RHEL this delegates to `podman-compose`; docker-compose
-  v2 works identically via `docker compose` if you prefer).
-- **First build needs network** (Maven + npm images/deps); roughly 5–10
-  minutes once, seconds afterwards thanks to layer caching.
+- **Java 21 + Maven** (hub-backend), **Node** (ui-react).
+- **podman or docker** for the Dev Services containers (PostgreSQL,
+  Keycloak).
 - Free ports: **5173** (console), **8180** (Keycloak), **8080** (hub API).
 
 ## Start
 
 ```sh
-cd deliverables
-podman compose up --build -d          # first run: builds 2 images, seeds DB + realm
-podman compose ps                     # wait until keycloak/postgres report (healthy)
+cd deliverables/hub-backend
+mvn quarkus:dev           # API on :8080; Dev Services boot PostgreSQL + Keycloak on :8180
+cd ../ui-react
+npm install
+npm run dev               # console on :5173 (proxies /api → :8080)
 ```
 
-First boot order (automatic): postgres → keycloak (imports
-`hub-backend/keycloak/mta-realm.json`) → `keycloak-bootstrap` (one-shot;
-syncs Organization memberships, which realm imports skip — keycloak#54343)
-→ hub-backend (seeds the mock dataset into the empty DB) → console.
-Give it ~90 s end to end.
-
-| URL | What |
+| Port | What |
 |-----|------|
-| http://localhost:5173 | The console — sign in with a demo user (password `demo`; the username is the user's email address): `m.keller@northwind-financial.com` (architect), `j.cordes@northwind-financial.com` (migrator), `p.schmidt@northwind-financial.com` (pm · team Claims), `k.vogel@northwind-financial.com` (pgm), `a.weber@northwind-financial.com` (admin), `root@example.com` (padmin), `r.olson@northwind-financial.com` (architect — tenancy purely from Keycloak-org membership) |
-| http://localhost:8180 | Keycloak (realm `mta`) — admin console with `admin` / `admin` |
-| http://localhost:8080 | Hub API — `/openapi3.json`, Swagger UI at `/q/swagger-ui` |
+| :5173 | The console — sign in with a demo user (password `demo`; the username is the user's email address): `m.keller@northwind-financial.com` (architect), `j.cordes@northwind-financial.com` (migrator), `p.schmidt@northwind-financial.com` (pm · team Claims), `k.vogel@northwind-financial.com` (pgm), `a.weber@northwind-financial.com` (admin), `root@example.com` (padmin), `r.olson@northwind-financial.com` (architect — tenancy purely from Keycloak-org membership; see below) |
+| :8180 | Keycloak (realm `mta`, Dev Services) — admin console with `admin` / `admin` |
+| :8080 | Hub API — `/openapi3.json`, Swagger UI at `/q/swagger-ui` |
 
 **Credentials cheat-sheet** — every console/demo/test user has password
 `demo` (defined in `hub-backend/keycloak/mta-realm.json`); the Keycloak
-admin console is `admin` / `admin` (`KC_BOOTSTRAP_ADMIN_USERNAME/PASSWORD`
-in compose.yaml); the `pipeline` service-account client has no user
-password — it authenticates with the client secret `pipeline-secret`. All
-of this is plain text in the checked-in realm file: fine for the demo
-realm, rotate + inject secrets for anything production-bound.
+admin console is `admin` / `admin` (Dev Services bootstrap admin); the
+`pipeline` service-account client has no user password — it authenticates
+with the client secret `pipeline-secret`. All of this is plain text in the
+checked-in realm file: fine for the demo realm, rotate + inject secrets
+for anything production-bound.
 
 **Sign-in is username-first** (the orgs feature adds an identification
 step): username → *Sign In* → password → *Sign In*. The realm role of the
 user you pick IS the persona; the token's org claims scope your view
 (#41).
 
-**Guided demo** — `demos/live/make-demo.sh` (workspace root) renders the scripted role
-tour (architect → migrator → pm → pgm, captions + click markers + Clippy speech
-bubbles, same format as `demos/mock/`) against this live stack and writes
-`demos/live/mta-live-tour.gif` / `.webm`; scene list and captions are
-editable in `demos/live/capture.mjs` / `demos/live/assemble.py`.
+**Organization membership** — realm import creates the organizations but
+drops their members (keycloak#54343). All demo users carry an `mta-org`
+attribute (the attribute claim drives tenancy), so dev mode works out of
+the box; to exercise the native membership claim (user
+`r.olson@northwind-financial.com`, tenancy purely from membership) run
+`hub-backend/keycloak/sync-org-members.sh` once against the Dev Services
+realm — it also attaches the `org-membership` client scope, which realm
+import cannot do. See the script header for the exact invocation.
+
+**Guided demo** — `demos/live/` renders the scripted role tour
+(architect → migrator → pm → pgm, captions + click markers + Clippy speech
+bubbles, same format as `demos/mock/`) against a **running console** — the
+vite dev server or any deployment. Set `DEMO_BASE` to the console origin,
+then `node demos/live/capture.mjs` and `python3 demos/live/assemble.py`
+(writes `demos/live/mta-live-tour.gif` / `.webm`); scene list and captions
+are editable in `capture.mjs` / `assemble.py`.
 
 Smoke test without a browser:
 
 ```sh
-T=$(curl -s http://localhost:8180/realms/mta/protocol/openid-connect/token \
-  -d 'grant_type=password&client_id=mta-console&username=keller&password=demo&scope=openid' \
+KC=http://<keycloak-host>:8180 HUB=http://<hub-host>:8080
+T=$(curl -s $KC/realms/mta/protocol/openid-connect/token \
+  -d 'grant_type=password&client_id=mta-console&username=m.keller%40northwind-financial.com&password=demo&scope=openid' \
   | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')
-curl -H "Authorization: Bearer $T" http://localhost:5173/api/organizations   # via the console proxy
+curl -H "Authorization: Bearer $T" $HUB/organizations
 ```
-
-## Day-to-day
-
-```sh
-podman compose logs -f hub-backend    # per-service logs (also: keycloak, console, keycloak-bootstrap)
-podman compose stop                   # stop, keep containers + data
-podman compose start                  # resume
-podman compose down                   # remove containers (PostgreSQL data + realm survive in volumes)
-podman compose down -v                # also drop volumes — fresh DB AND fresh realm import on next up
-podman compose up -d --build hub-backend console   # rebuild after editing backend/frontend sources
-```
-
-After editing **realm or membership state**, use `down -v` — the realm
-lives in the PostgreSQL volume, and `--import-realm` skips existing realms
-(a plain `up` would not re-import changes).
 
 ## Troubleshooting
 
-- **Port 8180/8080/5173 in use** — likely a leftover DevServices Keycloak
-  from `mvn test` (`podman ps`, `podman rm -f <container>`) or a host dev
-  server; free the port, then `podman compose start`.
-- **Console shows "Hub backend unavailable"** — `podman compose logs
-  hub-backend`; the backend waits up to 45 s for Keycloak (realm import),
-  and the console's Retry button re-runs the load.
-- **`mvn test` fails to boot Keycloak** — the compose keycloak holds :8180;
-  `podman compose stop keycloak keycloak-bootstrap` first, run the tests,
-  then `podman compose start keycloak`.
+- **Port 8180 in use / `mvn test` fails to boot Keycloak** — a Dev
+  Services Keycloak from a previous run may still hold the port
+  (`podman ps`, `podman rm -f <container>`); free it and start again.
+- **Console shows "Hub backend unavailable"** — start the hub first (the
+  console is a hard API client; its Retry button re-runs the load).
 - **Everything resolves but zero rows** — the token has no usable org
-  claim; check `podman logs mta-console_keycloak-bootstrap_1` (memberships
-  synced?) and the `mta-org` / `mta-orgs` claims in a token.
+  claim; check the `mta-org` / `mta-orgs` claims in a token.
 
 The ports are pinned by the realm file (redirect URIs / web origins for
 :5173 and :8180) and the console's auth defaults — don't move them without

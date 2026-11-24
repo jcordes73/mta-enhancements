@@ -2,7 +2,7 @@ const { JSDOM } = (() => { try { return require('jsdom'); } catch (e) { return r
 const fs = require('fs');
 const html = fs.readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8').replace(/<script[^>]*src=[^>]*><\/script>/g, '').replace(/<link[^>]*>/g, '');
 function make(hash){
-  const dom = new JSDOM(html, { url: 'http://localhost/mock.html' + (hash || ''), runScripts: 'dangerously', pretendToBeVisual: true });
+  const dom = new JSDOM(html, { url: 'http://mock.test/mock.html' + (hash || ''), runScripts: 'dangerously', pretendToBeVisual: true });
   dom.window.addEventListener('error', e => console.log('RUNTIME ERROR:', e.message));
   return dom;
 }

@@ -58,7 +58,7 @@ mta-improvements/
 | **[implementation/implementation.md](implementation/implementation.md)** | Implementation backlog (Part II): schemas, API contracts, RBAC, tests, rollout, ADRs, KPIs (§8–§18, §21). |
 | **[socialization/](socialization/socialization-scripts.md)** | SIG-meeting scripts and [slide decks](socialization/presentations/index.html), one per proposal. |
 | **[upstream/](upstream/route1-issue-comments.md)** | Ready-to-post upstream content: [Route 1](upstream/route1-issue-comments.md) comments, [Route 2](upstream/route2-issue-texts.md) and [Route 3](upstream/route3-waves-2-5.md) issue texts. |
-| **[deliverables/](deliverables/README.md)** | The three code artifacts (reference → port → contract). **Run the stack:** `cd deliverables && podman compose up --build -d` → http://localhost:5173 (password `demo`). |
+| **[deliverables/](deliverables/README.md)** | The three code artifacts (reference → port → contract). **Run the stack:** dev mode — `mvn quarkus:dev` (hub-backend) + `npm run dev` (ui-react), then open the console on :5173 (password `demo`). |
 | **[deliverables/ui-mockup/index.html](deliverables/ui-mockup/index.html)** | Navigable PatternFly 6 console mockup: 11 screens, enforced RBAC, tenancy, i18n, deep links, annotation badges. |
 | **[deliverables/ui-mockup/use-case-verification.md](deliverables/ui-mockup/use-case-verification.md)** | Persona journeys, coverage matrix, live-console parity audit, and the append-only defect log (§4, rows 1–106). |
 | **[deliverables/ui-mockup/design-system-rules.md](deliverables/ui-mockup/design-system-rules.md)** | Long-form RHDS/PF6 conformance clauses for the mock (AGENTS.md carries the binding summary). |
@@ -133,7 +133,7 @@ each other:
 | ✅ | Agent-run telemetry + table pagination + bulk delete + state-gated queueing (rows 105–106, 2026-11-17) | [CHANGELOG 2026-11-17](CHANGELOG.md) |
 | ✅ | hub-backend: contract v2.1, Keycloak everywhere, seeded with the mock's dataset; 30 tests green | [hub-backend README](deliverables/hub-backend/README.md) |
 | ✅ | ui-react: every screen live-API-backed with Keycloak auth; row-105/106 propagation complete | [MIGRATION.md](deliverables/ui-react/MIGRATION.md) |
-| ✅ | One-command compose stack (PostgreSQL + Keycloak + hub + console), live-verified 2026-11-17 | [deliverables/README.md](deliverables/README.md) |
+| ✅ | Live stack (PostgreSQL + Keycloak + hub + console) — compose container stack removed 2026-11-24; runs in dev mode via Dev Services, live-verified 2026-11-17 | [deliverables/README.md](deliverables/README.md) |
 | ✅ | Web publishing — mock + socialization decks deploy to GitHub Pages on every push to `main` | https://jcordes73.github.io/mta-enhancements/ · [.github/workflows/pages.yml](.github/workflows/pages.yml) |
 | ⬜ | Port the remaining mock surfaces to react-i18next and retire the legacy DOM walker | [MIGRATION.md "i18n strategy"](deliverables/ui-react/MIGRATION.md) |
 | ⬜ | hub verbs for run lifecycle (pause/resume/cancel) — currently client-side in the port | [MIGRATION.md](deliverables/ui-react/MIGRATION.md) |

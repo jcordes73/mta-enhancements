@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { JSDOM } = (() => { try { return require('jsdom'); } catch (e) { return require('/tmp/node_modules/jsdom'); } })();
 const html = fs.readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8');
-const dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable', pretendToBeVisual: true, url: 'http://localhost/' });
+const dom = new JSDOM(html, { runScripts: 'dangerously', resources: 'usable', pretendToBeVisual: true, url: 'http://mock.test/' });
 const w = dom.window;
 w.addEventListener('error', e => console.log('PAGE ERR:', e.message));
 setTimeout(() => {

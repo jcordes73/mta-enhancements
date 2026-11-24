@@ -1,7 +1,7 @@
 const { JSDOM } = (() => { try { return require('jsdom'); } catch (e) { return require('/tmp/node_modules/jsdom'); } })();
 const fs = require('fs');
 const html = fs.readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8').replace(/<script[^>]*src=[^>]*><\/script>/g, '').replace(/<link[^>]*>/g, '');
-const dom = new JSDOM(html, { url: 'http://localhost/mock.html', runScripts: 'dangerously', pretendToBeVisual: true });
+const dom = new JSDOM(html, { url: 'http://mock.test/mock.html', runScripts: 'dangerously', pretendToBeVisual: true });
 dom.window.addEventListener('error', e => console.log('RUNTIME ERROR:', e.message));
 let pass = 0, fail = 0;
 const OK = (n, c) => { console.log((c ? 'PASS' : 'FAIL') + '  ' + n); c ? pass++ : fail++; };
@@ -93,7 +93,7 @@ setTimeout(() => {
 
   // deep link: a fresh boot with &help=<topic> opens the drawer pre-navigated
   setTimeout(() => {
-    const dom2 = new JSDOM(html, { url: 'http://localhost/mock.html#persona=architect&help=agent-registry', runScripts: 'dangerously', pretendToBeVisual: true });
+    const dom2 = new JSDOM(html, { url: 'http://mock.test/mock.html#persona=architect&help=agent-registry', runScripts: 'dangerously', pretendToBeVisual: true });
     dom2.window.addEventListener('error', e => console.log('RUNTIME ERROR:', e.message));
     setTimeout(() => {
       const d2 = dom2.window.document;

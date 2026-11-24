@@ -2,7 +2,7 @@ const fs = require('fs');
 const { JSDOM } = (() => { try { return require('jsdom'); } catch (e) { return require('/tmp/node_modules/jsdom'); } })();
 const html = fs.readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8');
 const errors = [];
-const dom = new JSDOM(html.replace(/<script[^>]*src=[^>]*><\/script>/g, '').replace(/<link[^>]*>/g, ''), { url: 'http://localhost/mock.html', runScripts: 'dangerously', pretendToBeVisual: true });
+const dom = new JSDOM(html.replace(/<script[^>]*src=[^>]*><\/script>/g, '').replace(/<link[^>]*>/g, ''), { url: 'http://mock.test/mock.html', runScripts: 'dangerously', pretendToBeVisual: true });
 dom.window.addEventListener('error', e => errors.push(e.message));
 setTimeout(() => {
   const d = dom.window.document, w = dom.window;

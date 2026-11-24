@@ -1,5 +1,5 @@
 /* Frame capture for the live-console demo — the React port of make-demo.sh's
-   scenes, against the running compose stack (console :5173, Keycloak :8180,
+   scenes, against the running application (console :5173, Keycloak :8180,
    hub :8080). Differences from the mock demo:
    - every persona needs a real Keycloak login (demo users, password "demo")
    - navigation happens inside the live SPA (hash routing, no page reloads)
@@ -10,7 +10,8 @@ import { mkdirSync, writeFileSync } from 'fs';
 import puppeteer from 'puppeteer-core';
 
 const CHROME = process.env.CHROME_BIN || '/usr/bin/google-chrome';
-const BASE = process.env.DEMO_BASE || 'http://localhost:5173';
+const BASE = process.env.DEMO_BASE;
+if (!BASE) { console.error('DEMO_BASE is required — set it to the running console origin, e.g. http://<console-host>:5173'); process.exit(1); }
 const OUT = process.env.DEMO_FRAMES || '/tmp/opencode/live-demo/frames';
 const VP = { width: 1920, height: 1080 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

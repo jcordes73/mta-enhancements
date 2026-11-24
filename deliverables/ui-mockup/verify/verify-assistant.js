@@ -8,7 +8,7 @@ const html = fs.readFileSync(require('path').join(__dirname, '..', 'index.html')
 let pass = 0, fail = 0;
 const OK = (n, c) => { console.log((c ? 'PASS' : 'FAIL') + '  ' + n); c ? pass++ : fail++; };
 
-const dom = new JSDOM(html, { url: 'http://localhost/mock.html#persona=architect', runScripts: 'dangerously', pretendToBeVisual: true });
+const dom = new JSDOM(html, { url: 'http://mock.test/mock.html#persona=architect', runScripts: 'dangerously', pretendToBeVisual: true });
 dom.window.addEventListener('error', e => console.log('RUNTIME ERROR:', e.message));
 setTimeout(() => {
   const w = dom.window, d = w.document;
@@ -61,7 +61,7 @@ setTimeout(() => {
 
   // scoping (#41): the assistant only cites what the user can open — padmin pivot demo
   setTimeout(() => {
-    const dom2 = new JSDOM(html, { url: 'http://localhost/mock.html#persona=padmin', runScripts: 'dangerously', pretendToBeVisual: true });
+    const dom2 = new JSDOM(html, { url: 'http://mock.test/mock.html#persona=padmin', runScripts: 'dangerously', pretendToBeVisual: true });
     dom2.window.addEventListener('error', e => console.log('RUNTIME ERROR:', e.message));
     setTimeout(() => {
       const w2 = dom2.window, d2 = dom2.window.document;

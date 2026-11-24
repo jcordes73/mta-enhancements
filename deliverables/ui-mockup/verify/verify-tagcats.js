@@ -7,7 +7,7 @@ const OK = (n, c) => { console.log((c ? 'PASS' : 'FAIL') + '  ' + n); c ? pass++
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function boot(hash) {
-  const dom = new JSDOM(html, { url: 'http://localhost/mock.html' + (hash || ''), runScripts: 'dangerously', pretendToBeVisual: true });
+  const dom = new JSDOM(html, { url: 'http://mock.test/mock.html' + (hash || ''), runScripts: 'dangerously', pretendToBeVisual: true });
   dom.window.addEventListener('error', e => console.log('RUNTIME ERROR:', e.message));
   return dom;
 }

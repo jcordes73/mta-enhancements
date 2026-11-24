@@ -13,10 +13,9 @@ out of scope — see the "Not implemented" list below).
 
 ## Run
 
-Prefer the full stack in containers (PostgreSQL + Keycloak + this API + the
-React console, one command, no host toolchain)? See
-[../README.md → "Run everything with podman compose"](../README.md) —
-`cd .. && podman compose up --build -d`.
+The console and stack runbook lives in [../README.md → "Run the stack in
+dev mode"](../README.md) — `mvn quarkus:dev` here, `npm run dev` in
+`../ui-react`.
 
 ```sh
 # dev mode (DevServices starts a PostgreSQL container automatically;
@@ -25,7 +24,7 @@ mvn quarkus:dev
 
 # package + run against a real PostgreSQL
 mvn clean package
-QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://localhost:5432/hub \
+QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://<db-host>:5432/hub \
 QUARKUS_DATASOURCE_USERNAME=hub QUARKUS_DATASOURCE_PASSWORD=hub \
 java -jar target/quarkus-app/quarkus-run.jar
 ```
@@ -133,7 +132,7 @@ PostgreSQL), then `podman exec <container> pg_dump -U quarkus -d quarkus
 
 Auth is OIDC everywhere — dev and test boot **Dev Services for Keycloak**
 with the checked-in realm [keycloak/mta-realm.json](keycloak/mta-realm.json)
-(pinned to `http://localhost:8180/realms/mta`); `%prod` points at a real
+(issuer pinned to the Dev Services instance on port 8180); `%prod` points at a real
 Keycloak via `KEYCLOAK_URL`. Unauthenticated calls return `401` +
 `WWW-Authenticate` in every profile; only `/openapi3.json` and `/q/*` are
 public.
@@ -149,15 +148,18 @@ public.
   `a.weber@northwind-financial.com` (admin), `root@example.com` (padmin) —
   all password `demo` (as are the test fixtures, which keep short names:
   `arch`, `chen`, `mig`, `pm`, `admin`, `padmin`, `someone-else`, `limited`,
-  `test-architect`). The Keycloak admin console (compose: `admin`/`admin`)
+  `test-architect`). The Keycloak admin console (Dev Services: `admin`/`admin`)
   and the `pipeline` client secret (`pipeline-secret`) are also plain text
   in the realm file — demo credentials only, rotate and inject for anything real.
 - **Organizations**: the realm enables the Keycloak *Organizations* feature
   (northwind-financial / meridian-health, matching the #41 tenancy sample).
   Org memberships are NOT realm-importable — [keycloak/sync-org-members.sh](keycloak/sync-org-members.sh)
-  (idempotent kcadm script; the compose stack runs it as an init service)
-  adds them. Demo user `olson` (architect) carries NO organization
-  attribute — his tenancy comes purely from org membership.
+  (idempotent kcadm script; run it manually against the Dev Services realm,
+  defaults to port 8180) adds them and also attaches the `org-membership`
+  client scope, which realm import cannot do. Without the script every demo
+  user still works via the `mta-org` attribute fallback; demo user `olson`
+  (architect) carries NO organization attribute — his tenancy comes purely
+  from org membership, so the script is required to exercise that path.
 - **Claims**: `mta-org` (organization display name, from the user
   attribute) and `team` drive tenancy, with native `mta-orgs` (Keycloak-org
   membership aliases) as the membership-derived source — `TenantScope`
@@ -172,10 +174,10 @@ public.
 
 ```sh
 # obtain a token (direct-access grant on mta-console)
-curl -s http://localhost:8180/realms/mta/protocol/openid-connect/token \
+curl -s http://<keycloak-host>:8180/realms/mta/protocol/openid-connect/token \
   -d 'grant_type=password&client_id=mta-console&username=m.keller%40northwind-financial.com&password=demo&scope=openid'
 # call the API with it
-curl -H "Authorization: Bearer <token>" http://localhost:8080/applications
+curl -H "Authorization: Bearer <token>" http://<hub-host>:8080/applications
 ```
 
 Note: with OIDC enabled but the auth server unreachable, unauthenticated
