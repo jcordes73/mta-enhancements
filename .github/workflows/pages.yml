@@ -29,6 +29,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Row-246 (2026-11-24 deploy incident): a failed deploy attempt + re-run left two
+      # artifacts named "github-pages" on the run and deploy-pages v4 refuses to pick
+      # between them ("Multiple artifacts named..."). Delete artifacts from earlier
+      # attempts so a re-run of this job always starts clean.
+      - name: Remove stale artifacts from earlier attempts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for id in $(curl -sf -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts?per_page=100" \
+              | jq -r '.artifacts[] | select(.name == "github-pages") | .id'); do
+            curl -sf -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$id"
+            echo "deleted stale artifact $id"
+          done
+
       - name: Assemble site
         run: |
           mkdir -p site/mock site/presentations
