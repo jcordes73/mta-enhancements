@@ -9,6 +9,10 @@ line per row) remains the detailed evidence record; this file is the
 what-changed-when index. Long-form design-system rules:
 [`deliverables/ui-mockup/design-system-rules.md`](deliverables/ui-mockup/design-system-rules.md).
 
+- **Pages deploy self-heals on re-runs (row 246, deploy incident)** — the workflow deletes
+  stale `github-pages` artifacts from earlier attempts before uploading (retried, non-fatal),
+  so a failed deploy + re-run can no longer produce the "Multiple artifacts" deploy failure.
+
 - **Global sidebar uses the same nav spacing (row 245, user follow-up)** — the row-244
   tightening extends to the outer left navigation, so both navigation rails match.
 
