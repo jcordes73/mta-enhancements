@@ -867,6 +867,75 @@ Durable interaction decisions:
   gated app-modal Queue button, armed bulk delete against the cascading
   `DELETE /applications/{id}`).
 
+### 19.6 Agentic artifact versioning (workflows · agents · skills)
+
+One lifecycle governs all three agentic artifact kinds; each kind pins
+what makes it reproducible (mock defect row 218, refining #49/#28/#20).
+
+**Common lifecycle — draft → validate → activate, immutable published
+versions.** Edits land as a draft, validate against the artifact's
+schema, and stay inactive until activated; the previous version keeps
+serving meanwhile. Version history is kept. The binding rule: **in-flight
+runs finish on the version they started with** — publishing never mutates
+a published version, because past run records point at it.
+
+**Workflows (#49)** are the reference case: versioned Hub resources
+(`/workflows`), YAML-authored and schema-validated on every surface
+(editor, upload, REST). A version = the full stage DAG (agent + skill +
+gateway binding + gates); activation is an org-scoped, audit-logged
+mutation. A workflow version freezes the agent/skill versions it
+composes **at activation time**, not at run time.
+
+**Agents (#28 digest pinning, A2A registry)** are bundles: image digest +
+system prompt + skill set + tool bindings. A version = an immutable
+combination of those pins, so `verifier-citrus v1.4` means "this image,
+these skill versions, these bindings" — not just a container tag. The A2A
+Agent Card carries its own version; registry curation applies per
+version (a new major version re-enters curation, #42-audited).
+
+**Skills (#28, #39)** are prompt template + parameters + I/O schema,
+stored as versioned artifacts in Apicurio Registry
+(`PROMPT_TEMPLATE`) — versioning, compatibility rules, and artifact
+identity are native there, not bespoke. Curated **prompt-template packs
+per migration path** version as a set (a wave pins "pack v2.1");
+organization customization creates a derived version with lineage
+(fork-of → pack v1.0, mock: `citrus-test-author v1.1`).
+
+**Reproducibility tie-in (#20, #28 item 5):** run records cite the exact
+**workflow · agent · skill-version triple** alongside the pinned model
+version. That makes a past migration re-runnable and a behavior change
+bisectable ("the re-validation delta came from skills v1.3 → v1.4, not a
+model change").
+
+Mock realization (row 218): agent/skill registry rows carry a Version
+column (draft badge on un-curated artifacts) and a shared version-history
+modal (Version/State/Date/Change; states active · superseded · retired ·
+draft); registry saves bump a patch version as an in-session draft.
+Workflows already render the #49 lifecycle with version history.
+
+### 19.7 Task-manager persona framing (mock defect row 226)
+
+The task manager is a **work view, not an admin-only view**: migrator/pm/pgm
+hold it because the queue rows *are* their queued analyses — failure causes
+(#3) and quota blocks (#38) surface only there. But the screen's voice is
+persona-aware (user decision, mock review):
+
+- **Admin/platform admin** keep the platform-health framing — "the
+  administrator's platform-health workspace" subtitle and the red
+  queue-health band (depth · aging · quota → raise-in-CR, #30/#38),
+  which is decision surface *above tenancy*.
+- **Work personas (migrator · pm · pgm)** get a work-queue framing —
+  "your queued work: task-level state, failure causes, retry hints" —
+  and the health band is hidden (its framing collapses, not just its
+  figures); the Cancel-selected affordance stays (migrator holds
+  `tasks:cancel`; pm/pgm see it scope-disabled).
+- **Architect** has no tasks view (unchanged).
+
+Mechanism: view-derived toggles (`data-needs-view` /
+`data-show-when-not-view` on the config view, which exactly admin/padmin
+hold), not persona-name conditionals — the framing follows the RBAC model
+(#36/#41) instead of duplicating it.
+
 ---
 
 ## 20. Console navigation & screen anatomy (abstract)

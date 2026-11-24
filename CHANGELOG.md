@@ -9,6 +9,154 @@ line per row) remains the detailed evidence record; this file is the
 what-changed-when index. Long-form design-system rules:
 [`deliverables/ui-mockup/design-system-rules.md`](deliverables/ui-mockup/design-system-rules.md).
 
+- **Global sidebar uses the same nav spacing (row 245, user follow-up)** — the row-244
+  tightening extends to the outer left navigation, so both navigation rails match.
+
+- **Administration sub-nav entry spacing minimized (row 244, user follow-up)** — each left-nav
+  leaf's block padding drops 8px → 4px (row pitch ~40px → ~32px); the remaining space is the
+  text's own line-height.
+
+- **Administration sub-nav section gap minimized (row 243, user follow-up)** — the space
+  between the left navigation's four sections drops to 4px; the section headings carry the
+  grouping on their own.
+
+- **Card-header button sizes normalized (row 242, user report)** — all card-header action
+  buttons render full-size across the mock (the Administration "Add …" family had been
+  `btn-xs`); `btn-xs` stays reserved for row-level table actions.
+
+- **Tag categories as managed data (row 241, user request)** — Landscape gains a third
+  "Tag categories" card tab (create / edit / guarded delete with live tag-reference counts);
+  the tag modal's category field is now a select referencing that store, and save validates
+  against it — no more free-text categories.
+
+- **Access pane tab order (row 240, user follow-up)** — the four "Users, tokens & identities"
+  tabs render as Users / Users & stakeholders / Identities / Tokens, with Users as the default
+  card; the "rotate under Tokens" cross-link follows the card to its new position.
+
+- **Access pane: every card is a tab (row 239, user follow-up)** — the "Users, tokens &
+  identities" view's side-by-side summary pair joins the tab model: four tabs (Users &
+  stakeholders / Tokens / Users / Identities), one card visible at a time; the "rotate under
+  Tokens" cross-link still lands directly on the Tokens card.
+
+- **"Add organization" hidden from the org admin (row 238, user follow-up)** — the button on the
+  Organizations card was disabled-but-visible for personas without `tenants:create`; it now
+  disappears entirely (the Platform administrator keeps it).
+
+- **Org admin sees only his own organization (row 237, user defect report)** — the
+  Organizations card's table and the masthead tenancy switcher listed the other org (readable
+  despite the row-125 disabled guard / as a disabled menu item); both now render only the org
+  admin's own organization — the Platform administrator keeps the full, audited cross-org list.
+
+- **Administration card tabs actually hide their cards (row 236, user defect report)** — row 235's
+  tabs toggled only the `hidden` property, which PF6's own card `display:flex` overrides; an
+  explicit display:none rule in the mock's style layer makes the non-current cards disappear.
+
+- **Administration: tighter sub-nav + card tabs (row 235, user follow-up)** — the left sub-nav's
+  section gap shrinks a notch (24 → 16px), and every Administration leaf pane that stacked 2–3
+  full-width cards now shows them as an in-pane tab bar (cards become tabpanels, one visible at
+  a time); the Access summary pair stays side-by-side with only Users/Identities tabbed.
+
+- **Administration left sub-nav replaces the tab stack (row 234, user follow-up)** — the
+  row-233 regroup still stacked two tab levels (top tabs + per-group sub-tab bars); both
+  dissolve into ONE left sub-nav on the Administration screen — four group headings
+  (Organization / Access / Analysis / Platform), 15 leaf destinations, every leaf one click
+  away. State + hash semantics unchanged: `&tab=<group>&sub=<leaf>` deep links, the
+  `CFG_TAB_ALIAS` map and `&sub=ai` (now a `CFG_SUB_ALIAS`) still land on their leaves.
+
+- **Assessment questions render from the questionnaire YAML (row 232, follow-up)** — the
+  modal's question block was hardcoded template text that disagreed with the questionnaire
+  YAML (different wording, 2 of 3 answers); the YAML in the Edit-YAML drawer is now the
+  single visible source — the modal renders its question block from a parsed representation
+  of that exact text, so the two cannot drift apart.
+
+- **Assessment questionnaire is a modal (row 231, user request)** — the questionnaire moved
+  from the right-side drawer into the app-detail modal shell, with the standard modal
+  contract (aria-label, focus on open, restore on close); the `&drawer=assess` deep link and
+  the row-230 start/override gate both land in the same modal.
+
+- **Assessments can be started (row 230, user question)** — a not-yet-assessed application
+  had no start path: the "Not started" cells were dead text and the only modal framed itself
+  as an override. The cells are entry points now and the "New assessment" modal is
+  mode-aware ("Start assessment" vs "Override"); the questionnaire drawer shows the honest
+  Not-started status either way.
+
+- **Wave 4 gate status corrected (row 229, user follow-up)** — the pm home's gate cell
+  dropped the quota-blocked cause whenever a ticket existed (now aggregates both), and the
+  architect home's Wave-gates strip hardcoded wave statuses — it derives from the gate
+  facts like every other surface now (wave 4: at risk, not "planned").
+
+- **Wave 3 delay now reported (row 228, user defect report)** — the project manager's wave
+  status table showed an em-dash for Wave 3 although its window closed 2026-10-24 with two
+  apps still running; planned-vs-actual now derives from the known windows and reports
+  "Nd overdue — window ended <date>" for any incomplete wave past its window.
+
+- **Nav phantom-gap fix (row 227, user defect report)** — hidden nav links left empty `<li>`
+  elements whose spacing still rendered, so personas with mid-list hidden items (migrator,
+  pm/pgm) saw +8px gaps before the next visible item; the whole nav item is hidden now and
+  item spacing is uniform (45px) for every persona.
+
+- **Task manager persona-aware framing (row 226, user design question)** — the task manager
+  stays visible for migrator/pm/pgm (the queue is their work), but stops wearing the admin
+  voice: work personas get a "your queued work" subtitle and the platform-health band
+  (queue depth, aging, quota → raise-in-CR) is admin/padmin-only, its framing collapsing
+  when hidden.
+
+- **Round-trip promoted to sub-tab (row 225, user request)** — on Reports → Rule coverage,
+  the Hub ↔ IDE round-trip report became a third sub-tab beside the matrix and transparency
+  views; deep links extended to `&sub=roundtrip`.
+
+- **Hub ↔ IDE round-trip is a data report now (row 224, user defect report)** — the prose
+  bullets on Reports → Rule coverage read as integration docs; the card body is an evidence
+  table now (When / Surface / Event / Subject / Actor) with rows drawn from the mock's
+  existing fact base: triage writes synced via the triage API, the organization rule publish,
+  and an IDE OIDC login.
+
+- **Agent-runs KPI tiles whitened (row 223, user defect report)** — the three static KPI
+  cards on Reports → Agent runs carried a bare `pf-m-plain` (transparent, borderless — the
+  only such cards on Reports); they are standard white cards now, matching every sibling panel.
+
+- **Rule coverage sub-tabs (row 222, user request)** — on Reports → Rule coverage, the
+  Rule coverage matrix and Rule result transparency cards became sub-tabs (matrix default,
+  deep-linkable via `&tab=rules&sub=matrix|trans`); the Hub ↔ IDE round-trip card stays
+  beneath. A panel-splice regression (unclosed sub-panel, the row-219 class) was caught by
+  the div-depth walk before shipping and fixed.
+
+- **Workflow authoring moved to Agentic, first tab (row 221, user request)** — the Reports
+  Workflow authoring card joined the Agentic Workflows tab (above the /workflows registry
+  table), and that tab moved to first position. The Agentic screen subtitle was rewritten
+  (EN + all locales) — it still said "six routes, operations first".
+
+- **Agent Cards (A2A) moved to Agentic (row 220, user request)** — the A2A Agent Card
+  registry card moved from Reports → Agent runs to a new "Agent cards" tab beside Agents on
+  the Agentic screen; deep-links via `#scr=agentic…&tab=cards`; the curation-queue link
+  keeps its RBAC gating.
+
+- **Reports tabs fixed (row 219, user defect report)** — Dependencies / Agent runs /
+  Rule coverage / Questionnaire answers rendered empty because row 216's sub-tab splice
+  silently no-opped a closing tag, nesting their panels inside the (hidden) panel-trends.
+  One `</div>` restored; a structural probe now asserts every top-level tabpanel is a
+  direct child of its screen container.
+
+- **Registry versioning made visible (row 218, user request)** — the agent and skill
+  registries gain a Version column (draft badge on un-curated artifacts) and a shared
+  version-history modal (active · superseded · retired · draft); registry saves bump a
+  patch version as an in-session draft. The unified versioning model (one lifecycle, each
+  kind pins its reproducibility set; run records cite the workflow · agent · skill triple)
+  is recorded in design.md §19.6.
+
+- **Agentic → Administration links RBAC-gated (row 217, user defect report)** — the
+  Gateways card's "30-day usage & health →" (and the Agents pager's "curation queue →")
+  bounced architect/migrator Home because Administration isn't in their RBAC views; both
+  links now carry `data-needs-view="config"` and are hidden for personas without the view,
+  rendered and working for admin/padmin.
+
+- **Reports → Trends: cards become sub-tabs (row 216, user request)** — the three stacked
+  Trends cards (Analysis diff / Trends / Wave burndown) are now sub-tabs under the Trends
+  top tab, following the incidents Insights sub-tab pattern. Deep-linkable via
+  `&tab=trends&sub=diff|trend|burn`; charts re-render on sub-tab activation so the burndown
+  measures its now-visible container; "Analysis diff" got exact dict keys in all 11 non-EN
+  locales. verify-burn re-pointed.
+
 - **Wave-gate chips: failing only (row 215, user request)** — the gate strips above the wave
   tabs (and the home card's port of them) now hide every green ✓ chip and list only failing
   (✕) and warning (⚠) conditions; an all-green wave shows a single "All gates green" chip so

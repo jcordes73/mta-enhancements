@@ -58,7 +58,9 @@ setTimeout(() => {
   w.skillSave();
 
   // ---- workflow stages builder ----
-  d.querySelector('#panel-ag-workflows .pf-m-primary').click();
+  /* row 221: the authoring card (New workflow → wfyaml drawer) now precedes the registry card —
+     target the registry's Create-workflow stages builder explicitly */
+  d.querySelector('#panel-ag-workflows button[onclick="agWfOpen()"]').click();
   OK('the workflow modal carries the live stages builder (starter row + Add stage + chaining alert)',
     d.querySelectorAll('#agWfStageList .wf-stage-row').length === 1
     && !!d.querySelector('#panel-ag-workflows ~ * , .pf-v6-c-backdrop') // noop guard

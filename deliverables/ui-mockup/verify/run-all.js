@@ -19,8 +19,11 @@ const jobsArg = args.find(a => a.startsWith('--jobs='));
 const onlyArg = args.find(a => a.startsWith('--only='));
 const jobs = jobsArg ? Math.max(1, parseInt(jobsArg.split('=')[1], 10) || 1) : Math.min(os.cpus().length, 6);
 /* row 214: raised 420s → 900s — the i18n suite takes ~14min standalone at 12 locales
-   (was ~8m19s at 11 in row 211, when 420s only failed under jobs=6 contention) */
-const SUITE_TIMEOUT_MS = 900000;
+   (was ~8m19s at 11 in row 211, when 420s only failed under jobs=6 contention).
+   row 240: raised 900s → 1500s — the i18n suite intermittently breaches the 900s cap under
+   6-job parallel load (measured 710s / 855s / 945.5s across consecutive batteries; the 945.5s
+   run failed on the cap, not on a translation), so the cap must clear the worst-case wall */
+const SUITE_TIMEOUT_MS = 1500000;
 
 let suites = fs.readdirSync(__dirname).filter(f => /^verify-.*\.js$/.test(f)).sort();
 if (onlyArg){

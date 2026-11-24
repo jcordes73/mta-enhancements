@@ -13,7 +13,7 @@ setTimeout(() => {
   const rule = [...d.styleSheets].some(ss => { try { return [...ss.cssRules].some(r => r.cssText && r.cssText.includes('.mh-group + .mh-group') && !r.cssText.includes('border-left')); } catch (e) { return false; } });
   OK('the masthead group rule no longer paints a border-left', rule);
   const mainRule = [...d.styleSheets].some(ss => { try { return [...ss.cssRules].some(r => r.selectorText === '.pf-v6-c-masthead__main' && r.style.flex === '0 0 auto'); } catch (e) { return false; } });
-  const contentAuto = [...d.styleSheets].some(ss => { try { return [...ss.cssRules].some(r => r.selectorText === '.pf-v6-c-masthead__content' && (r.style.marginInlineStart === 'auto' || r.style.cssText.includes('margin-inline-start:auto'))); } catch (e) { return false; } });
+  const contentAuto = [...d.styleSheets].some(ss => { try { return [...ss.cssRules].some(r => r.selectorText === '.pf-v6-c-masthead__content' && (r.style.getPropertyValue('margin-inline-start') === 'auto' || /margin-inline-start:\s*auto/.test(r.style.cssText))); } catch (e) { return false; } });
   OK('row 140: __main cannot shrink (brand overflow fix) and the content cluster right-aligns via margin-inline-start:auto', mainRule && contentAuto);
 
   // ---- the help menu carries the toggle as a menuitemcheckbox in its own group ----

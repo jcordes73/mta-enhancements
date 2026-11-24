@@ -28,15 +28,17 @@ setTimeout(() => {
   // masthead task shortcut follows the tasks view
   w.setPersona('architect', true);
   t('masthead task btn hidden for architect', btn('#taskQueueBtn').classList.contains('rbac-hidden'));
-  // ---- flat nav (user request: no "Administration" section header) ----
-  t('no Administration section header remains', !d.querySelector('.pf-v6-c-nav__section') && d.getElementById('nav-admin-title') === null);
-  t('nav is a single flat list', d.querySelectorAll('.pf-v6-c-nav__list').length === 1);
+  // ---- flat nav (user request: no "Administration" section header) — scoped to the GLOBAL
+  //      sidebar (row 234: the config screen's local sub-nav deliberately uses nav sections,
+  //      the user asked for "four left sub-navigations" there; the main sidebar stays flat) ----
+  t('no Administration section header remains in the sidebar', !d.querySelector('.pf-v6-c-page__sidebar .pf-v6-c-nav__section') && d.getElementById('nav-admin-title') === null);
+  t('sidebar nav is a single flat list', d.querySelectorAll('.pf-v6-c-page__sidebar .pf-v6-c-nav__list').length === 1);
   const mainList = d.querySelector('.pf-v6-c-nav__list');
   t('admin entries sit flat in the main list', mainList.contains(d.querySelector('.pf-v6-c-nav__link[data-screen="config"]'))
     && mainList.contains(d.querySelector('.pf-v6-c-nav__link[data-screen="tasks"]')));
   w.setPersona('pm', true);
   t('pm: flat nav shows Task manager without any header', navVisible() === EXPECT_NAV.pm
-    && !d.querySelector('.pf-v6-c-nav__section'));
+    && !d.querySelector('.pf-v6-c-page__sidebar .pf-v6-c-nav__section'));
   w.setPersona('pm', true);
   t('masthead task btn visible for pm', !btn('#taskQueueBtn').classList.contains('rbac-hidden'));
   t('pm tasks nav visible (admin-only class removed)', [...d.querySelectorAll('[data-screen="tasks"]')].every(l => !l.classList.contains('admin-only') || l.classList.contains('rbac-hidden')));
@@ -129,12 +131,12 @@ setTimeout(() => {
   w.setPersona('admin', true);
   t('admin: config reachable', (w.show('config', true), w.eval('state.scr') === 'config'));
   let ok = 0;
-  [...d.querySelectorAll('#scr-config > .pf-v6-c-tabs .pf-v6-c-tabs__link')].forEach(b => { b.click(); const p = d.getElementById(b.getAttribute('aria-controls')); if (p && !p.hidden) ok++; });
-  t('admin: config 8/8', ok === 8);
+  [...d.querySelectorAll('#cfgSubnav a[data-pane]')].forEach(a => { a.click(); const p = d.getElementById(a.dataset.pane); if (p && !p.hidden) ok++; });
+  t('admin: config 15/15 leaves (row 234: tabs dissolved into the left sub-nav)', ok === 15);
   w.show('agentic', true);
   ok = 0;
   [...d.querySelectorAll('#scr-agentic > .pf-v6-c-tabs .pf-v6-c-tabs__link')].forEach(b => { b.click(); const p = d.getElementById(b.getAttribute('aria-controls')); if (p && !p.hidden) ok++; });
-  t('admin: agentic 6/6', ok === 6);
+  t('admin: agentic 7/7 (row 220 adds the Agent cards tab)', ok === 7);
   t('admin: all verbs enabled', rbacBtns().filter(e => (e.tagName === 'BUTTON' || e.tagName === 'INPUT') && !(e.closest('.pf-v6-c-card') && e.closest('.pf-v6-c-card').dataset.rbac === 'tenants:read') && !e.closest('.lp-padmin') && e.id !== 'tab-ctrl-audit' && !e.hasAttribute('data-gate-disable')).every(b => !b.disabled));   /* tenants:* verbs are platform-admin-only (row 125: the guard moved from the orgs TAB to the organizations CARD + the audit sub-tab); data-gate-disable buttons carry the STATE-based queue gate (only Not started / Succeeded analyses queue — a Running app is unqueueable for every persona, so scope-enablement doesn't apply) */
   t('admin: agent registry create enabled', byScope('#scr-agentic', 'agents:create').every(b => !b.disabled));
 
@@ -188,15 +190,14 @@ setTimeout(() => {
   w.setPersona('admin', true);
   w.setOrg('mrd');
   t('tiers: org admin cannot switch organization', w.eval('state.org') === 'nwf');
-  w.show('config', true); w.cfgTabApply('controls');
-  d.getElementById('tab-ctrl-org').click();   /* row 125: Teams/Organizations/Departments consolidated into the Organization sub-tab */
+  w.show('config', true); w.cfgTabApply('org', 'org');   /* row 234: leaves replace the tab-ctrl-* buttons */
   t('tiers: org admin teams table = its org only (4)', d.querySelectorAll('#teamsBody tr').length === 4);
   t('tiers: organizations card disabled for org admin (row 125: card-level guard)', d.querySelector('#panel-ctrl-org .pf-v6-c-card[data-rbac="tenants:read"]').classList.contains('rbac-disabled'));
   w.setPersona('padmin', true);
   t('tiers: padmin nav matrix', navVisible() === EXPECT_NAV.padmin);
   t('tiers: padmin teams table = all orgs (6)', d.querySelectorAll('#teamsBody tr').length === 6);
   t('tiers: organizations card enabled for padmin', !d.querySelector('#panel-ctrl-org .pf-v6-c-card[data-rbac="tenants:read"]').classList.contains('rbac-disabled'));
-  d.getElementById('tab-ctrl-audit').click();   /* row 125: orgs table + audit trail live in the Audit trail sub-tab */
+  w.cfgTabApply('org', 'audit');   /* row 234: leaves replace the tab-ctrl-* buttons */
   t('tiers: orgs table lists 2 organizations', d.querySelectorAll('#orgsBody tr').length === 2);
   const auditBefore = d.querySelectorAll('#auditBody tr').length;
   w.setOrg('mrd');
@@ -271,7 +272,7 @@ setTimeout(() => {
   t('identities: team architect clamps to Claims (3 rows)', credRows().join(',') === 'gitlab-pat,nexus-mvn,svn-read-key');
   w.setArchLevel('org');
   w.show('config', true);
-  t('identities: hub tab is gone (8 tabs) — credentials promoted to a first-class view', w.eval('CFG_TABS.includes("credentials")') === false && !d.getElementById('tab-cfg-credentials'));
+  t('identities: hub tab is gone (row 233: 4 config sections) — credentials promoted to a first-class view', w.eval('CFG_TABS.includes("credentials")') === false && !d.getElementById('tab-cfg-credentials'));
   w.setPersona('padmin', true); w.setOrg('nwf');   /* pivot back — the org admin inherits the pivot target as its lock */
   w.setPersona('admin', true);
   w.show('credentials', true);

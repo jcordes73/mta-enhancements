@@ -78,12 +78,12 @@ setTimeout(() => {
 
   w.setPersona('admin', true); w.show('config');
   let ok = 0;
-  [...d.querySelectorAll('#scr-config > .pf-v6-c-tabs .pf-v6-c-tabs__link')].forEach(b => { b.click(); const p = d.getElementById(b.getAttribute('aria-controls')); if (p && !p.hidden) ok++; });
-  t('config 8/8', ok === 8);
+  [...d.querySelectorAll('#cfgSubnav a[data-pane]')].forEach(a => { a.click(); const p = d.getElementById(a.dataset.pane); if (p && !p.hidden) ok++; });
+  t('config 15/15 leaves (row 234: tabs dissolved into the left sub-nav)', ok === 15);
   w.showAgentic('agents');
   ok = 0;
   [...d.querySelectorAll('#scr-agentic > .pf-v6-c-tabs .pf-v6-c-tabs__link')].forEach(b => { b.click(); const p = d.getElementById(b.getAttribute('aria-controls')); if (p && !p.hidden) ok++; });
-  t('agentic 6/6', ok === 6);
+  t('agentic 7/7 (row 220 adds the Agent cards tab)', ok === 7);
   const ref = JSON.parse(fs.readFileSync(require('path').join(__dirname, 'inv-rows-reference-wp3.json'), 'utf8'));
   const norm = s => s.replace(/&middot;/g, '\u00b7').replace(/\s+/g, ' ').trim();
   const irows = [...d.querySelectorAll('#invBody tr')];

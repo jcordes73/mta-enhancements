@@ -84,9 +84,13 @@ setTimeout(() => {
   // Reports aggregate
   w.show('reports');
   w.eval('document.querySelector(\'[aria-controls="panel-trends"]\').click()');
+  /* row 216: the three Trends cards are sub-tabs — the aggregate burndown lives in the
+     Wave burndown sub-tab (default is Analysis diff); setTrendSub re-renders the chart
+     now that its panel is visible */
+  w.eval('document.getElementById("tab-trd-burn").click()');
   const agg = d.getElementById('waveBurnAll');
   const aggSvg = agg && agg.querySelector('svg[role="img"]');
-  OK('Reports → Trends carries the all-waves Wave burndown card (inside panel-trends, row 207)', !!aggSvg && d.getElementById('panel-trends').contains(d.getElementById('waveBurnAllCard')) && !d.getElementById('waveBurnAllCard').closest('[hidden]'));
+  OK('Reports → Trends → Wave burndown sub-tab carries the all-waves chart (row 207 + row 216 sub-tabs)', !!aggSvg && d.getElementById('panel-trends').contains(d.getElementById('waveBurnAllCard')) && !d.getElementById('panel-trd-burn').hidden && !d.getElementById('waveBurnAllCard').closest('[hidden]') && d.getElementById('panel-trd-diff').hidden);
   const aggDots = aggSvg ? [...aggSvg.querySelectorAll('circle')] : [];
   const aggActuals = aggSvg ? [...aggSvg.querySelectorAll('polyline')].filter(p => !p.getAttribute('style').includes('dasharray')) : [];
   const aggIdeals = aggSvg ? [...aggSvg.querySelectorAll('polyline')].filter(p => p.getAttribute('style').includes('dasharray')) : [];

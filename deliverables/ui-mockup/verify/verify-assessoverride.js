@@ -41,23 +41,24 @@ setTimeout(() => {
   // ---- Override proceeds to the questionnaire in dedicated mode ----
   w.assessGate('payments-api');
   w.assessOverrideProceed();
-  OK('Override closes the modal and opens the questionnaire drawer (Assessment — payments-api)',
+  OK('Override closes the modal and opens the questionnaire as a modal (Assessment — payments-api, row 231)',
     d.getElementById('modalAssessOverride').hidden
-    && !d.getElementById('drawerRoot').hidden
-    && d.getElementById('drawerBody').querySelector('h2').textContent.includes('Assessment — payments-api'));
-  const alert = d.getElementById('drawerBody').querySelector('.pf-v6-c-alert.pf-m-info');
+    && !d.getElementById('modalApp').hidden
+    && d.getElementById('drawerRoot').hidden
+    && d.getElementById('modalAppBody').querySelector('h2').textContent.includes('Assessment — payments-api'));
+  const alert = d.getElementById('modalAppBody').querySelector('.pf-v6-c-alert.pf-m-info');
   OK('dedicated-mode note: answers override the inherited assessments, the archetype baseline stays untouched (#45)',
     !!alert
     && alert.textContent.includes('Dedicated assessment')
     && alert.textContent.includes('override the inherited archetype assessment(s) for')
     && alert.textContent.includes('baseline stays untouched'));
   OK('the questionnaire keeps its inherited-risk context (row 180: Completed pill + version beside it)',
-    d.getElementById('drawerBody').textContent.includes('Completed')
-    && d.getElementById('drawerBody').textContent.includes('v3')
-    && !!d.getElementById('drawerBody').querySelector('.pf-v6-c-label.pf-m-green')
-    && d.getElementById('drawerBody').textContent.includes('inherited from archetype')
-    && !!d.getElementById('drawerBody').querySelector('table'));
-  OK('the drawer is deep-linked (state.drawer = assess)', w.eval('state.drawer') === 'assess');
+    d.getElementById('modalAppBody').textContent.includes('Completed')
+    && d.getElementById('modalAppBody').textContent.includes('v3')
+    && !!d.getElementById('modalAppBody').querySelector('.pf-v6-c-label.pf-m-green')
+    && d.getElementById('modalAppBody').textContent.includes('inherited from archetype')
+    && !!d.getElementById('modalAppBody').querySelector('table'));
+  OK('the questionnaire is deep-linked (state.drawer = assess)', w.eval('state.drawer') === 'assess');
 
   // ---- gate is generalizable (any archetype-carrying app) ----
   w.assessGate('claims-batch');
@@ -70,8 +71,8 @@ setTimeout(() => {
   w.closeDrawers();
   w.assessGate('payments-api');
   [...d.querySelectorAll('#modalAssessOverride .pf-v6-c-button')].find(b => b.textContent.trim() === 'Cancel').click();
-  OK('Cancel closes the modal without opening the drawer',
-    d.getElementById('modalAssessOverride').hidden && d.getElementById('drawerRoot').hidden);
+  OK('Cancel closes the modal without opening the questionnaire',
+    d.getElementById('modalAssessOverride').hidden && d.getElementById('modalApp').hidden && d.getElementById('drawerRoot').hidden);
 
   console.log(fail === 0 ? 'ALL PASS (' + pass + ')' : 'FAILURES: ' + fail);
   process.exit(fail === 0 ? 0 : 1);

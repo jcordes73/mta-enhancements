@@ -113,8 +113,13 @@ setTimeout(() => {
   const tokLink = [...d.querySelectorAll('a[onclick*="cfgTabApply"]')].find(a => a.textContent.trim() === 'Tokens');
   OK('the inert "rotate under Tokens" link routes to Config > Access (row-128 follow-up)', !!tokLink && (tokLink.getAttribute('onclick') || '').includes("show('config')"));
   tokLink.click();
-  OK('clicking it lands on the config screen with the Access tab active',
-    d.getElementById('scr-config').classList.contains('active') && !d.getElementById('panel-cfg-access').hidden && d.getElementById('tab-cfg-access').getAttribute('aria-selected') === 'true');
+  OK('clicking it lands on the config screen with the Access leaf active (row 234: left sub-nav)',
+    d.getElementById('scr-config').classList.contains('active') && !d.getElementById('panel-cfg-access').hidden
+    && d.querySelector('#cfgSubnav a[data-cfg-tab="access"]').getAttribute('aria-current') === 'page');
+  OK('and the Tokens card is the visible tab (row 239: cfgCardGo selects the Tokens card — row 240: card 4)',
+    !d.getElementById('cfgcp-access-4').hidden
+    && d.getElementById('cfgcp-access-4').textContent.includes('Tokens')
+    && d.getElementById('cfg-users').hidden);
 
   console.log(fail === 0 ? 'ALL PASS (' + pass + ')' : 'FAILURES: ' + fail);
   process.exit(fail === 0 ? 0 : 1);

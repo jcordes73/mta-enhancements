@@ -28,7 +28,7 @@ setTimeout(() => {
     && gateChipTxt.filter(t => /Tickets closed|No quota blocks|Verification green|Credentials ready|blocking incident/.test(t)).length >= 7
     && !gateChipTxt.some(t => t.includes('\u2713'))
     && /Wave 3/.test(archGates[0].textContent) && /blocked/.test(archGates[0].textContent)
-    && /Wave 4/.test(archGates[1].textContent) && /planned/.test(archGates[1].textContent)
+    && /Wave 4/.test(archGates[1].textContent) && /at risk/.test(archGates[1].textContent)   /* row 229: derived from waveGateFacts (was hardcoded 'planned' — the waves screen says blocked, pm home AT RISK) */
     && !/done/.test(d.getElementById('lpArchWaveGates').textContent)
     && archGates[0].querySelector('.gate-chip-btn[title*="Tickets closed"]').title.includes('2 ticket(s) still open'));
   // pm home strip
