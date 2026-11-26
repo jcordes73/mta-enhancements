@@ -1971,6 +1971,20 @@ A12 (use-case issue; extends the A11 wave-execution thread)._
   7. **Export/import across environments:** workflows are versioned artifacts
      that move dev → stage → prod and can be shared between teams — the
      portability Suggestion 17 asks for generators, applied to workflows.
+  8. **Workflow-level environment inheritance:** the workflow manifest
+     carries an `env` map applied to every agent in the workflow — one
+     place to set `HTTP_PROXY`/`NO_PROXY`, feature flags, or
+     tool-configuration paths for the whole sequence, instead of editing
+     each agent registration (or baking variables into forked agent
+     images, the workaround of record). Guardrails: a documented
+     precedence order — run `params` > workflow `env` > agent defaults,
+     so an individual run can still override; values validated against
+     the settings manifest (Suggestion 33 item 11), closing for this
+     surface the unvalidated free-text-params hole Suggestion 39 item 6
+     records; and secrets excluded by design — credentials ride the
+     token-exchange boundary of Suggestion 58 item 3, never environment
+     variables, so the env map is for non-secret configuration only and
+     renders redacted in the run record's environment view.
 - **Expected benefit:** The migration loop (plan → remediate → verify → gate
   → next wave) becomes expressible as the organization actually runs it,
   without forking product content: reviewable, versioned, auditable
