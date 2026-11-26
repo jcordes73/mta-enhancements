@@ -654,12 +654,32 @@ single source of truth for which settings exist, prevents.
 6. **A parity contract test:** keys rendered in the view ↔ keys served
    by `/settings` ↔ keys documented — a CI check in the same spirit as
    the UI-vs-static-report parity test.
+7. **Per-host TLS-exemption allowlist instead of all-or-none insecure
+   switches:** the git/SVN "consume insecure repositories" toggles are
+   global — every source host or none. Enterprises with a single
+   internal forge on a private CA (an air-gapped GitLab) cannot consume
+   from it without opening every repository to MITM, and the honest
+   alternative — attaching per-connection CA trust material — exists in
+   the codebase's own future (tackle2-hub#1015/#1141 pattern) but not
+   for source ingestion. Replace the boolean with a typed manifest
+   setting: a list of hosts (with port and scope — clone/push, mirroring
+   `http.sslVerify` semantics per URL prefix) whose certificates are
+   exempted, validated at save time (hostname format, no wildcards
+   beyond the documented ones), audited on change like any other
+   setting, and surfaced in the application record's connection view so
+   an analyst can see "this clone skips verification" before trusting
+   findings derived from it. The agent harness's clone/push (the
+   transport side is Suggestion 39) must honor the same allowlist so
+   classic ingestion and agentic runs behave identically for the same
+   repository record.
 
 **Acceptance:** every setting visible in the UI shows description,
 default, and valid values; saving an invalid value fails with a
 meaningful error; a settings change appears in the audit log with actor
 and before/after; settings hot-restart semantics are displayed; settings
-can be exported and re-imported into another instance.
+can be exported and re-imported into another instance; TLS exemptions
+are grantable per host (with scope and audit trail) rather than globally,
+and a repository whose clone skips verification is identifiable in the UI.
 ```
 
 ---
