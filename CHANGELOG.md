@@ -9,6 +9,11 @@ line per row) remains the detailed evidence record; this file is the
 what-changed-when index. Long-form design-system rules:
 [`deliverables/ui-mockup/design-system-rules.md`](deliverables/ui-mockup/design-system-rules.md).
 
+- **Per-host TLS-exemption allowlist in the mock (row 247, user follow-up)** — the Platform
+  settings card manages the allowlist filed as Route 2 issue 14 item 7: host + scope
+  (clone/push), validated and audited mutations, and an import-wizard alert that flags an
+  exempted connection at entry time.
+
 - **Container stack removed (2026-11-24)** — `deliverables/compose.yaml`, the two
   Containerfiles and nginx.conf are gone, and the docs no longer advertise a
   localhost compose stack: deliverables/README now runs the stack in dev mode

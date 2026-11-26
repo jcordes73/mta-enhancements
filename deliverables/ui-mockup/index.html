@@ -1729,6 +1729,11 @@
                     <div class="pf-v6-c-alert__title"><h4>Scheme requires a different credential kind</h4></div>
                     <div class="pf-v6-c-alert__description"><p><code>ssh://</code> requires an SSH-key credential; the selected credential is username/password. Also: agent runs clone over HTTPS only (agentic-controller#240) — suggest <code>https://</code> URL with a PAT.</p></div>
                   </div>
+                  <div class="pf-v6-c-alert pf-m-info pf-m-inline" role="status" id="wizTlsExempt" hidden>
+                    <div class="pf-v6-c-alert__icon" aria-hidden="true">&#8505;</div>
+                    <div class="pf-v6-c-alert__title"><h4>TLS verification is exempted for this host</h4></div>
+                    <div class="pf-v6-c-alert__description"><p id="wizTlsExemptText"></p></div>
+                  </div>
                   <div class="pf-v6-c-form__group" style="margin-top: var(--pf-t--global--spacer--md);">
                     <div class="pf-v6-c-form__group-label"><label class="pf-v6-c-form__label" for="repo-branch">Branch <span class="anno" data-tip="tackle2-hub#1177: branch resolved from the URL via git ls-remote — no more branch-typo analysis against the wrong tree">hub#1177</span></label></div>
                     <div class="pf-v6-c-form__group-control">
@@ -2398,6 +2403,13 @@
         <tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td">Insecure Git consumption</td><td class="pf-v6-c-table__td"><label class="pf-v6-c-switch" for="sw-git"><input class="pf-v6-c-switch__input" type="checkbox" id="sw-git"><span class="pf-v6-c-switch__toggle"></span><span class="pf-v6-c-switch__label pf-m-off" aria-hidden="true">off</span></label></td><td class="pf-v6-c-table__td">Permits HTTP/non-TLS Git sources — MITM exposure <span class="anno" data-tip="the Git/SVN view finding, folded into issue 14">R2-14</span></td><td class="pf-v6-c-table__td">next task</td><td class="pf-v6-c-table__td"><a href="#" onclick="return false">never changed</a></td></tr>
         <tr class="pf-v6-c-table__tr"><td class="pf-v6-c-table__td">Proxy (HTTP/HTTPS)</td><td class="pf-v6-c-table__td"><span class="pf-v6-c-label pf-m-teal"><span class="pf-v6-c-label__content"><span class="pf-v6-c-label__text">configured</span></span></span></td><td class="pf-v6-c-table__td">Egress proxy — scope display: task clones ✓ · tracker sync ✗ (hub#420) <span class="anno" data-tip="issue 16: scope display + exclusions + verify">R2-16</span></td><td class="pf-v6-c-table__td">next task</td><td class="pf-v6-c-table__td"><a href="#" onclick="return false">admin · 12d ago</a></td></tr>
         </tbody></table>
+          <div style="display:flex; align-items:center; gap: var(--rh-space-md); margin-top: var(--rh-space-lg); padding-top: var(--rh-space-md); border-top:1px solid var(--pf-t--global--border--color--default);">
+            <h3 class="pf-v6-c-title pf-m-md" style="margin:0;">TLS exemptions <span class="anno" data-tip="Route 2 issue 14 item 7: per-host allowlist instead of the all-or-none insecure switch — a typed, validated, audited setting; the import wizard surfaces an exemption on the affected connection">R2-14</span></h3>
+            <button class="pf-v6-c-button pf-m-secondary" type="button" onclick="openTlsExModal()" style="margin-left:auto;"><span class="pf-v6-c-button__text">Add exemption</span></button>
+          </div>
+          <table class="pf-v6-c-table pf-m-compact" role="grid" style="margin-top: var(--rh-space-md);"><thead><tr class="pf-v6-c-table__tr"><th class="pf-v6-c-table__th" scope="col">Host</th><th class="pf-v6-c-table__th" scope="col">Scope</th><th class="pf-v6-c-table__th" scope="col">Added <span class="anno" data-tip="issue 14: settings mutations produce audit records (actor, timestamp, before/after) — this column is that record's view">#42</span></th><th class="pf-v6-c-table__th" scope="col"></th></tr></thead>
+          <tbody id="tlsExBody"></tbody></table>
+          <div class="u-muted" style="margin-top: var(--rh-space-md);">Listed hosts skip TLS certificate verification for git clone/push (per-URL-prefix <code>http.sslVerify</code> semantics) — the import wizard flags an affected connection at entry time. Everything resolves but a host is missing? The global switch above stays off; grant the exemption here instead.</div>
         </div>
       </div>
       <div class="pf-v6-c-card" role="tabpanel" tabindex="0" aria-labelledby="cfgct-settings-2" id="cfgcp-settings-2" data-card="2" hidden>
@@ -3721,6 +3733,27 @@ artifacts:
     </div>
     <footer class="pf-v6-c-modal-box__footer">
       <button class="pf-v6-c-button pf-m-primary" type="button" onclick="tagCatSave()"><span class="pf-v6-c-button__text">Save</span></button>
+      <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
+    </footer>
+  </div>
+</div>
+<div class="pf-v6-c-backdrop" id="ctrlTlsExModal" hidden>
+  <div class="pf-v6-c-modal-box pf-m-sm" role="dialog" aria-modal="true" aria-labelledby="tlsex-title">
+    <div class="pf-v6-c-modal-box__header">
+      <h2 class="pf-v6-c-modal-box__title" id="tlsex-title"><span class="pf-v6-c-modal-box__title-text">Add TLS exemption</span></h2>
+      <button class="pf-v6-c-button pf-m-plain pf-v6-c-modal-box__close" type="button" aria-label="Close dialog" onclick="closeModals()"><span class="pf-v6-c-button__icon" aria-hidden="true">&#10005;</span></button>
+    </div>
+    <div class="pf-v6-c-modal-box__body">
+      <div class="pf-v6-c-form__group"><label class="pf-v6-c-form__label" for="tlsExHost"><span class="pf-v6-c-form__label-text">Host <span class="u-muted">(with optional port)</span></span></label>
+        <input type="hidden" id="tlsExEdit">
+        <input class="pf-v6-c-form-control" type="text" id="tlsExHost" placeholder="e.g. git.internal.example:8443">
+        <div class="pf-v6-c-helper-text"><p class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text">Hostname (no scheme, no path, no credentials) with an optional port — matches the repository URL's host.</span></p></div></div>
+      <div class="pf-v6-c-form__group" style="margin-top: var(--rh-space-md);"><label class="pf-v6-c-form__label" for="tlsExScope"><span class="pf-v6-c-form__label-text">Scope</span></label>
+        <select class="pf-v6-c-form-control" id="tlsExScope"><option value="clone">Clone</option><option value="clone+push">Clone + push</option></select></div>
+      <div class="pf-v6-c-helper-text pf-m-error" id="tlsExError" hidden><div class="pf-v6-c-helper-text__item"><span class="pf-v6-c-helper-text__item-text"></span></div></div>
+    </div>
+    <footer class="pf-v6-c-modal-box__footer">
+      <button class="pf-v6-c-button pf-m-primary" type="button" onclick="tlsExSave()"><span class="pf-v6-c-button__text">Save</span></button>
       <button class="pf-v6-c-button pf-m-link" type="button" onclick="closeModals()"><span class="pf-v6-c-button__text">Cancel</span></button>
     </footer>
   </div>
@@ -9247,6 +9280,13 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
      Tags card's category column, the tag modal's select and the guarded category delete
      all reference this list */
   const MOCK_TAG_CATEGORIES = ['Runtime', 'Framework', 'Build', 'Initiative', 'Workflow'];
+  /* row 247 (Route 2 issue 14 item 7): per-host TLS-exemption allowlist — the scoped
+     alternative to the all-or-none "Insecure Git consumption" switch; scope is clone/push
+     (http.sslVerify semantics per URL prefix), every mutation is audited (auditAdd) */
+  const MOCK_TLS_EXEMPTIONS = [
+    { host: 'git.nwind.internal', port: '8443', scope: 'clone+push', by: 'a.weber@northwind-financial.com', ts: '5d ago' },
+    { host: 'svn.meridian.local', port: '', scope: 'clone', by: 'root@example.com', ts: '12d ago' }
+  ];
   const MOCK_TAGS = [
     { name:'eap7', category:'Runtime' }, { name:'quarkus', category:'Runtime' },
     { name:'spring', category:'Framework' }, { name:'ant', category:'Build' },
@@ -10702,6 +10742,7 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       inv.menu.tags = inv.menu.tags.filter(v => MOCK_TAGS.some(x => x.name === v));
     }
     renderTagCats();
+    renderTlsEx();
   }
 
   /* row 241: the Tag categories card — managed category store with the tag-reference count;
@@ -10829,6 +10870,86 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
       btn.dataset.armed = '1';
       armDeleteBtn(btn, true);
     }
+  }
+  /* row 247: TLS-exemption allowlist — render, add/edit (validated), two-step delete;
+     every mutation appends to the audit trail (issue 14: settings changes are audited) */
+  function tlsExKey(e){ return e.host + ':' + (e.port || ''); }
+  function tlsExMatch(url){
+    if (!url) return null;
+    let rest = String(url).replace(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//, '');
+    rest = rest.replace(/^[^@\/]*@/, '');
+    const hostport = rest.split('/')[0] || '';
+    if (!hostport) return null;
+    const at = hostport.lastIndexOf(':');
+    const host = at > 0 ? hostport.slice(0, at) : hostport;
+    const port = at > 0 ? hostport.slice(at + 1) : '';
+    return MOCK_TLS_EXEMPTIONS.find(e => e.host === host && (!e.port || e.port === port)) || null;
+  }
+  function renderTlsEx(){
+    const body = document.getElementById('tlsExBody');
+    if (!body) return;
+    body.innerHTML = MOCK_TLS_EXEMPTIONS.map(e =>
+      '<tr class="pf-v6-c-table__tr" data-tlsex="' + tlsExKey(e) + '"><td class="pf-v6-c-table__td"><b>' + e.host + '</b>' + (e.port ? ':' + e.port : '') + '</td>' +
+      '<td class="pf-v6-c-table__td">' + (e.scope === 'clone+push' ? 'clone + push' : 'clone') + '</td>' +
+      '<td class="pf-v6-c-table__td"><span class="u-muted u-meta">added by ' + e.by + ' &middot; ' + e.ts + '</span></td>' +
+      '<td class="pf-v6-c-table__td">' + editIconBtn('openTlsExModal(\'' + tlsExKey(e) + '\')') + deleteIconBtn('tlsExDeleteArm(this, \'' + tlsExKey(e) + '\')') + '</td></tr>').join('');
+  }
+  function openTlsExModal(editKey){
+    closeMenus();
+    const e = editKey ? MOCK_TLS_EXEMPTIONS.find(x => tlsExKey(x) === editKey) : null;
+    document.getElementById('tlsex-title').textContent = e ? 'Edit TLS exemption' : 'Add TLS exemption';
+    document.getElementById('tlsExEdit').value = e ? tlsExKey(e) : '';
+    document.getElementById('tlsExHost').value = e ? (e.host + (e.port ? ':' + e.port : '')) : '';
+    document.getElementById('tlsExScope').value = e ? e.scope : 'clone';
+    document.getElementById('tlsExError').hidden = true;
+    openModal('ctrlTlsExModal');
+  }
+  function tlsExSave(){
+    const editKey = document.getElementById('tlsExEdit').value;
+    const raw = document.getElementById('tlsExHost').value.trim();
+    const scope = document.getElementById('tlsExScope').value;
+    const err = document.getElementById('tlsExError').querySelector('.pf-v6-c-helper-text__item-text');
+    const fail = m => { err.textContent = m; document.getElementById('tlsExError').hidden = false; };
+    if (!raw) return fail('Host is required.');
+    if (!/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)+(:\d{1,5})?$/.test(raw))
+      return fail('Enter a hostname (no scheme, no path, no credentials) with an optional port — e.g. git.internal.example or git.internal.example:8443.');
+    const at = raw.lastIndexOf(':');
+    const host = at > 0 ? raw.slice(0, at) : raw;
+    const port = at > 0 ? raw.slice(at + 1) : '';
+    if (port && (+port < 1 || +port > 65535)) return fail('Port must be between 1 and 65535.');
+    if (MOCK_TLS_EXEMPTIONS.some(x => x.host === host && (x.port || '') === port && tlsExKey(x) !== editKey))
+      return fail('An exemption for this host' + (port ? ':' + port : '') + ' already exists.');
+    if (editKey){
+      const e = MOCK_TLS_EXEMPTIONS.find(x => tlsExKey(x) === editKey);
+      const oldKey = tlsExKey(e);
+      e.host = host; e.port = port; e.scope = scope;
+      auditAdd('settings:tls-exemption', 'allowlist edit — ' + oldKey + ' \u2192 ' + tlsExKey(e) + ' (' + scope + ')');
+    } else {
+      MOCK_TLS_EXEMPTIONS.push({ host: host, port: port, scope: scope, by: (typeof PERSONA_LOGIN !== 'undefined' && PERSONA_LOGIN[state.persona]) || state.persona, ts: 'just now' });
+      auditAdd('settings:tls-exemption', 'allowlist add — ' + host + (port ? ':' + port : '') + ' (' + scope + ')');
+    }
+    renderTlsEx(); renderOrgs();
+    document.getElementById('ctrlTlsExModal').hidden = true;
+  }
+  function tlsExDeleteArm(btn, key){
+    if (btn.dataset.armed){
+      const e = MOCK_TLS_EXEMPTIONS.find(x => tlsExKey(x) === key);
+      MOCK_TLS_EXEMPTIONS.splice(MOCK_TLS_EXEMPTIONS.indexOf(e), 1);
+      auditAdd('settings:tls-exemption', 'allowlist remove — ' + key);
+      renderTlsEx(); renderOrgs();
+    } else {
+      btn.dataset.armed = '1';
+      armDeleteBtn(btn, true);
+    }
+  }
+  function tlsExHint(){
+    const box = document.getElementById('wizTlsExempt');
+    if (!box) return;
+    const e = tlsExMatch(document.getElementById('repo-url').value);
+    box.hidden = !e;
+    if (e) document.getElementById('wizTlsExemptText').innerHTML =
+      'The connection to <b>' + e.host + (e.port ? ':' + e.port : '') + '</b> skips TLS certificate verification (' + (e.scope === 'clone+push' ? 'clone + push' : 'clone') +
+      ') per the host allowlist (Platform settings \u2192 TLS exemptions, added by ' + e.by + ') \u2014 findings from this source carry that caveat.';
   }
   function tagCascade(){
     renderCtrlStatic();
@@ -13206,8 +13327,10 @@ document.querySelectorAll('#langMenu [data-lang]').forEach((b) => b.addEventList
     const nx = document.getElementById('wizNext');
     nx.disabled = n === 3; // step 3 has the blocking validation error
     nx.querySelector('.pf-v6-c-button__text').textContent = n === 3 ? 'Next — fix the errors above' : 'Next';
+    if (n === 3) tlsExHint();
     if (!fromInit) syncHash();
   }
+  document.getElementById('repo-url').addEventListener('input', tlsExHint);
   document.querySelectorAll('#wizNav [data-step]').forEach(a =>
     a.addEventListener('click', e => { e.preventDefault(); gotoStep(+a.dataset.step); }));
 
