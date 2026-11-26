@@ -9,11 +9,18 @@ Animated guided tour of the console mock, generated from `deliverables/ui-mockup
 | `mta-mock-tour.gif`  | GIF, 1280×720, looped | ~61 s | ~1.9 MB |
 | `mta-mock-tour-nl.webm` | VP9 video, 1280×720 (Dutch UI) | ~64 s | |
 | `mta-mock-tour-nl.gif`  | GIF, 1280×720, looped (Dutch UI) | ~61 s | |
+| `mta-mock-tour-es.webm` | VP9 video, 1280×720 (Spanish UI) | ~64 s | |
+| `mta-mock-tour-es.gif`  | GIF, 1280×720, looped (Spanish UI) | ~61 s | |
 
 ## Tour (Northwind Financial org, English, light scheme — one persona at a time)
 
 The Dutch tour (`mta-mock-tour-nl.*`) follows the same 13 scenes with the UI,
 captions, and bubbles in Dutch (`&lang=nl` on every deep link).
+
+The Spanish tour (`mta-mock-tour-es.*`, row 248) follows the same 13 scenes with
+the UI, captions, and bubbles in Spanish (`&lang=es` on every deep link; persona
+badges use the mock's es terms *Migrador* / *Director de proyectos* /
+*Director de programa*).
 
 **General** — *"A short introduction"*
 
@@ -66,11 +73,10 @@ the caption bar). Both appear on the scene's final motion frame and hold — the
 moment the "click" happens. Scenes without a click (title/outro, the boot Home,
 and the modal that *is* the click's result) carry none.
 
-Regenerate: `demos/mock/make-demo.sh` (English, default) or `demos/mock/make-demo.sh nl`
-for the Dutch tour — same scenes, but every scene boots the mock with `&lang=nl`
-(row 211: full Dutch UI, including the click bubbles, captions, and title/outro
-cards in Dutch; persona badges use the mock's nl terms *Projectmanager* /
-*Programmamanager*) and writes `mta-mock-tour-nl.{gif,webm}`. Edit the `scenes`
+Regenerate: `demos/mock/make-demo.sh` (English, default), `demos/mock/make-demo.sh nl`
+for the Dutch tour (row 211 — same scenes, every scene boots the mock with `&lang=nl`,
+writes `mta-mock-tour-nl.{gif,webm}`), or `demos/mock/make-demo.sh es` for the Spanish
+tour (row 248 — `&lang=es`, writes `mta-mock-tour-es.{gif,webm}`). Edit the `scenes`
 array there to change the tour (any deep-link state works: `&lang=ar`,
 `&scheme=dark`, `&persona=padmin`, `&anno=1`, …; the third field is the optional
 click-selector marker, URL-encoded; the fourth the bubble text).

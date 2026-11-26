@@ -1,8 +1,8 @@
 #!/bin/bash
 # Regenerates mta-mock-tour.gif / mta-mock-tour.webm from ui-mockup/index.html.
 # Every scene carries a caption overlay naming the screen and what to notice.
-# Usage: make-demo.sh [en|nl]  — nl renders the tour with &lang=nl deep links,
-# Dutch captions/bubbles/cards and -nl output filenames (row 211).
+# Usage: make-demo.sh [en|nl|es]  — nl/es render the tour with &lang=nl / &lang=es deep
+# links, translated captions/bubbles/cards and -nl / -es output filenames (rows 211/248).
 # Requirements: google-chrome (headless), python3 + Pillow, ffmpeg, Red Hat fonts
 # (/usr/share/fonts/redhat). Run from any directory; writes frames to /tmp.
 set -euo pipefail
@@ -10,7 +10,8 @@ LANG_ARG="${1:-en}"
 case "$LANG_ARG" in
   en) SUF="";;
   nl) SUF="-nl";;
-  *) echo "unsupported locale '$LANG_ARG' (en|nl)"; exit 1;;
+  es) SUF="-es";;
+  *) echo "unsupported locale '$LANG_ARG' (en|nl|es)"; exit 1;;
 esac
 OUT="$(cd "$(dirname "$0")" && pwd)"   # demos/mock/
 cd "$(dirname "$0")/../../deliverables/ui-mockup"   # read index.html + write nothing here
@@ -123,10 +124,10 @@ scenes=(
   "pgm-tasks|scr=tasks&persona=pgm&org=nwf|%5Bdata-screen%3D%22tasks%22%5D|Opens the task manager — the escalation surface for shared platform work.|0 130 260 390 520 640"
 )
 : > "$WORK/manifest.txt"
-# nl: every scene boots the mock in Dutch via the &lang= deep link (deep link
+# nl/es: every scene boots the mock in that language via the &lang= deep link (deep link
 # wins over persisted state — same precedence the mock gives lang everywhere)
-LANGQ=""; [ "$LANG_ARG" = nl ] && LANGQ="&lang=nl"
-# nl bubble texts (scene-name → text); EN bubbles stay in the scenes array
+LANGQ=""; case "$LANG_ARG" in nl|es) LANGQ="&lang=$LANG_ARG";; esac
+# nl/es bubble texts (scene-name → text); EN bubbles stay in the scenes array
 declare -A BUB_OVR=()
 if [ "$LANG_ARG" = nl ]; then
   BUB_OVR[arch-inventory]="Opent de applicatie-inventaris — de centrale administratie."
@@ -139,6 +140,18 @@ if [ "$LANG_ARG" = nl ]; then
   BUB_OVR[pgm-home]="Schakelt naar de programmamanager — org-breed bereik."
   BUB_OVR[pgm-waves]="Opent de cross-team samenstellingskaart — golven die meer dan één team beslaan."
   BUB_OVR[pgm-tasks]="Opent de taakbeheerder — het escalatie-oppervlak voor gedeeld platformwerk."
+fi
+if [ "$LANG_ARG" = es ]; then
+  BUB_OVR[arch-inventory]="Abre el inventario de aplicaciones — el registro único de datos."
+  BUB_OVR[arch-waves]="Abre Olas de migración — composición, gates y la línea de tiempo planificado vs. real."
+  BUB_OVR[mig-home]="Cambia al migrador — el alcance se fija al equipo Claims."
+  BUB_OVR[mig-incidents]="Abre la cola de triage — la superficie de trabajo diaria del migrador."
+  BUB_OVR[pm-home]="Cambia al director de proyectos — solo lectura y fijado al equipo."
+  BUB_OVR[pm-waves]="Abre Olas de migración — las cifras para la revisión de programa."
+  BUB_OVR[pm-reports]="Abre Informes — rollups de esfuerzo y progreso, acotados al equipo."
+  BUB_OVR[pgm-home]="Cambia al director de programa — alcance de toda la organización."
+  BUB_OVR[pgm-waves]="Abre la tarjeta de composición entre equipos — olas que abarcan más de un equipo."
+  BUB_OVR[pgm-tasks]="Abre el gestor de tareas — la superficie de escalado para el trabajo de plataforma compartido."
 fi
 for s in "${scenes[@]}"; do
   name="${s%%|*}"; rest="${s#*|}"; hash="${rest%%|*}"; rest="${rest#*|}"; click="${rest%%|*}"; rest="${rest#*|}"; bubble="${rest%%|*}"; steps="${rest#*|}"
@@ -227,6 +240,15 @@ if lang == 'nl':
     card([("Probeer het zelf",f1,WHITE),
           ("ui-mockup/index.html — deep-linkable: #scr=…&persona=…&lang=…&scheme=…",f3,GRAY),
           ("elk frame hierboven is een echte render van de mock",f3,GRAY)]).save(work+'/frames/card_outro.png')
+elif lang == 'es':
+    card([("Migration Toolkit for Applications",f1,WHITE),
+          ("Mockup de UI — tour guiado por rol",f2,GRAY),
+          ("Northwind Financial · arquitecto \u203a migrador \u203a director de proyectos \u203a director de programa",f3,GRAY),
+          ("PatternFly 6.7.0 real · 11 idiomas · claro/oscuro · acotado por tenencia",f3,GRAY)]
+         ).save(work+'/frames/card_title.png')
+    card([("Pruébalo tú mismo",f1,WHITE),
+          ("ui-mockup/index.html — enlazable: #scr=…&persona=…&lang=…&scheme=…",f3,GRAY),
+          ("cada fotograma de arriba es un render real del mock",f3,GRAY)]).save(work+'/frames/card_outro.png')
 else:
     card([("Migration Toolkit for Applications",f1,WHITE),
           ("UI mockup — role-based guided tour",f2,GRAY),
@@ -296,7 +318,37 @@ TOUR_NL = [
     ("pgm-tasks", 6, "Programmamanager", "Taakbeheerder \u2014 gedeeld platformwerk",
      "Quotablokkades en platformtaken (#30/#38) raken meerdere teams tegelijk; de wachtrij is het escalatieoppervlak."),
 ]
-TOUR = TOUR_NL if lang == 'nl' else TOUR_EN
+
+# es tour (row 248): persona badges use the mock's own es terms (Migrador, Director de
+# proyectos, Director de programa); suggestion refs (#4/#32/…) stay as-is — annotations
+# are locale-neutral; loanwords (gate, run, tracker, rollup) follow the es dict
+TOUR_ES = [
+    ("arch-home", 5, "Arquitecto", "Salud del portafolio de un vistazo",
+     "La página de inicio de toda la organización del arquitecto: rollup de esfuerzo (#4), riesgo combinado (#32) y cobertura de análisis \u2014 \u00ab\u00bfDónde duele el portafolio?\u00bb respondido antes de cualquier clic."),
+    ("arch-inventory", 6, "Arquitecto", "Aplicaciones \u2014 el inventario",
+     "La única fuente de verdad: filtra por riesgo o estado de análisis (#2), ordena por esfuerzo (#4), asignación a olas y procedencia del riesgo (#32) en cada fila."),
+    ("arch-waves", 7, "Arquitecto", "Olas de migración \u2014 planificación y gates",
+     "Composición de olas con gates y línea de tiempo (#46): planificado vs. real, el gate bloqueado por cuota (#38) y el gasto de agentes por ola (#20)."),
+    ("mig-home", 5, "Migrador", "Una página de inicio fijada al equipo",
+     "Cambiado al migrador \u2014 alcance fijado al equipo Claims (#41): asignaciones y mi trabajo primero, sin ruido del portafolio, sin entradas de Administración."),
+    ("mig-incidents", 6, "Migrador", "Incidencias \u2014 la cola de triage",
+     "La superficie de trabajo diaria del migrador: estados de triage escribibles (confirmado / falso positivo / no es un problema, #33), filtros en vivo, orden y paginación."),
+    ("mig-modal", 4, "Migrador", "Detalle de triage",
+     "Regla, estado de sincronización con el tracker (#37), cohorte de arquetipo e historial de triage \u2014 resolver, marcar falso positivo o asignar a un grupo de agentes."),
+    ("pm-home", 5, "Director de proyectos", "La página del director de proyectos",
+     "Solo lectura y fijado al equipo: la línea de tiempo de olas y lo que está en riesgo encabezan la página (#36/#46). Los verbos de mutación están ausentes por RBAC."),
+    ("pm-waves", 6, "Director de proyectos", "Olas de migración \u2014 línea de tiempo y gates",
+     "Desde el puesto del director de proyectos: planificado vs. real por ola y estados de gate (#46) \u2014 las cifras para la revisión de programa."),
+    ("pm-reports", 6, "Director de proyectos", "Informes \u2014 esfuerzo y progreso",
+     "Rollup de esfuerzo por servicio de negocio (#4) y rollups de ejecución de olas (#46), acotados al equipo del director de proyectos."),
+    ("pgm-home", 5, "Director de programa", "La página del director de programa",
+     "Coordinación de toda la organización primero (#36/#41): equipos en el ámbito, olas que abarcan más de un equipo, bloqueos compartidos."),
+    ("pgm-waves", 6, "Director de programa", "Olas de migración \u2014 composición entre equipos",
+     "La tarjeta de coordinación lista los equipos que contribuyen a cada ola y marca las olas entre equipos \u2014 las conversaciones de ventana de cambios que dirige un director de programa."),
+    ("pgm-tasks", 6, "Director de programa", "Gestor de tareas \u2014 trabajo de plataforma compartido",
+     "Los bloqueos de cuota y las tareas de plataforma (#30/#38) afectan a varios equipos a la vez; la cola es la superficie de escalado."),
+]
+TOUR = TOUR_NL if lang == 'nl' else (TOUR_ES if lang == 'es' else TOUR_EN)
 MOTION, HOLD, TITLE, OUTRO = 320, 2800, 3000, 2800
 
 persona_tot, persona_idx = {}, {}

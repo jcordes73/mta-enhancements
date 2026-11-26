@@ -9,6 +9,12 @@ line per row) remains the detailed evidence record; this file is the
 what-changed-when index. Long-form design-system rules:
 [`deliverables/ui-mockup/design-system-rules.md`](deliverables/ui-mockup/design-system-rules.md).
 
+- **Spanish demo tour + ES parity for the tour surfaces (row 248, user request)** — `make-demo.sh es`
+  renders the guided tour with `&lang=es` (Spanish UI, captions, bubbles, cards) as
+  `mta-mock-tour-es.{webm,gif}`; the ES locale gained the chrome strings the tour exposes
+  (persona-landing KPI cards, pgm coordination strips, triage drawer, quick links), mirrored
+  into ui-react's i18n.ts.
+
 - **Per-host TLS-exemption allowlist in the mock (row 247, user follow-up)** — the Platform
   settings card manages the allowlist filed as Route 2 issue 14 item 7: host + scope
   (clone/push), validated and audited mutations, and an import-wizard alert that flags an
